@@ -23,9 +23,8 @@ resource "dnsimple_record" "foobar" {
 }
 ```
 
-## Add a record to a sub-domain
 ```
-# Add a record to the domain
+# Add a record to a sub-domain
 resource "dnsimple_record" "foobar" {
 	domain = "${var.dnsimple_domain}"
 	name = "terraform"
