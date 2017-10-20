@@ -33,6 +33,10 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 
+		DataSourcesMap: map[string]*schema.Resource{
+			"dnsimple_certificate": dataSourceDNSimpleCertificate(),
+		},
+
 		ResourcesMap: map[string]*schema.Resource{
 			"dnsimple_record": resourceDNSimpleRecord(),
 		},
