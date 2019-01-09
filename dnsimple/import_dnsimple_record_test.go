@@ -17,10 +17,10 @@ func TestAccDnsimpleRecord_import(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSimpleRecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testAccCheckDNSimpleRecordConfig_import, domain),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        resourceName,
 				ImportState:         true,
 				ImportStateVerify:   true,
