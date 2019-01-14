@@ -24,6 +24,19 @@ func TestProvider(t *testing.T) {
 	}
 }
 
+func TestProvider_sandbox(t *testing.T) {
+	if v := os.Getenv("DNSIMPLE_SANDBOX"); v != "" {
+		provider := testAccProvider.Meta().(*Client)
+		if provider.config.Sandbox != true {
+			t.Fatal("Config Sandbox Flag does not equal True!")
+		}
+
+		if provider.client.BaseURL != "https://api.sandbox.dnsimple.com" {
+			t.Fatalf("Client.BaseURL is not the expected sandbox URL! Currently set to: %s", provider.client.BaseURL)
+		}
+	}
+}
+
 func TestProvider_impl(t *testing.T) {
 	var _ terraform.ResourceProvider = Provider()
 }
