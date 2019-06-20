@@ -1,8 +1,8 @@
-## 0.2.0 (Unreleased)
+## 0.2.0 (June 20, 2019)
 
 NOTES:
 
-* This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. The provider remains backwards compatible with Terraform v0.11 and there should not be any significant behavioural changes. [GH-16]
+* This release includes a Terraform SDK upgrade with compatibility for Terraform v0.12. The provider remains backwards compatible with Terraform v0.11 and there should not be any significant behavioural changes. ([#16](https://github.com/terraform-providers/terraform-provider-dnsimple/issues/16))
 
 ## 0.1.0 (June 20, 2017)
 
