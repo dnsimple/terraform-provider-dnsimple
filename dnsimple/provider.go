@@ -2,14 +2,15 @@ package dnsimple
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // Provider returns a terraform.ResourceProvider.
 func Provider() terraform.ResourceProvider {
-	return &schema.Provider{
+	p := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"email": {
 				Type:        schema.TypeString,
@@ -36,12 +37,21 @@ func Provider() terraform.ResourceProvider {
 		ResourcesMap: map[string]*schema.Resource{
 			"dnsimple_record": resourceDNSimpleRecord(),
 		},
-
-		ConfigureFunc: providerConfigure,
 	}
+	p.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
+		terraformVersion := p.TerraformVersion
+		if terraformVersion == "" {
+			// Terraform 0.12 introduced this field to the protocol
+			// We can therefore assume that if it's missing it's 0.10 or 0.11
+			terraformVersion = "0.11+compatible"
+		}
+		return providerConfigure(d, terraformVersion)
+	}
+
+	return p
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
 	// DNSimple API v1 requires email+token to authenticate.
 	// DNSimple API v2 requires only an OAuth token and in this particular case
 	// the reference of the account for API operations (to avoid fetching it in real time).
@@ -55,8 +65,9 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	config := Config{
-		Token:   d.Get("token").(string),
-		Account: d.Get("account").(string),
+		Token:     d.Get("token").(string),
+		Account:   d.Get("account").(string),
+		UserAgent: fmt.Sprintf("HashiCorp-Terraform/%s", terraformVersion),
 	}
 
 	return config.Client()
