@@ -1,16 +1,17 @@
 package dnsimple
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 type Config struct {
-	Email   string
-	Account string
-	Token   string
+	Email            string
+	Account          string
+	Token            string
+	terraformVersion string
 }
 
 // Client represents the DNSimple provider client.
@@ -20,10 +21,10 @@ type Client struct {
 	config *Config
 }
 
-// Client() returns a new client for accessing dnsimple.
+// Client returns a new client for accessing dnsimple.
 func (c *Config) Client() (*Client, error) {
 	client := dnsimple.NewClient(dnsimple.NewOauthTokenCredentials(c.Token))
-	client.UserAgent = "HashiCorp-Terraform/" + terraform.VersionString()
+	client.UserAgent = fmt.Sprintf("HashiCorp-Terraform/%s", c.terraformVersion)
 
 	provider := &Client{
 		client: client,
