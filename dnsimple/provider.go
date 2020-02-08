@@ -2,7 +2,6 @@ package dnsimple
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -65,9 +64,9 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	}
 
 	config := Config{
-		Token:     d.Get("token").(string),
-		Account:   d.Get("account").(string),
-		UserAgent: fmt.Sprintf("HashiCorp-Terraform/%s", terraformVersion),
+		Token:            d.Get("token").(string),
+		Account:          d.Get("account").(string),
+		terraformVersion: terraformVersion,
 	}
 
 	return config.Client()
