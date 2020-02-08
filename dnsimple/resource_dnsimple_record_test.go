@@ -188,7 +188,7 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 			continue
 		}
 
-		recordID, _ := strconv.Atoi(rs.Primary.ID)
+		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		_, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err == nil {
 			return fmt.Errorf("Record still exists")
@@ -234,7 +234,7 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 
 		provider := testAccProvider.Meta().(*Client)
 
-		recordID, _ := strconv.Atoi(rs.Primary.ID)
+		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
 		resp, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err != nil {
 			return err

@@ -1,10 +1,12 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"golang.org/x/oauth2"
 )
 
 type Config struct {
@@ -23,7 +25,10 @@ type Client struct {
 
 // Client returns a new client for accessing dnsimple.
 func (c *Config) Client() (*Client, error) {
-	client := dnsimple.NewClient(dnsimple.NewOauthTokenCredentials(c.Token))
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: c.Token})
+	tc := oauth2.NewClient(context.Background(), ts)
+
+	client := dnsimple.NewClient(tc)
 	client.UserAgent = fmt.Sprintf("HashiCorp-Terraform/%s", c.terraformVersion)
 
 	provider := &Client{

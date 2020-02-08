@@ -92,7 +92,7 @@ func resourceDNSimpleRecordCreate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Failed to create DNSimple Record: %s", err)
 	}
 
-	d.SetId(strconv.Itoa(resp.Data.ID))
+	d.SetId(strconv.FormatInt(resp.Data.ID, 10))
 	log.Printf("[INFO] DNSimple Record ID: %s", d.Id())
 
 	return resourceDNSimpleRecordRead(d, meta)
@@ -101,14 +101,14 @@ func resourceDNSimpleRecordCreate(d *schema.ResourceData, meta interface{}) erro
 func resourceDNSimpleRecordRead(d *schema.ResourceData, meta interface{}) error {
 	provider := meta.(*Client)
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
 
 	resp, err := provider.client.Zones.GetRecord(provider.config.Account, d.Get("domain").(string), recordID)
 	if err != nil {
-		if err != nil && strings.Contains(err.Error(), "404") {
+		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Record Not Found - Refreshing from State")
 			d.SetId("")
 			return nil
@@ -136,7 +136,7 @@ func resourceDNSimpleRecordRead(d *schema.ResourceData, meta interface{}) error 
 func resourceDNSimpleRecordUpdate(d *schema.ResourceData, meta interface{}) error {
 	provider := meta.(*Client)
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
@@ -175,7 +175,7 @@ func resourceDNSimpleRecordDelete(d *schema.ResourceData, meta interface{}) erro
 
 	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", d.Get("domain").(string), d.Id())
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(d.Id(), 10, 64)
 	if err != nil {
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
