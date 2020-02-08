@@ -14,8 +14,8 @@ type ZonesService struct {
 
 // Zone represents a Zone in DNSimple.
 type Zone struct {
-	ID        int    `json:"id,omitempty"`
-	AccountID int    `json:"account_id,omitempty"`
+	ID        int64  `json:"id,omitempty"`
+	AccountID int64  `json:"account_id,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Reverse   bool   `json:"reverse,omitempty"`
 	CreatedAt string `json:"created_at,omitempty"`
@@ -27,6 +27,24 @@ type ZoneFile struct {
 	Zone string `json:"zone,omitempty"`
 }
 
+// zoneResponse represents a response from an API method that returns a Zone struct.
+type zoneResponse struct {
+	Response
+	Data *Zone `json:"data"`
+}
+
+// zonesResponse represents a response from an API method that returns a collection of Zone struct.
+type zonesResponse struct {
+	Response
+	Data []Zone `json:"data"`
+}
+
+// zoneFileResponse represents a response from an API method that returns a ZoneFile struct.
+type zoneFileResponse struct {
+	Response
+	Data *ZoneFile `json:"data"`
+}
+
 // ZoneListOptions specifies the optional parameters you can provide
 // to customize the ZonesService.ListZones method.
 type ZoneListOptions struct {
@@ -36,30 +54,12 @@ type ZoneListOptions struct {
 	ListOptions
 }
 
-// ZoneResponse represents a response from an API method that returns a Zone struct.
-type ZoneResponse struct {
-	Response
-	Data *Zone `json:"data"`
-}
-
-// ZonesResponse represents a response from an API method that returns a collection of Zone struct.
-type ZonesResponse struct {
-	Response
-	Data []Zone `json:"data"`
-}
-
-// ZoneFileResponse represents a response from an API method that returns a ZoneFile struct.
-type ZoneFileResponse struct {
-	Response
-	Data *ZoneFile `json:"data"`
-}
-
 // ListZones the zones for an account.
 //
 // See https://developer.dnsimple.com/v2/zones/#list
-func (s *ZonesService) ListZones(accountID string, options *ZoneListOptions) (*ZonesResponse, error) {
+func (s *ZonesService) ListZones(accountID string, options *ZoneListOptions) (*zonesResponse, error) {
 	path := versioned(fmt.Sprintf("/%v/zones", accountID))
-	zonesResponse := &ZonesResponse{}
+	zonesResponse := &zonesResponse{}
 
 	path, err := addURLQueryOptions(path, options)
 	if err != nil {
@@ -78,9 +78,9 @@ func (s *ZonesService) ListZones(accountID string, options *ZoneListOptions) (*Z
 // GetZone fetches a zone.
 //
 // See https://developer.dnsimple.com/v2/zones/#get
-func (s *ZonesService) GetZone(accountID string, zoneName string) (*ZoneResponse, error) {
+func (s *ZonesService) GetZone(accountID string, zoneName string) (*zoneResponse, error) {
 	path := versioned(fmt.Sprintf("/%v/zones/%v", accountID, zoneName))
-	zoneResponse := &ZoneResponse{}
+	zoneResponse := &zoneResponse{}
 
 	resp, err := s.client.get(path, zoneResponse)
 	if err != nil {
@@ -94,9 +94,9 @@ func (s *ZonesService) GetZone(accountID string, zoneName string) (*ZoneResponse
 // GetZoneFile fetches a zone file.
 //
 // See https://developer.dnsimple.com/v2/zones/#get-file
-func (s *ZonesService) GetZoneFile(accountID string, zoneName string) (*ZoneFileResponse, error) {
+func (s *ZonesService) GetZoneFile(accountID string, zoneName string) (*zoneFileResponse, error) {
 	path := versioned(fmt.Sprintf("/%v/zones/%v/file", accountID, zoneName))
-	zoneFileResponse := &ZoneFileResponse{}
+	zoneFileResponse := &zoneFileResponse{}
 
 	resp, err := s.client.get(path, zoneFileResponse)
 	if err != nil {

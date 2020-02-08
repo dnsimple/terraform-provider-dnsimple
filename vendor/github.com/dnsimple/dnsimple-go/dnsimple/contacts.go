@@ -14,8 +14,8 @@ type ContactsService struct {
 
 // Contact represents a Contact in DNSimple.
 type Contact struct {
-	ID            int    `json:"id,omitempty"`
-	AccountID     int    `json:"account_id,omitempty"`
+	ID            int64  `json:"id,omitempty"`
+	AccountID     int64  `json:"account_id,omitempty"`
 	Label         string `json:"label,omitempty"`
 	FirstName     string `json:"first_name,omitempty"`
 	LastName      string `json:"last_name,omitempty"`
@@ -34,7 +34,7 @@ type Contact struct {
 	UpdatedAt     string `json:"updated_at,omitempty"`
 }
 
-func contactPath(accountID string, contactID int) (path string) {
+func contactPath(accountID string, contactID int64) (path string) {
 	path = fmt.Sprintf("/%v/contacts", accountID)
 	if contactID != 0 {
 		path += fmt.Sprintf("/%v", contactID)
@@ -42,14 +42,14 @@ func contactPath(accountID string, contactID int) (path string) {
 	return
 }
 
-// ContactResponse represents a response from an API method that returns a Contact struct.
-type ContactResponse struct {
+// contactResponse represents a response from an API method that returns a Contact struct.
+type contactResponse struct {
 	Response
 	Data *Contact `json:"data"`
 }
 
-// ContactsResponse represents a response from an API method that returns a collection of Contact struct.
-type ContactsResponse struct {
+// contactsResponse represents a response from an API method that returns a collection of Contact struct.
+type contactsResponse struct {
 	Response
 	Data []Contact `json:"data"`
 }
@@ -57,9 +57,9 @@ type ContactsResponse struct {
 // ListContacts list the contacts for an account.
 //
 // See https://developer.dnsimple.com/v2/contacts/#list
-func (s *ContactsService) ListContacts(accountID string, options *ListOptions) (*ContactsResponse, error) {
+func (s *ContactsService) ListContacts(accountID string, options *ListOptions) (*contactsResponse, error) {
 	path := versioned(contactPath(accountID, 0))
-	contactsResponse := &ContactsResponse{}
+	contactsResponse := &contactsResponse{}
 
 	path, err := addURLQueryOptions(path, options)
 	if err != nil {
@@ -78,9 +78,9 @@ func (s *ContactsService) ListContacts(accountID string, options *ListOptions) (
 // CreateContact creates a new contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#create
-func (s *ContactsService) CreateContact(accountID string, contactAttributes Contact) (*ContactResponse, error) {
+func (s *ContactsService) CreateContact(accountID string, contactAttributes Contact) (*contactResponse, error) {
 	path := versioned(contactPath(accountID, 0))
-	contactResponse := &ContactResponse{}
+	contactResponse := &contactResponse{}
 
 	resp, err := s.client.post(path, contactAttributes, contactResponse)
 	if err != nil {
@@ -94,9 +94,9 @@ func (s *ContactsService) CreateContact(accountID string, contactAttributes Cont
 // GetContact fetches a contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#get
-func (s *ContactsService) GetContact(accountID string, contactID int) (*ContactResponse, error) {
+func (s *ContactsService) GetContact(accountID string, contactID int64) (*contactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
-	contactResponse := &ContactResponse{}
+	contactResponse := &contactResponse{}
 
 	resp, err := s.client.get(path, contactResponse)
 	if err != nil {
@@ -110,9 +110,9 @@ func (s *ContactsService) GetContact(accountID string, contactID int) (*ContactR
 // UpdateContact updates a contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#update
-func (s *ContactsService) UpdateContact(accountID string, contactID int, contactAttributes Contact) (*ContactResponse, error) {
+func (s *ContactsService) UpdateContact(accountID string, contactID int64, contactAttributes Contact) (*contactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
-	contactResponse := &ContactResponse{}
+	contactResponse := &contactResponse{}
 
 	resp, err := s.client.patch(path, contactAttributes, contactResponse)
 	if err != nil {
@@ -126,9 +126,9 @@ func (s *ContactsService) UpdateContact(accountID string, contactID int, contact
 // DeleteContact PERMANENTLY deletes a contact from the account.
 //
 // See https://developer.dnsimple.com/v2/contacts/#delete
-func (s *ContactsService) DeleteContact(accountID string, contactID int) (*ContactResponse, error) {
+func (s *ContactsService) DeleteContact(accountID string, contactID int64) (*contactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
-	contactResponse := &ContactResponse{}
+	contactResponse := &contactResponse{}
 
 	resp, err := s.client.delete(path, nil, nil)
 	if err != nil {
