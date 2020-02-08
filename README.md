@@ -10,8 +10,8 @@ Terraform Provider
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.12+ (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) 0.10.x
+- [Go](https://golang.org/doc/install) 1.12+ (to build the provider plugin)
 
 Building The Provider
 ---------------------
@@ -32,7 +32,8 @@ $ make build
 
 Using the provider
 ----------------------
-## Fill in for each provider
+
+See the [DNSimple Provider documentation](https://www.terraform.io/docs/providers/dnsimple/index.html) to get started using the DNSimple provider.
 
 Developing the Provider
 ---------------------------
