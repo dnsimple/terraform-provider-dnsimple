@@ -3,8 +3,11 @@
 NOTES:
 
 * Upgraded plugin to use the Terraform Plugin SDK v1.0.0 instead of Terraform Core ([#21](https://github.com/terraform-providers/terraform-provider-dnsimple/pulls/21))
-* Upgraded to dnsimple-go v0.30.0 ([#23](https://github.com/terraform-providers/terraform-provider-dnsimple/pulls/23))
 * Remove support for deprecated API v1 attributes ([#22](https://github.com/terraform-providers/terraform-provider-dnsimple/pulls/22))
+
+ENHANCEMENTS:
+
+* Upgraded to dnsimple-go v0.31.0 ([#23](https://github.com/terraform-providers/terraform-provider-dnsimple/pulls/23))
 
 ## 0.2.0 (June 20, 2019)
 
