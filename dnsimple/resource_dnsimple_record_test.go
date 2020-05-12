@@ -1,6 +1,7 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -170,7 +171,7 @@ func testAccCheckDNSimpleRecordDisappears(record *dnsimple.ZoneRecord, domain st
 
 		provider := testAccProvider.Meta().(*Client)
 
-		_, err := provider.client.Zones.DeleteRecord(provider.config.Account, domain, record.ID)
+		_, err := provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, domain, record.ID)
 		if err != nil {
 			return err
 		}
@@ -189,7 +190,7 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 		}
 
 		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		_, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		_, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err == nil {
 			return fmt.Errorf("Record still exists")
 		}
@@ -235,7 +236,7 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 		provider := testAccProvider.Meta().(*Client)
 
 		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		resp, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err != nil {
 			return err
 		}

@@ -60,7 +60,7 @@ github.com/bgentry/go-netrc/netrc
 github.com/bgentry/speakeasy
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/dnsimple/dnsimple-go v0.31.0
+# github.com/dnsimple/dnsimple-go v0.61.0
 github.com/dnsimple/dnsimple-go/dnsimple
 # github.com/fatih/color v1.7.0
 github.com/fatih/color

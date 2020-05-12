@@ -1,4 +1,9 @@
 ## 0.4.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* Upgraded to dnsimple-go v0.61.0
+
 ## 0.3.0 (February 11, 2020)
 
 NOTES:

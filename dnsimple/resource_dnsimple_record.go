@@ -1,6 +1,7 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
@@ -72,22 +73,21 @@ func resourceDNSimpleRecordCreate(d *schema.ResourceData, meta interface{}) erro
 	provider := meta.(*Client)
 
 	// Create the new record
-	newRecord := dnsimple.ZoneRecord{
-		Name:    d.Get("name").(string),
+	recordAttributes := dnsimple.ZoneRecordAttributes{
+		Name:    dnsimple.String(d.Get("name").(string)),
 		Type:    d.Get("type").(string),
 		Content: d.Get("value").(string),
 	}
 	if attr, ok := d.GetOk("ttl"); ok {
-		newRecord.TTL, _ = strconv.Atoi(attr.(string))
+		recordAttributes.TTL, _ = strconv.Atoi(attr.(string))
 	}
-
 	if attr, ok := d.GetOk("priority"); ok {
-		newRecord.Priority, _ = strconv.Atoi(attr.(string))
+		recordAttributes.Priority, _ = strconv.Atoi(attr.(string))
 	}
 
-	log.Printf("[DEBUG] DNSimple Record create configuration: %#v", newRecord)
+	log.Printf("[DEBUG] DNSimple Record create recordAttributes: %#v", recordAttributes)
 
-	resp, err := provider.client.Zones.CreateRecord(provider.config.Account, d.Get("domain").(string), newRecord)
+	resp, err := provider.client.Zones.CreateRecord(context.Background(), provider.config.Account, d.Get("domain").(string), recordAttributes)
 	if err != nil {
 		return fmt.Errorf("Failed to create DNSimple Record: %s", err)
 	}
@@ -106,7 +106,7 @@ func resourceDNSimpleRecordRead(d *schema.ResourceData, meta interface{}) error 
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(provider.config.Account, d.Get("domain").(string), recordID)
+	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, d.Get("domain").(string), recordID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Record Not Found - Refreshing from State")
@@ -141,28 +141,26 @@ func resourceDNSimpleRecordUpdate(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
 
-	updateRecord := dnsimple.ZoneRecord{}
-
+	recordAttributes := dnsimple.ZoneRecordAttributes{}
 	if attr, ok := d.GetOk("name"); ok {
-		updateRecord.Name = attr.(string)
+		recordAttributes.Name = dnsimple.String(attr.(string))
 	}
 	if attr, ok := d.GetOk("type"); ok {
-		updateRecord.Type = attr.(string)
+		recordAttributes.Type = attr.(string)
 	}
 	if attr, ok := d.GetOk("value"); ok {
-		updateRecord.Content = attr.(string)
+		recordAttributes.Content = attr.(string)
 	}
 	if attr, ok := d.GetOk("ttl"); ok {
-		updateRecord.TTL, _ = strconv.Atoi(attr.(string))
+		recordAttributes.TTL, _ = strconv.Atoi(attr.(string))
 	}
-
 	if attr, ok := d.GetOk("priority"); ok {
-		updateRecord.Priority, _ = strconv.Atoi(attr.(string))
+		recordAttributes.Priority, _ = strconv.Atoi(attr.(string))
 	}
 
-	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", updateRecord)
+	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", recordAttributes)
 
-	_, err = provider.client.Zones.UpdateRecord(provider.config.Account, d.Get("domain").(string), recordID, updateRecord)
+	_, err = provider.client.Zones.UpdateRecord(context.Background(), provider.config.Account, d.Get("domain").(string), recordID, recordAttributes)
 	if err != nil {
 		return fmt.Errorf("Failed to update DNSimple Record: %s", err)
 	}
@@ -180,7 +178,7 @@ func resourceDNSimpleRecordDelete(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("Error converting Record ID: %s", err)
 	}
 
-	_, err = provider.client.Zones.DeleteRecord(provider.config.Account, d.Get("domain").(string), recordID)
+	_, err = provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, d.Get("domain").(string), recordID)
 	if err != nil {
 		return fmt.Errorf("Error deleting DNSimple Record: %s", err)
 	}
@@ -192,7 +190,7 @@ func resourceDNSimpleRecordImport(d *schema.ResourceData, meta interface{}) ([]*
 	parts := strings.Split(d.Id(), "_")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Error Importing dnsimple_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234")
+		return nil, fmt.Errorf("Error Importing dnsimple_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234)")
 	}
 
 	d.SetId(parts[1])

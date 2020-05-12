@@ -30,7 +30,7 @@ func (c *Config) Client() (*Client, error) {
 	tc := oauth2.NewClient(context.Background(), ts)
 
 	client := dnsimple.NewClient(tc)
-	client.UserAgent = httpclient.TerraformUserAgent(c.terraformVersion)
+	client.SetUserAgent(httpclient.TerraformUserAgent(c.terraformVersion))
 
 	provider := &Client{
 		client: client,

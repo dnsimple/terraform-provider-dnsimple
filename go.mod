@@ -2,7 +2,7 @@ module github.com/terraform-providers/terraform-provider-dnsimple
 
 require (
 	cloud.google.com/go/pubsub v1.2.0 // indirect
-	github.com/dnsimple/dnsimple-go v0.31.0
+	github.com/dnsimple/dnsimple-go v0.61.0
 	github.com/golang/mock v1.4.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk v1.1.0
 	github.com/kr/pretty v0.2.0 // indirect
