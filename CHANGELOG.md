@@ -1,3 +1,4 @@
+## 0.5.0 (Unreleased)
 ## 0.4.0 (May 12, 2020)
 
 ENHANCEMENTS:
