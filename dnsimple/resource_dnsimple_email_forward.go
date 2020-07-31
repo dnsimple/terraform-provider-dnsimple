@@ -17,6 +17,9 @@ func resourceDNSimpleEmailForward() *schema.Resource {
 		Read:   resourceDNSimpleEmailForwardRead,
 		Update: resourceDNSimpleEmailForwardUpdate,
 		Delete: resourceDNSimpleEmailForwardDelete,
+		Importer: &schema.ResourceImporter{
+			State: resourceDNSimpleEmailForwardImport,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"domain": {
@@ -120,4 +123,20 @@ func resourceDNSimpleEmailForwardDelete(d *schema.ResourceData, meta interface{}
 	}
 
 	return nil
+}
+
+func resourceDNSimpleEmailForwardImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	parts := strings.Split(d.Id(), "_")
+
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("Error Importing dnsimple_email_forward. Please make sure the email forward ID is in the form DOMAIN_FORWARDID (i.e. example.com_1234)")
+	}
+
+	d.SetId(parts[1])
+	d.Set("domain", parts[0])
+
+	if err := resourceDNSimpleEmailForwardRead(d, meta); err != nil {
+		return nil, err
+	}
+	return []*schema.ResourceData{d}, nil
 }

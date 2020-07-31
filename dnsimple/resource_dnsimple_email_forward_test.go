@@ -123,12 +123,3 @@ resource "dnsimple_email_forward" "hello" {
 	from = "hello"
 	to   = "contacts@example.org"
 }`
-
-const testAccCheckDNSimpleEmailForwardConfig_wildcard = `
-resource "dnsimple_email_forward" "wildcard" {
-	domain = "%s"
-
-	from = "(.*)"
-	to = "contacts@example.org"
-}
-`
