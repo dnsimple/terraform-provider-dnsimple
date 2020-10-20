@@ -25,7 +25,8 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"dnsimple_record": resourceDNSimpleRecord(),
+			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
+			"dnsimple_record":        resourceDNSimpleRecord(),
 		},
 	}
 	p.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {

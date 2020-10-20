@@ -27,6 +27,11 @@ provider "dnsimple" {
 resource "dnsimple_record" "www" {
   # ...
 }
+
+# Create an email forward
+resource "dnsimple_email_forward" "hello" {
+  # ...
+}
 ```
 
 

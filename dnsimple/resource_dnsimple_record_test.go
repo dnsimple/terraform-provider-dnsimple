@@ -202,8 +202,8 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		if record.Content != "192.168.0.10" {
-			return fmt.Errorf("Bad content: %s", record.Content)
+		if want, got := "192.168.0.10", record.Content; want != got {
+			return fmt.Errorf("Record.Content expected to be %v, got %v", want, got)
 		}
 
 		return nil
@@ -213,8 +213,8 @@ func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.
 func testAccCheckDNSimpleRecordAttributesUpdated(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		if record.Content != "192.168.0.11" {
-			return fmt.Errorf("Bad content: %s", record.Content)
+		if want, got := "192.168.0.11", record.Content; want != got {
+			return fmt.Errorf("Record.Content expected to be %v, got %v", want, got)
 		}
 
 		return nil
