@@ -27,12 +27,12 @@ func resourceDNSimpleEmailForward() *schema.Resource {
 				Required: true,
 			},
 
-			"from": {
+			"alias_name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"to": {
+			"destination_email": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -44,8 +44,8 @@ func resourceDNSimpleEmailForwardCreate(d *schema.ResourceData, meta interface{}
 	provider := meta.(*Client)
 
 	emailForwardAttributes := dnsimple.EmailForward{
-		From: d.Get("from").(string),
-		To:   d.Get("to").(string),
+		From: d.Get("alias_name").(string),
+		To:   d.Get("destination_email").(string),
 	}
 
 	log.Printf("[DEBUG] DNSimple Email Forward create forwardAttributes: %#v", emailForwardAttributes)
@@ -80,29 +80,16 @@ func resourceDNSimpleEmailForwardRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	emailForward := resp.Data
-	/* The DNSimple API returns `from@domain` as the From address response, so
-	 * we must split on @ to get a blank `plan` following an `apply`.
-	 * If we put the full from@domain in the Terraform code for an email
-	 * forward, it ends up in DNSimple as `from@domain@domain`. */
-	fromParts := strings.Split(emailForward.From, "@")
-	d.Set("from", fromParts[0])
-	d.Set("to", emailForward.To)
+	aliasParts := strings.Split(emailForward.From, "@")
+	d.Set("alias_name", aliasParts[0])
+	d.Set("alias_email", emailForward.From)
+	d.Set("destination_email", emailForward.To)
 
 	return nil
 }
 
 func resourceDNSimpleEmailForwardUpdate(d *schema.ResourceData, meta interface{}) error {
-	provider := meta.(*Client)
-
-	emailForwardID, err := strconv.ParseInt(d.Id(), 10, 64)
-	if err != nil {
-		return fmt.Errorf("Error converting EmailForward ID: %s", err)
-	}
-
-	_, err = provider.client.Domains.GetEmailForward(context.Background(), provider.config.Account, d.Get("domain").(string), emailForwardID)
-	if err != nil {
-		return fmt.Errorf("Failed to update DNSimple EmailForward: %s", err)
-	}
+	log.Printf("[INFO] DNSimple doesn't support updating email forwards")
 
 	return resourceDNSimpleEmailForwardRead(d, meta)
 }
@@ -129,7 +116,7 @@ func resourceDNSimpleEmailForwardImport(d *schema.ResourceData, meta interface{}
 	parts := strings.Split(d.Id(), "_")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Error Importing dnsimple_email_forward. Please make sure the email forward ID is in the form DOMAIN_FORWARDID (i.e. example.com_1234)")
+		return nil, fmt.Errorf("Error Importing dnsimple_email_forward. Please make sure the email forward ID is in the form DOMAIN_EMAILFORWARDID (i.e. example.com_1234)")
 	}
 
 	d.SetId(parts[1])

@@ -34,7 +34,7 @@ const testAccCheckDNSimpleEmailForwardConfig_import = `
 resource "dnsimple_email_forward" "wildcard" {
 	domain = "%s"
 
-	from = "(.*)"
-	to   = "contacts@example.org"
+	alias_name = "(.*)"
+	destination_email = "contacts@example.org"
 }
 `

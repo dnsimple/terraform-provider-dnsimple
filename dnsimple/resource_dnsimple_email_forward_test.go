@@ -28,9 +28,10 @@ func TestAccCheckDNSimpleEmailForwardConfig_Basic(t *testing.T) {
 					testAccCheckDNSimpleEmailForwardAttributes(&emailForward),
 					resource.TestCheckResourceAttr(
 						"dnsimple_email_forward.hello", "domain", domain),
-					// We can't check "from" value here because the API returns `addr@domain` not just `addr`.
 					resource.TestCheckResourceAttr(
-						"dnsimple_email_forward.hello", "to", "hi@example.org"),
+						"dnsimple_email_forward.hello", "alias_name", "hello"),
+					resource.TestCheckResourceAttr(
+						"dnsimple_email_forward.hello", "destination_email", "hi@example.com"),
 				),
 			},
 		},
@@ -58,8 +59,8 @@ func testAccCheckDNSimpleEmailForwardDestroy(s *terraform.State) error {
 func testAccCheckDNSimpleEmailForwardAttributes(emailForward *dnsimple.EmailForward) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		if emailForward.To != "hi@example.org" {
-			return fmt.Errorf("Bad content: %s", emailForward.To)
+		if want, got := "hi@example.com", emailForward.To; want != got {
+			return fmt.Errorf("Forward.To expected to be %v, got %v", want, got)
 		}
 
 		return nil
@@ -112,14 +113,14 @@ const testAccCheckDNSimpleEmailForwardConfig_basic = `
 resource "dnsimple_email_forward" "hello" {
 	domain = "%s"
 
-	from = "hello"
-	to   = "hi@example.org"
+	alias_name 			= "hello"
+	destination_email	= "hi@example.com"
 }`
 
 const testAccCheckDNSimpleEmailForwardConfig_new_value = `
 resource "dnsimple_email_forward" "hello" {
 	domain = "%s"
 
-	from = "hello"
-	to   = "contacts@example.org"
+	alias_name	 		= "hello"
+	destination_email 	= "changed@example.com"
 }`
