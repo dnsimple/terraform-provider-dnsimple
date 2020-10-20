@@ -22,6 +22,13 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_ACCOUNT", nil),
 				Description: "The account for API operations.",
 			},
+
+			"sandbox": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_SANDBOX", nil),
+				Description: "Flag to enable the sandbox API.",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -46,6 +53,7 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config := Config{
 		Token:            d.Get("token").(string),
 		Account:          d.Get("account").(string),
+		Sandbox:          d.Get("sandbox").(bool),
 		terraformVersion: terraformVersion,
 	}
 

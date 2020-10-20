@@ -9,10 +9,15 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const (
+	baseURLSandbox = "https://api.sandbox.dnsimple.com"
+)
+
 type Config struct {
 	Email   string
 	Account string
 	Token   string
+	Sandbox bool
 
 	terraformVersion string
 }
@@ -31,13 +36,16 @@ func (c *Config) Client() (*Client, error) {
 
 	client := dnsimple.NewClient(tc)
 	client.SetUserAgent(httpclient.TerraformUserAgent(c.terraformVersion))
+	if c.Sandbox {
+		client.BaseURL = baseURLSandbox
+	}
 
 	provider := &Client{
 		client: client,
 		config: c,
 	}
 
-	log.Printf("[INFO] DNSimple Client configured for account: %s", c.Account)
+	log.Printf("[INFO] DNSimple Client configured for account: %s, sandbox: %v", c.Account, c.Sandbox)
 
 	return provider, nil
 }
