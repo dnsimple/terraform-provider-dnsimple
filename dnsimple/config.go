@@ -45,7 +45,7 @@ func (c *Config) Client() (*Client, error) {
 		config: c,
 	}
 
-  log.Printf("[INFO] DNSimple Client configured for account: %s, sandbox: %v", c.Account, c.Sandbox)
+	log.Printf("[INFO] DNSimple Client configured for account: %s, sandbox: %v", c.Account, c.Sandbox)
 
 	return provider, nil
 }
