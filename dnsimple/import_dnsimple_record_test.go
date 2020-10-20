@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
 func TestAccDnsimpleRecord_import(t *testing.T) {
@@ -17,10 +17,10 @@ func TestAccDnsimpleRecord_import(t *testing.T) {
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckDNSimpleRecordDestroy,
 		Steps: []resource.TestStep{
-			resource.TestStep{
+			{
 				Config: fmt.Sprintf(testAccCheckDNSimpleRecordConfig_import, domain),
 			},
-			resource.TestStep{
+			{
 				ResourceName:        resourceName,
 				ImportState:         true,
 				ImportStateVerify:   true,

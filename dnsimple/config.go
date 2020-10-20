@@ -1,15 +1,16 @@
 package dnsimple
 
 import (
+	"context"
 	"log"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
+	"golang.org/x/oauth2"
 )
 
 const (
-	// defaultSandboxURL to the DNSimple sandbox API.
-	defaultSandboxURL = "https://api.sandbox.dnsimple.com"
+	baseURLSandbox = "https://api.sandbox.dnsimple.com"
 )
 
 type Config struct {
@@ -17,6 +18,8 @@ type Config struct {
 	Account string
 	Token   string
 	Sandbox bool
+
+	terraformVersion string
 }
 
 // Client represents the DNSimple provider client.
@@ -26,12 +29,15 @@ type Client struct {
 	config *Config
 }
 
-// Client() returns a new client for accessing dnsimple.
+// Client returns a new client for accessing DNSimple.
 func (c *Config) Client() (*Client, error) {
-	client := dnsimple.NewClient(dnsimple.NewOauthTokenCredentials(c.Token))
-	client.UserAgent = "HashiCorp-Terraform/" + terraform.VersionString()
+	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: c.Token})
+	tc := oauth2.NewClient(context.Background(), ts)
+
+	client := dnsimple.NewClient(tc)
+	client.SetUserAgent(httpclient.TerraformUserAgent(c.terraformVersion))
 	if c.Sandbox {
-		client.BaseURL = defaultSandboxURL
+		client.BaseURL = baseURLSandbox
 	}
 
 	provider := &Client{
@@ -39,7 +45,7 @@ func (c *Config) Client() (*Client, error) {
 		config: c,
 	}
 
-	log.Printf("[INFO] DNSimple Client configured for account: %s", c.Account)
+  log.Printf("[INFO] DNSimple Client configured for account: %s, sandbox: %v", c.Account, c.Sandbox)
 
 	return provider, nil
 }

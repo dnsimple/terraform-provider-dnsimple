@@ -1,6 +1,7 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -10,6 +11,20 @@ import (
 // See https://developer.dnsimple.com/v2/services/
 type ServicesService struct {
 	client *Client
+}
+
+// Service represents a Service in DNSimple.
+type Service struct {
+	ID               int64            `json:"id,omitempty"`
+	SID              string           `json:"sid,omitempty"`
+	Name             string           `json:"name,omitempty"`
+	Description      string           `json:"description,omitempty"`
+	SetupDescription string           `json:"setup_description,omitempty"`
+	RequiresSetup    bool             `json:"requires_setup,omitempty"`
+	DefaultSubdomain string           `json:"default_subdomain,omitempty"`
+	CreatedAt        string           `json:"created_at,omitempty"`
+	UpdatedAt        string           `json:"updated_at,omitempty"`
+	Settings         []ServiceSetting `json:"settings,omitempty"`
 }
 
 // ServiceSetting represents a single group of settings for a DNSimple Service.
@@ -22,24 +37,10 @@ type ServiceSetting struct {
 	Password    bool   `json:"password,omitempty"`
 }
 
-// Service represents a Service in DNSimple.
-type Service struct {
-	ID               int              `json:"id,omitempty"`
-	SID              string           `json:"sid,omitempty"`
-	Name             string           `json:"name,omitempty"`
-	Description      string           `json:"description,omitempty"`
-	SetupDescription string           `json:"setup_description,omitempty"`
-	RequiresSetup    bool             `json:"requires_setup,omitempty"`
-	DefaultSubdomain string           `json:"default_subdomain,omitempty"`
-	CreatedAt        string           `json:"created_at,omitempty"`
-	UpdatedAt        string           `json:"updated_at,omitempty"`
-	Settings         []ServiceSetting `json:"settings,omitempty"`
-}
-
-func servicePath(serviceID string) (path string) {
+func servicePath(serviceIdentifier string) (path string) {
 	path = "/services"
-	if serviceID != "" {
-		path += fmt.Sprintf("/%v", serviceID)
+	if serviceIdentifier != "" {
+		path += fmt.Sprintf("/%v", serviceIdentifier)
 	}
 	return
 }
@@ -59,7 +60,7 @@ type ServicesResponse struct {
 // ListServices lists the one-click services available in DNSimple.
 //
 // See https://developer.dnsimple.com/v2/services/#list
-func (s *ServicesService) ListServices(options *ListOptions) (*ServicesResponse, error) {
+func (s *ServicesService) ListServices(ctx context.Context, options *ListOptions) (*ServicesResponse, error) {
 	path := versioned(servicePath(""))
 	servicesResponse := &ServicesResponse{}
 
@@ -68,27 +69,27 @@ func (s *ServicesService) ListServices(options *ListOptions) (*ServicesResponse,
 		return nil, err
 	}
 
-	resp, err := s.client.get(path, servicesResponse)
+	resp, err := s.client.get(ctx, path, servicesResponse)
 	if err != nil {
 		return servicesResponse, err
 	}
 
-	servicesResponse.HttpResponse = resp
+	servicesResponse.HTTPResponse = resp
 	return servicesResponse, nil
 }
 
 // GetService fetches a one-click service.
 //
 // See https://developer.dnsimple.com/v2/services/#get
-func (s *ServicesService) GetService(serviceIdentifier string) (*ServiceResponse, error) {
+func (s *ServicesService) GetService(ctx context.Context, serviceIdentifier string) (*ServiceResponse, error) {
 	path := versioned(servicePath(serviceIdentifier))
 	serviceResponse := &ServiceResponse{}
 
-	resp, err := s.client.get(path, serviceResponse)
+	resp, err := s.client.get(ctx, path, serviceResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	serviceResponse.HttpResponse = resp
+	serviceResponse.HTTPResponse = resp
 	return serviceResponse, nil
 }

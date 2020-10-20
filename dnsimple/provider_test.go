@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -42,10 +42,6 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("DNSIMPLE_EMAIL"); v != "" {
-		t.Fatal("DNSIMPLE_EMAIL is no longer required for DNSimple API v2")
-	}
-
 	if v := os.Getenv("DNSIMPLE_TOKEN"); v == "" {
 		t.Fatal("DNSIMPLE_TOKEN must be set for acceptance tests")
 	}

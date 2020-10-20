@@ -1,6 +1,7 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -14,12 +15,16 @@ type VanityNameServersService struct {
 
 // VanityNameServer represents data for a single vanity name server
 type VanityNameServer struct {
-	ID        int    `json:"id,omitempty"`
+	ID        int64  `json:"id,omitempty"`
 	Name      string `json:"name,omitempty"`
 	IPv4      string `json:"ipv4,omitempty"`
 	IPv6      string `json:"ipv6,omitempty"`
 	CreatedAt string `json:"created_at,omitempty"`
 	UpdatedAt string `json:"updated_at,omitempty"`
+}
+
+func vanityNameServerPath(accountID string, domainIdentifier string) string {
+	return fmt.Sprintf("/%v/vanity/%v", accountID, domainIdentifier)
 }
 
 // VanityNameServerResponse represents a response for vanity name server enable and disable operations.
@@ -28,38 +33,34 @@ type VanityNameServerResponse struct {
 	Data []VanityNameServer `json:"data"`
 }
 
-func vanityNameServerPath(accountID string, domainID string) string {
-	return fmt.Sprintf("/%v/vanity/%v", accountID, domainID)
-}
-
 // EnableVanityNameServers Vanity Name Servers for the given domain
 //
-// See https://developer.dnsimple.com/v2/vanity/#enable
-func (s *VanityNameServersService) EnableVanityNameServers(accountID string, domainID string) (*VanityNameServerResponse, error) {
-	path := versioned(vanityNameServerPath(accountID, domainID))
+// See https://developer.dnsimple.com/v2/vanity/#enableVanityNameServers
+func (s *VanityNameServersService) EnableVanityNameServers(ctx context.Context, accountID string, domainIdentifier string) (*VanityNameServerResponse, error) {
+	path := versioned(vanityNameServerPath(accountID, domainIdentifier))
 	vanityNameServerResponse := &VanityNameServerResponse{}
 
-	resp, err := s.client.put(path, nil, vanityNameServerResponse)
+	resp, err := s.client.put(ctx, path, nil, vanityNameServerResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	vanityNameServerResponse.HttpResponse = resp
+	vanityNameServerResponse.HTTPResponse = resp
 	return vanityNameServerResponse, nil
 }
 
 // DisableVanityNameServers Vanity Name Servers for the given domain
 //
-// See https://developer.dnsimple.com/v2/vanity/#disable
-func (s *VanityNameServersService) DisableVanityNameServers(accountID string, domainID string) (*VanityNameServerResponse, error) {
-	path := versioned(vanityNameServerPath(accountID, domainID))
+// See https://developer.dnsimple.com/v2/vanity/#disableVanityNameServers
+func (s *VanityNameServersService) DisableVanityNameServers(ctx context.Context, accountID string, domainIdentifier string) (*VanityNameServerResponse, error) {
+	path := versioned(vanityNameServerPath(accountID, domainIdentifier))
 	vanityNameServerResponse := &VanityNameServerResponse{}
 
-	resp, err := s.client.delete(path, nil, nil)
+	resp, err := s.client.delete(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vanityNameServerResponse.HttpResponse = resp
+	vanityNameServerResponse.HTTPResponse = resp
 	return vanityNameServerResponse, nil
 }

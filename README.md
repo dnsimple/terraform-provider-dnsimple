@@ -10,8 +10,8 @@ Terraform Provider
 Requirements
 ------------
 
--	[Terraform](https://www.terraform.io/downloads.html) 0.10.x
--	[Go](https://golang.org/doc/install) 1.8 (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) 0.10.x
+- [Go](https://golang.org/doc/install) 1.12+ (to build the provider plugin)
 
 Building The Provider
 ---------------------
@@ -32,17 +32,18 @@ $ make build
 
 Using the provider
 ----------------------
-## Fill in for each provider
+
+See the [DNSimple Provider documentation](https://www.terraform.io/docs/providers/dnsimple/index.html) to get started using the DNSimple provider.
 
 Developing the Provider
 ---------------------------
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.8+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.12+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
 
 To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
 
 ```sh
-$ make bin
+$ make build
 ...
 $ $GOPATH/bin/terraform-provider-dnsimple
 ...

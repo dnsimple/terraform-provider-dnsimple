@@ -1,6 +1,7 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -14,8 +15,8 @@ type ContactsService struct {
 
 // Contact represents a Contact in DNSimple.
 type Contact struct {
-	ID            int    `json:"id,omitempty"`
-	AccountID     int    `json:"account_id,omitempty"`
+	ID            int64  `json:"id,omitempty"`
+	AccountID     int64  `json:"account_id,omitempty"`
 	Label         string `json:"label,omitempty"`
 	FirstName     string `json:"first_name,omitempty"`
 	LastName      string `json:"last_name,omitempty"`
@@ -34,7 +35,7 @@ type Contact struct {
 	UpdatedAt     string `json:"updated_at,omitempty"`
 }
 
-func contactPath(accountID string, contactID int) (path string) {
+func contactPath(accountID string, contactID int64) (path string) {
 	path = fmt.Sprintf("/%v/contacts", accountID)
 	if contactID != 0 {
 		path += fmt.Sprintf("/%v", contactID)
@@ -57,7 +58,7 @@ type ContactsResponse struct {
 // ListContacts list the contacts for an account.
 //
 // See https://developer.dnsimple.com/v2/contacts/#list
-func (s *ContactsService) ListContacts(accountID string, options *ListOptions) (*ContactsResponse, error) {
+func (s *ContactsService) ListContacts(ctx context.Context, accountID string, options *ListOptions) (*ContactsResponse, error) {
 	path := versioned(contactPath(accountID, 0))
 	contactsResponse := &ContactsResponse{}
 
@@ -66,75 +67,75 @@ func (s *ContactsService) ListContacts(accountID string, options *ListOptions) (
 		return nil, err
 	}
 
-	resp, err := s.client.get(path, contactsResponse)
+	resp, err := s.client.get(ctx, path, contactsResponse)
 	if err != nil {
 		return contactsResponse, err
 	}
 
-	contactsResponse.HttpResponse = resp
+	contactsResponse.HTTPResponse = resp
 	return contactsResponse, nil
 }
 
 // CreateContact creates a new contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#create
-func (s *ContactsService) CreateContact(accountID string, contactAttributes Contact) (*ContactResponse, error) {
+func (s *ContactsService) CreateContact(ctx context.Context, accountID string, contactAttributes Contact) (*ContactResponse, error) {
 	path := versioned(contactPath(accountID, 0))
 	contactResponse := &ContactResponse{}
 
-	resp, err := s.client.post(path, contactAttributes, contactResponse)
+	resp, err := s.client.post(ctx, path, contactAttributes, contactResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	contactResponse.HttpResponse = resp
+	contactResponse.HTTPResponse = resp
 	return contactResponse, nil
 }
 
 // GetContact fetches a contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#get
-func (s *ContactsService) GetContact(accountID string, contactID int) (*ContactResponse, error) {
+func (s *ContactsService) GetContact(ctx context.Context, accountID string, contactID int64) (*ContactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
 	contactResponse := &ContactResponse{}
 
-	resp, err := s.client.get(path, contactResponse)
+	resp, err := s.client.get(ctx, path, contactResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	contactResponse.HttpResponse = resp
+	contactResponse.HTTPResponse = resp
 	return contactResponse, nil
 }
 
 // UpdateContact updates a contact.
 //
 // See https://developer.dnsimple.com/v2/contacts/#update
-func (s *ContactsService) UpdateContact(accountID string, contactID int, contactAttributes Contact) (*ContactResponse, error) {
+func (s *ContactsService) UpdateContact(ctx context.Context, accountID string, contactID int64, contactAttributes Contact) (*ContactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
 	contactResponse := &ContactResponse{}
 
-	resp, err := s.client.patch(path, contactAttributes, contactResponse)
+	resp, err := s.client.patch(ctx, path, contactAttributes, contactResponse)
 	if err != nil {
 		return nil, err
 	}
 
-	contactResponse.HttpResponse = resp
+	contactResponse.HTTPResponse = resp
 	return contactResponse, nil
 }
 
 // DeleteContact PERMANENTLY deletes a contact from the account.
 //
 // See https://developer.dnsimple.com/v2/contacts/#delete
-func (s *ContactsService) DeleteContact(accountID string, contactID int) (*ContactResponse, error) {
+func (s *ContactsService) DeleteContact(ctx context.Context, accountID string, contactID int64) (*ContactResponse, error) {
 	path := versioned(contactPath(accountID, contactID))
 	contactResponse := &ContactResponse{}
 
-	resp, err := s.client.delete(path, nil, nil)
+	resp, err := s.client.delete(ctx, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	contactResponse.HttpResponse = resp
+	contactResponse.HTTPResponse = resp
 	return contactResponse, nil
 }

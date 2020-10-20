@@ -1,14 +1,15 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
 	"testing"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccDNSimpleRecord_Basic(t *testing.T) {
@@ -170,7 +171,7 @@ func testAccCheckDNSimpleRecordDisappears(record *dnsimple.ZoneRecord, domain st
 
 		provider := testAccProvider.Meta().(*Client)
 
-		_, err := provider.client.Zones.DeleteRecord(provider.config.Account, domain, record.ID)
+		_, err := provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, domain, record.ID)
 		if err != nil {
 			return err
 		}
@@ -188,8 +189,8 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 			continue
 		}
 
-		recordID, _ := strconv.Atoi(rs.Primary.ID)
-		_, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
+		_, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err == nil {
 			return fmt.Errorf("Record still exists")
 		}
@@ -201,8 +202,8 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		if record.Content != "192.168.0.10" {
-			return fmt.Errorf("Bad content: %s", record.Content)
+		if want, got := "192.168.0.10", record.Content; want != got {
+			return fmt.Errorf("Record.Content expected to be %v, got %v", want, got)
 		}
 
 		return nil
@@ -212,8 +213,8 @@ func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.
 func testAccCheckDNSimpleRecordAttributesUpdated(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
-		if record.Content != "192.168.0.11" {
-			return fmt.Errorf("Bad content: %s", record.Content)
+		if want, got := "192.168.0.11", record.Content; want != got {
+			return fmt.Errorf("Record.Content expected to be %v, got %v", want, got)
 		}
 
 		return nil
@@ -234,8 +235,8 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 
 		provider := testAccProvider.Meta().(*Client)
 
-		recordID, _ := strconv.Atoi(rs.Primary.ID)
-		resp, err := provider.client.Zones.GetRecord(provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
+		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
 		if err != nil {
 			return err
 		}

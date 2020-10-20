@@ -1,15 +1,20 @@
 package dnsimple
 
 import (
+	"context"
 )
 
+// AccountsService handles communication with the account related
+// methods of the DNSimple API.
+//
+// See https://developer.dnsimple.com/v2/accounts/
 type AccountsService struct {
 	client *Client
 }
 
 // Account represents a DNSimple account.
 type Account struct {
-	ID             int    `json:"id,omitempty"`
+	ID             int64  `json:"id,omitempty"`
 	Email          string `json:"email,omitempty"`
 	PlanIdentifier string `json:"plan_identifier,omitempty"`
 	CreatedAt      string `json:"created_at,omitempty"`
@@ -25,7 +30,7 @@ type AccountsResponse struct {
 // ListAccounts list the accounts for an user.
 //
 // See https://developer.dnsimple.com/v2/accounts/#list
-func (s *AccountsService) ListAccounts(options *ListOptions) (*AccountsResponse, error) {
+func (s *AccountsService) ListAccounts(ctx context.Context, options *ListOptions) (*AccountsResponse, error) {
 	path := versioned("/accounts")
 	accountsResponse := &AccountsResponse{}
 
@@ -34,11 +39,11 @@ func (s *AccountsService) ListAccounts(options *ListOptions) (*AccountsResponse,
 		return nil, err
 	}
 
-	resp, err := s.client.get(path, accountsResponse)
+	resp, err := s.client.get(ctx, path, accountsResponse)
 	if err != nil {
 		return accountsResponse, err
 	}
 
-	accountsResponse.HttpResponse = resp
+	accountsResponse.HTTPResponse = resp
 	return accountsResponse, nil
 }
