@@ -2,7 +2,7 @@
 
 FEATURES:
 
-* **New Resource:** `dnsimple_email_forward` ([#29](https://github.com/terraform-providers/terraform-provider-dnsimple/pull/29), [#30](https://github.com/terraform-providers/terraform-provider-dnsimple/pull/30))
+* **New Resource:** `dnsimple_email_forward` ([#28](https://github.com/terraform-providers/terraform-provider-dnsimple/pull/28), [#30](https://github.com/terraform-providers/terraform-provider-dnsimple/pull/30))
 * Abilty to switch to sandbox environment ([#12](https://github.com/terraform-providers/terraform-provider-dnsimple/pull/12))
 
 ## 0.4.0 (May 12, 2020)
