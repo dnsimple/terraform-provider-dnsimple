@@ -16,7 +16,7 @@ tools:
 	GO111MODULE=off go get -u mvdan.cc/gofumpt
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH || $$GOPATH)/bin v1.32.0
 
-build: fmtcheck generate
+build: fmtcheck
 	go install
 
 test: fmtcheck
