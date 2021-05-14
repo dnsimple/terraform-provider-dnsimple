@@ -1,4 +1,19 @@
-## 0.5.0 (Unreleased)
+## master
+
+## 0.5.2
+
+NOTES
+
+* Updated dependencies
+* Include darwin_arm64 builds
+
+## 0.5.1
+
+NOTES
+
+* Move to GH Actions for publishing
+
+## 0.5.0
 
 FEATURES:
 
