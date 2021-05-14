@@ -6,7 +6,7 @@ HOSTNAME=registry.terraform.io
 NAMESPACE=dnsimple
 BINARY=terraform-provider-${PKG_NAME}
 VERSION=0.5.1
-OS_ARCH=darwin_amd64
+OS_ARCH=$$(go env GOOS)_$$(go env GOARCH)
 
 default: build
 
