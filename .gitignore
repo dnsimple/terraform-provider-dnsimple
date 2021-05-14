@@ -27,7 +27,7 @@ website/node_modules
 website/vendor
 
 # Examples
-example/**/.terraform/
+example/**/.terraform*
 example/**/*.tfstate
 example/**/*.tfvars
 
