@@ -52,7 +52,7 @@ The following instructions uses `$VERSION` as a placeholder, where `$VERSION` is
 
     ```shell
     git commit -a -m "Release $VERSION"
-    git push origin main
+    git push origin master
     ```
 
 1. Wait for CI to complete.
