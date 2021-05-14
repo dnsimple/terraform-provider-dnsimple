@@ -1,5 +1,11 @@
 ## master
 
+## 0.5.3
+
+NOTES
+
+* Include darwin_arm64 builds in release
+
 ## 0.5.2
 
 NOTES
