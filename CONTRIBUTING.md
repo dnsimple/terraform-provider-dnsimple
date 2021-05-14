@@ -39,6 +39,21 @@ $ $GOPATH/bin/terraform-provider-dnsimple
 make test
 ```
 
+## Sideload the plugin
+
+Sideload the plugin
+
+```shell
+make install
+```
+
+You can use the `./example/simple.tf` config to test the provider.
+
+```
+cd example
+terraform init && terraform apply --auto-approve
+```
+
 
 ## Releasing
 
