@@ -2,6 +2,11 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 WEBSITE_REPO=github.com/hashicorp/terraform-website
 PKG_NAME=dnsimple
+HOSTNAME=registry.terraform.io
+NAMESPACE=dnsimple
+BINARY=terraform-provider-${PKG_NAME}
+VERSION=0.5.1
+OS_ARCH=darwin_amd64
 
 default: build
 
@@ -18,6 +23,10 @@ tools:
 
 build: fmtcheck
 	go install
+
+install: build
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/${VERSION}/${OS_ARCH}
+	mv ${GOPATH}/bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/${VERSION}/${OS_ARCH}
 
 test: fmtcheck
 	go test -i $(TEST) || exit 1
