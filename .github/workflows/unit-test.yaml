@@ -10,17 +10,15 @@ on:
       - '.github/workflows/**'
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
         go-version:
           - "1.14"
           - "1.15"
           - "1.16"
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
