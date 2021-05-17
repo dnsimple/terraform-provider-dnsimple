@@ -35,7 +35,25 @@ You can also run the integration tests like:
 
 ```shell
 DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN="example.com" make testacc
+>>>>>>> master
 ```
+
+## Sideload the plugin
+
+Sideload the plugin
+
+```shell
+make install
+```
+
+You can use the `./example/simple.tf` config to test the provider.
+
+```shell
+cd example
+terraform init && terraform apply --auto-approve
+
+
+
 
 
 ## Releasing
