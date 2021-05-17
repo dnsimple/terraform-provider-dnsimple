@@ -11,15 +11,7 @@ git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
 cd terraform-provider-dnsimple
 ```
 
-#### 2. Install Go & Terraform
-
-#### 3. Install the dependencies
-
-```shell
-go get ./...
-```
-
-#### 4. Build and test
+#### 2. Build and test
 
 If you wish to work on the provider, you'll first need Go installed on your machine (version 1.12+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
 
