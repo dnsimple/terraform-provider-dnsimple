@@ -5,8 +5,8 @@ PKG_NAME=dnsimple
 HOSTNAME=registry.terraform.io
 NAMESPACE=dnsimple
 BINARY=terraform-provider-${PKG_NAME}
-VERSION=0.5.3
-OS_ARCH=$$(go env GOOS)_$$(go env GOARCH)
+VERSION=$(shell git describe --tags --always | cut -c 2-)
+OS_ARCH=darwin_amd64
 
 default: build
 
