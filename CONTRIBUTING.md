@@ -11,15 +11,7 @@ git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
 cd terraform-provider-dnsimple
 ```
 
-#### 2. Install Go & Terraform
-
-#### 3. Install the dependencies
-
-```shell
-go get ./...
-```
-
-#### 4. Build and test
+#### 2. Build and test
 
 If you wish to work on the provider, you'll first need Go installed on your machine (version 1.12+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
 
@@ -39,6 +31,13 @@ $ $GOPATH/bin/terraform-provider-dnsimple
 make test
 ```
 
+You can also run the integration tests like:
+
+```shell
+DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN="example.com" make testacc
+>>>>>>> master
+```
+
 ## Sideload the plugin
 
 Sideload the plugin
@@ -52,7 +51,9 @@ You can use the `./example/simple.tf` config to test the provider.
 ```shell
 cd example
 terraform init && terraform apply --auto-approve
-```
+
+
+
 
 
 ## Releasing
