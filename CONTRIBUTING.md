@@ -31,6 +31,12 @@ $ $GOPATH/bin/terraform-provider-dnsimple
 make test
 ```
 
+You can also run the integration tests like:
+
+```shell
+DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN="example.com" make testacc
+```
+
 
 ## Releasing
 
