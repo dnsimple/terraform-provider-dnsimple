@@ -3,22 +3,22 @@ package dnsimple
 import (
 	"fmt"
 	"os"
-	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	testing2 "testing"
 )
 
-func TestAccDnsimpleRecord_import(t *testing.T) {
+func TestAccDnsimpleRecord_import(t *testing2.T) {
 	resourceName := "dnsimple_record.foobar"
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSimpleRecordDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDNSimpleRecordConfig_import, domain),
+				Config: fmt.Sprintf(testacccheckdnsimplerecordconfigImport, domain),
 			},
 			{
 				ResourceName:        resourceName,
@@ -30,7 +30,7 @@ func TestAccDnsimpleRecord_import(t *testing.T) {
 	})
 }
 
-const testAccCheckDNSimpleRecordConfig_import = `
+const testacccheckdnsimplerecordconfigImport = `
 resource "dnsimple_record" "foobar" {
 	domain = "%s"
 

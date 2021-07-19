@@ -2,23 +2,23 @@ package dnsimple
 
 import (
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
-	"testing"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	testing2 "testing"
 )
 
-func TestAccDnsimpleEmailForward_import(t *testing.T) {
+func TestAccDnsimpleEmailForward_import(t *testing2.T) {
+
 	resourceName := "dnsimple_email_forward.wildcard"
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSimpleEmailForwardDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleEmailForwardDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDNSimpleEmailForwardConfig_import, domain),
+				Config: fmt.Sprintf(testacccheckdnsimpleemailforwardconfigImport, domain),
 			},
 			{
 				ResourceName:        resourceName,
@@ -30,7 +30,7 @@ func TestAccDnsimpleEmailForward_import(t *testing.T) {
 	})
 }
 
-const testAccCheckDNSimpleEmailForwardConfig_import = `
+const testacccheckdnsimpleemailforwardconfigImport = `
 resource "dnsimple_email_forward" "wildcard" {
 	domain = "%s"
 
