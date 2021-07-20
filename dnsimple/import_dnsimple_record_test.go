@@ -3,9 +3,9 @@ package dnsimple
 import (
 	"fmt"
 	"os"
+	testing2 "testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
-	testing2 "testing"
 )
 
 func TestAccDnsimpleRecord_import(t *testing2.T) {

@@ -2,9 +2,10 @@ package dnsimple
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"os"
 	testing2 "testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDnsimpleEmailForward_import(t *testing2.T) {
