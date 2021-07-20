@@ -3,13 +3,13 @@ package dnsimple
 import (
 	"context"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/meta"
 	"log"
 
-	"github.com/dnsimple/dnsimple-go/dnsimple"
-	_ "github.com/hashicorp/terraform-plugin-sdk/v2/meta"
 	"golang.org/x/oauth2"
+
+	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/meta"
 )
 
 const (
