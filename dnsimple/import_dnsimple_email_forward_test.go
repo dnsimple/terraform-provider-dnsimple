@@ -19,7 +19,7 @@ func TestAccDnsimpleEmailForward_import(t *testing2.T) {
 		CheckDestroy:      testAccCheckDNSimpleEmailForwardDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testacccheckdnsimpleemailforwardconfigImport, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleEmailForwardConfigImport, domain),
 			},
 			{
 				ResourceName:        resourceName,
@@ -31,7 +31,7 @@ func TestAccDnsimpleEmailForward_import(t *testing2.T) {
 	})
 }
 
-const testacccheckdnsimpleemailforwardconfigImport = `
+const testAccCheckDnsimpleEmailForwardConfigImport = `
 resource "dnsimple_email_forward" "wildcard" {
 	domain = "%s"
 

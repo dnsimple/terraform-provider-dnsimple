@@ -18,7 +18,7 @@ func TestAccDnsimpleRecord_import(t *testing2.T) {
 		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testacccheckdnsimplerecordconfigImport, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigImport, domain),
 			},
 			{
 				ResourceName:        resourceName,
@@ -30,7 +30,7 @@ func TestAccDnsimpleRecord_import(t *testing2.T) {
 	})
 }
 
-const testacccheckdnsimplerecordconfigImport = `
+const testAccCheckDnsimpleRecordConfigImport = `
 resource "dnsimple_record" "foobar" {
 	domain = "%s"
 
