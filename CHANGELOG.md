@@ -4,7 +4,7 @@
 
 NOTES
 
-* Migrated SDK to v2
+* Migrated SDK to v2 (version 2.7.0)
 * Updated dependencies
 
 ## 0.5.3
