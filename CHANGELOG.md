@@ -1,5 +1,12 @@
 ## master
 
+## 0.6.0
+
+NOTES
+
+* Migrated SDK to v2
+* Updated dependencies
+
 ## 0.5.3
 
 NOTES

@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccCheckDNSimpleEmailForwardConfig_Basic(t *testing.T) {
@@ -17,12 +17,12 @@ func TestAccCheckDNSimpleEmailForwardConfig_Basic(t *testing.T) {
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckDNSimpleEmailForwardDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleEmailForwardDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDNSimpleEmailForwardConfig_basic, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleEmailForwardConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckDNSimpleEmailForwardExists("dnsimple_email_forward.hello", &emailForward),
 					testAccCheckDNSimpleEmailForwardAttributes(&emailForward),
@@ -71,7 +71,7 @@ func testAccCheckDNSimpleEmailForwardAttributesUpdated(emailForward *dnsimple.Em
 	return func(s *terraform.State) error {
 
 		if emailForward.To != "contacts@example.org" {
-			return fmt.Errorf("Bad content: %s", emailForward.To)
+			return fmt.Errorf("bad content: %s", emailForward.To)
 		}
 
 		return nil
@@ -83,11 +83,11 @@ func testAccCheckDNSimpleEmailForwardExists(n string, emailForward *dnsimple.Ema
 		rs, ok := s.RootModule().Resources[n]
 
 		if !ok {
-			return fmt.Errorf("Not found: %s", n)
+			return fmt.Errorf("not found: %s", n)
 		}
 
 		if rs.Primary.ID == "" {
-			return fmt.Errorf("No Email Forward ID is set")
+			return fmt.Errorf("no Email Forward ID is set")
 		}
 
 		provider := testAccProvider.Meta().(*Client)
@@ -109,7 +109,7 @@ func testAccCheckDNSimpleEmailForwardExists(n string, emailForward *dnsimple.Ema
 	}
 }
 
-const testAccCheckDNSimpleEmailForwardConfig_basic = `
+const testAccCheckDnsimpleEmailForwardConfigBasic = `
 resource "dnsimple_email_forward" "hello" {
 	domain = "%s"
 
@@ -117,7 +117,7 @@ resource "dnsimple_email_forward" "hello" {
 	destination_email	= "hi@example.com"
 }`
 
-const testAccCheckDNSimpleEmailForwardConfig_new_value = `
+const testAccCheckDnsimpleEmailForwardConfigNewValue = `
 resource "dnsimple_email_forward" "hello" {
 	domain = "%s"
 

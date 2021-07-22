@@ -1,13 +1,15 @@
 package dnsimple
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
-	p := &schema.Provider{
+// Provider returns a schema.Provider.
+func Provider() *schema.Provider {
+	provider := &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"token": {
 				Type:        schema.TypeString,
@@ -23,7 +25,7 @@ func Provider() terraform.ResourceProvider {
 				Description: "The account for API operations.",
 			},
 
-			"sandbox": &schema.Schema{
+			"sandbox": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_SANDBOX", nil),
@@ -35,27 +37,22 @@ func Provider() terraform.ResourceProvider {
 			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
 			"dnsimple_record":        resourceDNSimpleRecord(),
 		},
-	}
-	p.ConfigureFunc = func(d *schema.ResourceData) (interface{}, error) {
-		terraformVersion := p.TerraformVersion
-		if terraformVersion == "" {
-			// Terraform 0.12 introduced this field to the protocol
-			// We can therefore assume that if it's missing it's 0.10 or 0.11
-			terraformVersion = "0.11+compatible"
-		}
-		return providerConfigure(d, terraformVersion)
-	}
+		ConfigureContextFunc: func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
+			terraformVersion := schema.Provider{}.TerraformVersion
+			if terraformVersion == "" {
+				// Terraform 0.12 introduced this field to the protocol
+				// We can therefore assume that if it's missing it's 0.10 or 0.11
+				terraformVersion = "0.11+compatible"
+			}
+			config := Config{
+				Token:            data.Get("token").(string),
+				Account:          data.Get("account").(string),
+				Sandbox:          data.Get("sandbox").(bool),
+				terraformVersion: terraformVersion,
+			}
 
-	return p
-}
-
-func providerConfigure(d *schema.ResourceData, terraformVersion string) (interface{}, error) {
-	config := Config{
-		Token:            d.Get("token").(string),
-		Account:          d.Get("account").(string),
-		Sandbox:          d.Get("sandbox").(bool),
-		terraformVersion: terraformVersion,
+			return config.Client()
+		},
 	}
-
-	return config.Client()
+	return provider
 }
