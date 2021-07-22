@@ -2,7 +2,7 @@ package dnsimple
 
 import (
 	"os"
-	testing2 "testing"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -19,13 +19,13 @@ func init() {
 	}
 }
 
-func TestProvider(t *testing2.T) {
+func TestProvider(t *testing.T) {
 	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
-func TestProvider_sandbox(t *testing2.T) {
+func TestProvider_sandbox(t *testing.T) {
 	if v := os.Getenv("DNSIMPLE_SANDBOX"); v != "" {
 		provider := testAccProvider.Meta().(*Client)
 		if provider.config.Sandbox != true {
@@ -38,11 +38,11 @@ func TestProvider_sandbox(t *testing2.T) {
 	}
 }
 
-func TestProvider_impl(t *testing2.T) {
+func TestProvider_impl(t *testing.T) {
 	var _ = Provider()
 }
 
-func testAccPreCheck(t *testing2.T) {
+func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("DNSIMPLE_TOKEN"); v == "" {
 		t.Fatal("DNSIMPLE_TOKEN must be set for acceptance tests")
 	}

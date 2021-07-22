@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	testing2 "testing"
+	"testing"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccCheckDNSimpleEmailForwardConfig_Basic(t *testing2.T) {
+func TestAccCheckDNSimpleEmailForwardConfig_Basic(t *testing.T) {
 	var emailForward dnsimple.EmailForward
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 

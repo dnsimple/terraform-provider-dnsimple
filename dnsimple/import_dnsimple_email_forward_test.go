@@ -3,12 +3,12 @@ package dnsimple
 import (
 	"fmt"
 	"os"
-	testing2 "testing"
+	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccDnsimpleEmailForward_import(t *testing2.T) {
+func TestAccDnsimpleEmailForward_import(t *testing.T) {
 
 	resourceName := "dnsimple_email_forward.wildcard"
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
