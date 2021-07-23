@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccDnsimpleRecord_import(t *testing.T) {
-	resourceName := "dnsimple_record.foobar"
+	resourceName := "dnsimple_zone_record.foobar"
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
@@ -31,8 +31,8 @@ func TestAccDnsimpleRecord_import(t *testing.T) {
 }
 
 const testAccCheckDnsimpleRecordConfigImport = `
-resource "dnsimple_record" "foobar" {
-	domain = "%s"
+resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
 
 	name = "terraform"
 	value = "192.168.0.10"

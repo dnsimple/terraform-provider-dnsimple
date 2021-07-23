@@ -24,14 +24,14 @@ func TestAccDNSimpleRecord_Basic(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					testAccCheckDNSimpleRecordAttributes(&record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", "terraform"),
+						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "192.168.0.10"),
+						"dnsimple_zone_record.foobar", "value", "192.168.0.10"),
 				),
 			},
 		},
@@ -50,15 +50,15 @@ func TestAccDNSimpleRecord_CreateMxWithPriority(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMx, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", ""),
+						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "mx.example.com"),
+						"dnsimple_zone_record.foobar", "value", "mx.example.com"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "priority", "5"),
+						"dnsimple_zone_record.foobar", "priority", "5"),
 				),
 			},
 		},
@@ -77,27 +77,27 @@ func TestAccDNSimpleRecord_Updated(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					testAccCheckDNSimpleRecordAttributes(&record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", "terraform"),
+						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "192.168.0.10"),
+						"dnsimple_zone_record.foobar", "value", "192.168.0.10"),
 				),
 			},
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigNewValue, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					testAccCheckDNSimpleRecordAttributesUpdated(&record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", "terraform"),
+						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "192.168.0.11"),
+						"dnsimple_zone_record.foobar", "value", "192.168.0.11"),
 				),
 			},
 		},
@@ -116,7 +116,7 @@ func TestAccDNSimpleRecord_disappears(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					testAccCheckDNSimpleRecordDisappears(&record, domain),
 				),
 				ExpectNonEmptyPlan: true,
@@ -137,29 +137,29 @@ func TestAccDNSimpleRecord_UpdatedMx(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMx, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", ""),
+						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "mx.example.com"),
+						"dnsimple_zone_record.foobar", "value", "mx.example.com"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "priority", "5"),
+						"dnsimple_zone_record.foobar", "priority", "5"),
 				),
 			},
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMxNewValue, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", ""),
+						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "domain", domain),
+						"dnsimple_zone_record.foobar", "zone_name", domain),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "mx2.example.com"),
+						"dnsimple_zone_record.foobar", "value", "mx2.example.com"),
 					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "priority", "10"),
+						"dnsimple_zone_record.foobar", "priority", "10"),
 				),
 			},
 		},
@@ -185,12 +185,12 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 	provider := testAccProvider.Meta().(*Client)
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "dnsimple_record" {
+		if rs.Type != "dnsimple_zone_record" {
 			continue
 		}
 
 		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		_, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		_, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["zone_name"], recordID)
 		if err == nil {
 			return fmt.Errorf("record still exists")
 		}
@@ -236,7 +236,7 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 		provider := testAccProvider.Meta().(*Client)
 
 		recordID, _ := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["domain"], recordID)
+		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, rs.Primary.Attributes["zone_name"], recordID)
 		if err != nil {
 			return err
 		}
@@ -253,8 +253,8 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 }
 
 const testAccCheckDnsimpleRecordConfigBasic = `
-resource "dnsimple_record" "foobar" {
-	domain = "%s"
+resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
 
 	name = "terraform"
 	value = "192.168.0.10"
@@ -263,8 +263,8 @@ resource "dnsimple_record" "foobar" {
 }`
 
 const testAccCheckDnsimpleRecordConfigNewValue = `
-resource "dnsimple_record" "foobar" {
-	domain = "%s"
+resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
 
 	name = "terraform"
 	value = "192.168.0.11"
@@ -273,8 +273,8 @@ resource "dnsimple_record" "foobar" {
 }`
 
 const testAccCheckDnsimpleRecordConfigMx = `
-resource "dnsimple_record" "foobar" {
-	domain = "%s"
+resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
 
 	name = ""
 	value = "mx.example.com"
@@ -284,8 +284,8 @@ resource "dnsimple_record" "foobar" {
 }`
 
 const testAccCheckDnsimpleRecordConfigMxNewValue = `
-resource "dnsimple_record" "foobar" {
-	domain = "%s"
+resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
 
 	name = ""
 	value = "mx2.example.com"

@@ -24,7 +24,7 @@ provider "dnsimple" {
 }
 
 # Create a record
-resource "dnsimple_record" "www" {
+resource "dnsimple_zone_record" "www" {
   # ...
 }
 
