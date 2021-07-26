@@ -1,12 +1,8 @@
 ---
-layout: "dnsimple"
 page_title: "DNSimple: dnsimple_zone_record"
-sidebar_current: "docs-dnsimple-resource-zone-record"
-description: |-
-  Provides a DNSimple zone record resource.
 ---
 
-# dnsimple\_zone_record
+# dnsimple\_zone\_record
 
 Provides a DNSimple zone record resource.
 
