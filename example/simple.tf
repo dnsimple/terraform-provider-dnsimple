@@ -31,8 +31,8 @@ variable "dnsimple_domain" {
 }
 
 # Create a record
-resource "dnsimple_record" "test-txt" {
-    domain = var.dnsimple_domain
+resource "dnsimple_zone_record" "test-txt" {
+    zone_name = var.dnsimple_domain
     name   = "test-tf-txt"
     value  = "Hello Terraform!"
     type   = "TXT"

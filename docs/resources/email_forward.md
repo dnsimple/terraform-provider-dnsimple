@@ -1,9 +1,5 @@
 ---
-layout: "dnsimple"
 page_title: "DNSimple: dnsimple_email_forward"
-sidebar_current: "docs-dnsimple-resource-email-forward"
-description: |-
-  Provides a DNSimple email forward resource.
 ---
 
 # dnsimple\_email\_forward

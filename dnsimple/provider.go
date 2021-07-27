@@ -35,7 +35,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
-			"dnsimple_record":        resourceDNSimpleRecord(),
+			"dnsimple_zone_record":   resourceDNSimpleZoneRecord(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			terraformVersion := schema.Provider{}.TerraformVersion
