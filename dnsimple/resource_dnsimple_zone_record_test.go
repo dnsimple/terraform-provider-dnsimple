@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"reflect"
 	"strconv"
 	"testing"
 
@@ -249,6 +250,31 @@ func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) res
 		*record = *foundRecord
 
 		return nil
+	}
+}
+
+func testZoneRecordInstanceStateDataV0() map[string]interface{} {
+	return map[string]interface{}{
+		"domain": "example.com",
+	}
+}
+
+func testZoneRecordInstanceStateDataV1() map[string]interface{} {
+	v0 := testZoneRecordInstanceStateDataV0()
+	return map[string]interface{}{
+		"zone_name": v0["domain"],
+	}
+}
+
+func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
+	expected := testZoneRecordInstanceStateDataV1()
+	actual, err := resourceDNSimpleZoneRecordInstanceStateUpgradeV0(nil, testZoneRecordInstanceStateDataV0(), nil)
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
 	}
 }
 

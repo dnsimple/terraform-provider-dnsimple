@@ -67,7 +67,34 @@ func resourceDNSimpleZoneRecord() *schema.Resource {
 				Optional: true,
 			},
 		},
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceDNSimpleZoneRecordInstanceResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceDNSimpleZoneRecordInstanceStateUpgradeV0,
+				Version: 0,
+			},
+		},
 	}
+}
+
+func resourceDNSimpleZoneRecordInstanceResourceV0() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"domain": {
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
+			},
+		},
+	}
+}
+
+func resourceDNSimpleZoneRecordInstanceStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	rawState["zone_name"] = rawState["domain"]
+	delete(rawState, "domain")
+
+	return rawState, nil
 }
 
 func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
