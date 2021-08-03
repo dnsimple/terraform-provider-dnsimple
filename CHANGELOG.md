@@ -1,5 +1,7 @@
 ## master
 
+* Adds the zone data-source
+
 ## 0.6.0
 
 NOTES
