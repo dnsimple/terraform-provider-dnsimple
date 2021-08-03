@@ -2,7 +2,7 @@
 page_title: "DNSimple: dnsimple_domain"
 ---
 
-# dnsimple\domain
+# dnsimple\_domain
 
 Provides a DNSimple domain resource.
 
