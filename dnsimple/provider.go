@@ -34,6 +34,7 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"dnsimple_domain":        resourceDNSimpleDomain(),
 			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
 			"dnsimple_zone_record":   resourceDNSimpleZoneRecord(),
 		},

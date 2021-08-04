@@ -1,5 +1,7 @@
 ## master
 
+* Adds the domain resource (to create domains in DNSimple)
+
 ## 0.6.0
 
 NOTES
