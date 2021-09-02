@@ -36,6 +36,7 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"dnsimple_domain":        resourceDNSimpleDomain(),
 			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
+			"dnsimple_lets_encrypt_certificate": resourceDNSimpleLetsEncryptCertificate(),
 			"dnsimple_zone_record":   resourceDNSimpleZoneRecord(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
