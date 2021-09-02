@@ -1,5 +1,7 @@
 ## master
 
+## 0.9.0
+
 * Adds the zone data-source
 * Adds the domain resource (to create domains in DNSimple)
 
