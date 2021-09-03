@@ -1,5 +1,9 @@
 ## master
 
+## 0.9.2
+
+* Adds the deprecated `resource_dnsimple_record`
+
 ## 0.9.1
 
 * Brings the `dnsimple_record` configuration back and adds a deprecation warning
