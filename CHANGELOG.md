@@ -1,5 +1,7 @@
 ## master
 
+## 0.9.1
+
 * Brings the `dnsimple_record` configuration back and adds a deprecation warning
 
 ## 0.9.0
