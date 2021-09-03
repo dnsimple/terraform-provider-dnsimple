@@ -39,6 +39,32 @@ func TestAccDNSimpleRecord_Basic(t *testing.T) {
 	})
 }
 
+func TestAccDNSimpleRecord_BasicOldConf(t *testing.T) {
+	var record dnsimple.ZoneRecord
+	domain := os.Getenv("DNSIMPLE_DOMAIN")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasicOld, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
+					testAccCheckDNSimpleRecordAttributes(&record),
+					resource.TestCheckResourceAttr(
+						"dnsimple_record.foobar", "name", "terraform"),
+					resource.TestCheckResourceAttr(
+						"dnsimple_record.foobar", "zone_name", domain),
+					resource.TestCheckResourceAttr(
+						"dnsimple_record.foobar", "value", "192.168.0.10"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDNSimpleRecord_CreateMxWithPriority(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
@@ -280,6 +306,16 @@ func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
 
 const testAccCheckDnsimpleRecordConfigBasic = `
 resource "dnsimple_zone_record" "foobar" {
+	zone_name = "%s"
+
+	name = "terraform"
+	value = "192.168.0.10"
+	type = "A"
+	ttl = 3600
+}`
+
+const testAccCheckDnsimpleRecordConfigBasicOld = `
+resource "dnsimple_record" "foobar" {
 	zone_name = "%s"
 
 	name = "terraform"

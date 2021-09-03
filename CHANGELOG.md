@@ -1,5 +1,7 @@
 ## master
 
+* Brings the `dnsimple_record` configuration back and adds a deprecation warning
+
 ## 0.9.0
 
 * Adds the zone data-source
