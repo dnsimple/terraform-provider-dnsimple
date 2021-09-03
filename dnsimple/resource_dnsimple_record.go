@@ -12,24 +12,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceDNSimpleZoneRecord() *schema.Resource {
+func resourceDNSimpleRecord() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDNSimpleZoneRecordCreate,
-		ReadContext:   resourceDNSimpleZoneRecordRead,
-		UpdateContext: resourceDNSimpleZoneRecordUpdate,
-		DeleteContext: resourceDNSimpleZoneRecordDelete,
+		CreateContext: resourceDNSimpleRecordCreate,
+		ReadContext:   resourceDNSimpleRecordRead,
+		UpdateContext: resourceDNSimpleRecordUpdate,
+		DeleteContext: resourceDNSimpleRecordDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceDNSimpleZoneRecordImport,
+			StateContext: resourceDNSimpleRecordImport,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"zone_name": {
+			"domain": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"zone_id": {
+			"domain_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -39,7 +39,7 @@ func resourceDNSimpleZoneRecord() *schema.Resource {
 				Required: true,
 			},
 
-			"qualified_name": {
+			"hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -67,37 +67,16 @@ func resourceDNSimpleZoneRecord() *schema.Resource {
 				Optional: true,
 			},
 		},
-		SchemaVersion: 1,
-		StateUpgraders: []schema.StateUpgrader{
-			{
-				Type:    resourceDNSimpleZoneRecordInstanceResourceV0().CoreConfigSchema().ImpliedType(),
-				Upgrade: resourceDNSimpleZoneRecordInstanceStateUpgradeV0,
-				Version: 0,
-			},
-		},
 	}
 }
 
-func resourceDNSimpleZoneRecordInstanceResourceV0() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"domain": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
-			},
-		},
-	}
+func deprecationWarning() {
+	fmt.Println("WARNING! This resource (dnsimple_record) is deprecated and will be removed in future versions")
+	fmt.Println("Please consider changing your configuration to use dnsimple_zone_record instead")
 }
 
-func resourceDNSimpleZoneRecordInstanceStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
-	rawState["zone_name"] = rawState["domain"]
-	delete(rawState, "domain")
-
-	return rawState, nil
-}
-
-func resourceDNSimpleZoneRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
 	// Create the new record
@@ -115,7 +94,7 @@ func resourceDNSimpleZoneRecordCreate(_ context.Context, data *schema.ResourceDa
 
 	log.Printf("[DEBUG] DNSimple Record create recordAttributes: %#v", recordAttributes)
 
-	resp, err := provider.client.Zones.CreateRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordAttributes)
+	resp, err := provider.client.Zones.CreateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordAttributes)
 	if err != nil {
 		return diag.Errorf("Failed to create DNSimple Record: %s", err)
 	}
@@ -123,10 +102,11 @@ func resourceDNSimpleZoneRecordCreate(_ context.Context, data *schema.ResourceDa
 	data.SetId(strconv.FormatInt(resp.Data.ID, 10))
 	log.Printf("[INFO] DNSimple Record ID: %s", data.Id())
 
-	return resourceDNSimpleZoneRecordRead(nil, data, meta)
+	return resourceDNSimpleRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
 	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
@@ -134,7 +114,7 @@ func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
+	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Record Not Found - Refreshing from State")
@@ -145,7 +125,7 @@ func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData
 	}
 
 	record := resp.Data
-	data.Set("zone_id", record.ZoneID)
+	data.Set("domain_id", record.ZoneID)
 	data.Set("name", record.Name)
 	data.Set("type", record.Type)
 	data.Set("value", record.Content)
@@ -153,15 +133,16 @@ func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData
 	data.Set("priority", strconv.Itoa(record.Priority))
 
 	if record.Name == "" {
-		data.Set("qualified_name", data.Get("zone_name").(string))
+		data.Set("hostname", data.Get("domain").(string))
 	} else {
-		data.Set("qualified_name", fmt.Sprintf("%s.%s", record.Name, data.Get("zone_name").(string)))
+		data.Set("hostname", fmt.Sprintf("%s.%s", record.Name, data.Get("domain").(string)))
 	}
 
 	return nil
 }
 
-func resourceDNSimpleZoneRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
 	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
@@ -188,25 +169,26 @@ func resourceDNSimpleZoneRecordUpdate(_ context.Context, data *schema.ResourceDa
 
 	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", recordAttributes)
 
-	_, err = provider.client.Zones.UpdateRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID, recordAttributes)
+	_, err = provider.client.Zones.UpdateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID, recordAttributes)
 	if err != nil {
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 
-	return resourceDNSimpleZoneRecordRead(nil, data, meta)
+	return resourceDNSimpleRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleZoneRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
-	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", data.Get("zone_name").(string), data.Id())
+	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", data.Get("domain").(string), data.Id())
 
 	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
 	if err != nil {
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	_, err = provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
+	_, err = provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
 		return diag.Errorf("Error deleting DNSimple Record: %s", err)
 	}
@@ -214,17 +196,18 @@ func resourceDNSimpleZoneRecordDelete(_ context.Context, data *schema.ResourceDa
 	return nil
 }
 
-func resourceDNSimpleZoneRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	deprecationWarning()
 	parts := strings.Split(data.Id(), "_")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("error Importing dnsimple_zone_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234)")
+		return nil, fmt.Errorf("error Importing dnsimple_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234)")
 	}
 
 	data.SetId(parts[1])
-	data.Set("zone_name", parts[0])
+	data.Set("domain", parts[0])
 
-	if err := resourceDNSimpleZoneRecordRead(nil, data, meta); err != nil {
+	if err := resourceDNSimpleRecordRead(nil, data, meta); err != nil {
 		return nil, fmt.Errorf(err[0].Summary)
 	}
 	return []*schema.ResourceData{data}, nil

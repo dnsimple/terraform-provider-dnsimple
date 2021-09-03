@@ -13,20 +13,20 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccDNSimpleRecord_Basic(t *testing.T) {
+func TestAccDNSimpleZoneRecord_Basic(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
-					testAccCheckDNSimpleRecordAttributes(&record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordAttributes(&record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
@@ -39,45 +39,19 @@ func TestAccDNSimpleRecord_Basic(t *testing.T) {
 	})
 }
 
-func TestAccDNSimpleRecord_BasicOldConf(t *testing.T) {
+func TestAccDNSimpleZoneRecord_CreateMxWithPriority(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasicOld, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigMx, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_record.foobar", &record),
-					testAccCheckDNSimpleRecordAttributes(&record),
-					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "name", "terraform"),
-					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "zone_name", domain),
-					resource.TestCheckResourceAttr(
-						"dnsimple_record.foobar", "value", "192.168.0.10"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccDNSimpleRecord_CreateMxWithPriority(t *testing.T) {
-	var record dnsimple.ZoneRecord
-	domain := os.Getenv("DNSIMPLE_DOMAIN")
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMx, domain),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
@@ -92,20 +66,20 @@ func TestAccDNSimpleRecord_CreateMxWithPriority(t *testing.T) {
 	})
 }
 
-func TestAccDNSimpleRecord_Updated(t *testing.T) {
+func TestAccDNSimpleZoneRecord_Updated(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
-					testAccCheckDNSimpleRecordAttributes(&record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordAttributes(&record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
@@ -115,10 +89,10 @@ func TestAccDNSimpleRecord_Updated(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigNewValue, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigNewValue, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
-					testAccCheckDNSimpleRecordAttributesUpdated(&record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordAttributesUpdated(&record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", "terraform"),
 					resource.TestCheckResourceAttr(
@@ -131,20 +105,20 @@ func TestAccDNSimpleRecord_Updated(t *testing.T) {
 	})
 }
 
-func TestAccDNSimpleRecord_disappears(t *testing.T) {
+func TestAccDNSimpleZoneRecord_disappears(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigBasic, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
-					testAccCheckDNSimpleRecordDisappears(&record, domain),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordDisappears(&record, domain),
 				),
 				ExpectNonEmptyPlan: true,
 			},
@@ -152,19 +126,19 @@ func TestAccDNSimpleRecord_disappears(t *testing.T) {
 	})
 }
 
-func TestAccDNSimpleRecord_UpdatedMx(t *testing.T) {
+func TestAccDNSimpleZoneRecord_UpdatedMx(t *testing.T) {
 	var record dnsimple.ZoneRecord
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviderFactories,
-		CheckDestroy:      testAccCheckDNSimpleRecordDestroy,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMx, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigMx, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
@@ -176,9 +150,9 @@ func TestAccDNSimpleRecord_UpdatedMx(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(testAccCheckDnsimpleRecordConfigMxNewValue, domain),
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigMxNewValue, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDNSimpleRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
 					resource.TestCheckResourceAttr(
 						"dnsimple_zone_record.foobar", "name", ""),
 					resource.TestCheckResourceAttr(
@@ -193,7 +167,7 @@ func TestAccDNSimpleRecord_UpdatedMx(t *testing.T) {
 	})
 }
 
-func testAccCheckDNSimpleRecordDisappears(record *dnsimple.ZoneRecord, domain string) resource.TestCheckFunc {
+func testAccCheckDNSimpleZoneRecordDisappears(record *dnsimple.ZoneRecord, domain string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		provider := testAccProvider.Meta().(*Client)
@@ -208,7 +182,7 @@ func testAccCheckDNSimpleRecordDisappears(record *dnsimple.ZoneRecord, domain st
 
 }
 
-func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
+func testAccCheckDNSimpleZoneRecordDestroy(s *terraform.State) error {
 	provider := testAccProvider.Meta().(*Client)
 
 	for _, rs := range s.RootModule().Resources {
@@ -226,7 +200,7 @@ func testAccCheckDNSimpleRecordDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
+func testAccCheckDNSimpleZoneRecordAttributes(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		if want, got := "192.168.0.10", record.Content; want != got {
@@ -237,7 +211,7 @@ func testAccCheckDNSimpleRecordAttributes(record *dnsimple.ZoneRecord) resource.
 	}
 }
 
-func testAccCheckDNSimpleRecordAttributesUpdated(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
+func testAccCheckDNSimpleZoneRecordAttributesUpdated(record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 
 		if want, got := "192.168.0.11", record.Content; want != got {
@@ -248,7 +222,7 @@ func testAccCheckDNSimpleRecordAttributesUpdated(record *dnsimple.ZoneRecord) re
 	}
 }
 
-func testAccCheckDNSimpleRecordExists(n string, record *dnsimple.ZoneRecord) resource.TestCheckFunc {
+func testAccCheckDNSimpleZoneRecordExists(n string, record *dnsimple.ZoneRecord) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 
@@ -304,7 +278,7 @@ func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
 	}
 }
 
-const testAccCheckDnsimpleRecordConfigBasic = `
+const testAccCheckDnsimpleZoneRecordConfigBasic = `
 resource "dnsimple_zone_record" "foobar" {
 	zone_name = "%s"
 
@@ -314,17 +288,7 @@ resource "dnsimple_zone_record" "foobar" {
 	ttl = 3600
 }`
 
-const testAccCheckDnsimpleRecordConfigBasicOld = `
-resource "dnsimple_record" "foobar" {
-	zone_name = "%s"
-
-	name = "terraform"
-	value = "192.168.0.10"
-	type = "A"
-	ttl = 3600
-}`
-
-const testAccCheckDnsimpleRecordConfigNewValue = `
+const testAccCheckDnsimpleZoneRecordConfigNewValue = `
 resource "dnsimple_zone_record" "foobar" {
 	zone_name = "%s"
 
@@ -334,7 +298,7 @@ resource "dnsimple_zone_record" "foobar" {
 	ttl = 3600
 }`
 
-const testAccCheckDnsimpleRecordConfigMx = `
+const testAccCheckDnsimpleZoneRecordConfigMx = `
 resource "dnsimple_zone_record" "foobar" {
 	zone_name = "%s"
 
@@ -345,7 +309,7 @@ resource "dnsimple_zone_record" "foobar" {
 	priority = 5
 }`
 
-const testAccCheckDnsimpleRecordConfigMxNewValue = `
+const testAccCheckDnsimpleZoneRecordConfigMxNewValue = `
 resource "dnsimple_zone_record" "foobar" {
 	zone_name = "%s"
 
