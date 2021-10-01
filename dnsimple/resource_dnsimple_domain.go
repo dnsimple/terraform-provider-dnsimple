@@ -16,6 +16,9 @@ func resourceDNSimpleDomain() *schema.Resource {
 		CreateContext: resourceDNSimpleDomainCreate,
 		ReadContext:   resourceDNSimpleDomainRead,
 		DeleteContext: resourceDNSimpleDomainDelete,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 
 		Schema: map[string]*schema.Schema{
 			"name": {
