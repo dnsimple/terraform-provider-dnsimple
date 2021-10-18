@@ -134,17 +134,31 @@ func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
-	if err != nil {
-		if strings.Contains(err.Error(), "404") {
-			log.Printf("DNSimple Record Not Found - Refreshing from State")
-			data.SetId("")
-			return nil
+	var record *dnsimple.ZoneRecord
+
+	if provider.config.Prefetch {
+		records := fetchZoneRecords(provider, provider.config.Account, data.Get("zone_name").(string), nil)
+
+		for index := range records {
+			if records[index].Name == data.Get("name").(string) {
+				record = &records[index]
+				break
+			}
 		}
-		return diag.Errorf("Couldn't find DNSimple Record: %s", err)
+	} else {
+		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
+		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				log.Printf("DNSimple Record Not Found - Refreshing from State")
+				data.SetId("")
+				return nil
+			}
+			return diag.Errorf("Couldn't find DNSimple Record: %s", err)
+		}
+
+		record = resp.Data
 	}
 
-	record := resp.Data
 	data.Set("zone_id", record.ZoneID)
 	data.Set("name", record.Name)
 	data.Set("type", record.Type)

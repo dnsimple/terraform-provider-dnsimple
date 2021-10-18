@@ -17,19 +17,23 @@ const (
 )
 
 type Config struct {
-	Email   string
-	Account string
-	Token   string
-	Sandbox bool
+	Email    string
+	Account  string
+	Token    string
+	Sandbox  bool
+	Prefetch bool
 
 	terraformVersion string
 }
+
+type Cache map[string][]dnsimple.ZoneRecord
 
 // Client represents the DNSimple provider client.
 // This is a convenient container for the configuration and the underlying API client.
 type Client struct {
 	client *dnsimple.Client
 	config *Config
+	cache  Cache
 }
 
 // Client returns a new client for accessing DNSimple.
@@ -46,6 +50,7 @@ func (config *Config) Client() (*Client, diag.Diagnostics) {
 	provider := &Client{
 		client: client,
 		config: config,
+		cache:  make(map[string][]dnsimple.ZoneRecord),
 	}
 
 	log.Printf("[INFO] DNSimple Client configured for account: %s, sandbox: %v", config.Account, config.Sandbox)

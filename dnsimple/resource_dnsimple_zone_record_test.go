@@ -2,6 +2,7 @@ package dnsimple
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -165,6 +166,40 @@ func TestAccDNSimpleZoneRecord_UpdatedMx(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccDNSimpleZoneRecord_Prefetch(t *testing.T) {
+	var record dnsimple.ZoneRecord
+	domain := os.Getenv("DNSIMPLE_DOMAIN")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			os.Setenv("PREFETCH", "1")
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigBasic, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDnsimpleZoneRecordPrefetch("dnsimple_zone_record.foobar", &record),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckDnsimpleZoneRecordPrefetch(n string, record *dnsimple.ZoneRecord) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		provider := testAccProvider.Meta().(*Client)
+
+		if len(provider.cache) == 0 {
+			return errors.New("cache wasn't populated")
+		}
+
+		return nil
+	}
 }
 
 func testAccCheckDNSimpleZoneRecordDisappears(record *dnsimple.ZoneRecord, domain string) resource.TestCheckFunc {
