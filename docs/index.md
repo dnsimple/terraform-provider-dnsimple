@@ -37,7 +37,9 @@ The following arguments are supported:
 
 * `token` - (Required) The DNSimple API v2 token. It must be provided, but it can also be sourced from the `DNSIMPLE_TOKEN` environment variable. Please note that this must be an [API v2 token](https://support.dnsimple.com/articles/api-access-token/). You can use either an User or Account token, but an Account token is recommended.
 * `account` - (Required) The ID of the account associated with the token. It must be provided, but it can also be sourced from the `DNSIMPLE_ACCOUNT` environment variable.
-* `sandbox` - Set to true to connects to the API [sandbox environment](https://developer.dnsimple.com/sandbox/).
+* `sandbox` - Set to true to connect to the API [sandbox environment](https://developer.dnsimple.com/sandbox/).
+* `prefetch` - Set to true to enable prefetching `ZoneRecords` when dealing with large configurations. This is useful
+when you are dealing with API rate limitations given your number of zones and zone records.
 
 
 ## API v2 vs API v1
