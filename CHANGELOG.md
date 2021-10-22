@@ -1,5 +1,7 @@
 ## master
 
+* Adds the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
+
 ## 0.9.2
 
 * Adds the deprecated `resource_dnsimple_record`
