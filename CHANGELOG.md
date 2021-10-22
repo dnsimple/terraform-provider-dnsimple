@@ -1,5 +1,7 @@
 ## master
 
+## 0.10.0
+
 * Adds the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
 
 ## 0.9.2
