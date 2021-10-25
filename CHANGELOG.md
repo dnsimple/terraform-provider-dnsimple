@@ -1,5 +1,7 @@
 ## master
 
+* Adds the `dnsimple_domain` import to import domains.
+
 ## 0.10.0
 
 * Adds the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
