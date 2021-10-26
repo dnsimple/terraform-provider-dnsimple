@@ -38,6 +38,15 @@ func TestProvider_sandbox(t *testing.T) {
 	}
 }
 
+func TestProvider_prefetch(t *testing.T) {
+	if v := os.Getenv("PREFETCH"); v != "" {
+		provider := testAccProvider.Meta().(*Client)
+		if provider.config.Prefetch != true {
+			t.Fatal("Config Prefetch Flag does not equal True!")
+		}
+	}
+}
+
 func TestProvider_impl(t *testing.T) {
 	var _ = Provider()
 }

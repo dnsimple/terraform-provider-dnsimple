@@ -31,6 +31,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_SANDBOX", nil),
 				Description: "Flag to enable the sandbox API.",
 			},
+			"prefetch": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("PREFETCH", nil),
+				Description: "Flag to enable the prefetch of zone records",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -38,6 +44,10 @@ func Provider() *schema.Provider {
 			"dnsimple_email_forward": resourceDNSimpleEmailForward(),
 			"dnsimple_lets_encrypt_certificate": resourceDNSimpleLetsEncryptCertificate(),
 			"dnsimple_zone_record":   resourceDNSimpleZoneRecord(),
+			"dnsimple_record":        resourceDNSimpleRecord(),
+		},
+		DataSourcesMap: map[string]*schema.Resource{
+			"dnsimple_zone": datasourceDNSimpleZone(),
 		},
 		ConfigureContextFunc: func(ctx context.Context, data *schema.ResourceData) (interface{}, diag.Diagnostics) {
 			terraformVersion := schema.Provider{}.TerraformVersion
@@ -50,6 +60,7 @@ func Provider() *schema.Provider {
 				Token:            data.Get("token").(string),
 				Account:          data.Get("account").(string),
 				Sandbox:          data.Get("sandbox").(bool),
+				Prefetch:         data.Get("prefetch").(bool),
 				terraformVersion: terraformVersion,
 			}
 

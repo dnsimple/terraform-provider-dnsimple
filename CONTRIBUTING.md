@@ -50,10 +50,7 @@ You can use the `./example/simple.tf` config to test the provider.
 ```shell
 cd example
 terraform init && terraform apply --auto-approve
-
-
-
-
+```
 
 ## Releasing
 

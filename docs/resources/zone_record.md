@@ -6,6 +6,11 @@ page_title: "DNSimple: dnsimple_zone_record"
 
 Provides a DNSimple zone record resource.
 
+## Deprecation warning
+
+You can still use the _deprecated_ `dnsimple_record` configuration, but be aware that it will be removed in the
+upcoming 1.0.0 release.
+
 ## Example Usage
 
 ```hcl

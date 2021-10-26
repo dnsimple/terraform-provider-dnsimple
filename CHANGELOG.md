@@ -1,5 +1,22 @@
 ## master
 
+* Adds the `dnsimple_domain` import to import domains.
+
+## 0.10.0
+
+* Adds the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
+
+## 0.9.2
+
+* Adds the deprecated `resource_dnsimple_record`
+
+## 0.9.1
+
+* Brings the `dnsimple_record` configuration back and adds a deprecation warning
+
+## 0.9.0
+
+* Adds the zone data-source
 * Adds the domain resource (to create domains in DNSimple)
 
 ## 0.6.0

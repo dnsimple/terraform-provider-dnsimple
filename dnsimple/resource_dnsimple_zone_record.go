@@ -14,12 +14,12 @@ import (
 
 func resourceDNSimpleZoneRecord() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceDNSimpleRecordCreate,
-		ReadContext:   resourceDNSimpleRecordRead,
-		UpdateContext: resourceDNSimpleRecordUpdate,
-		DeleteContext: resourceDNSimpleRecordDelete,
+		CreateContext: resourceDNSimpleZoneRecordCreate,
+		ReadContext:   resourceDNSimpleZoneRecordRead,
+		UpdateContext: resourceDNSimpleZoneRecordUpdate,
+		DeleteContext: resourceDNSimpleZoneRecordDelete,
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceDNSimpleRecordImport,
+			StateContext: resourceDNSimpleZoneRecordImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -97,7 +97,7 @@ func resourceDNSimpleZoneRecordInstanceStateUpgradeV0(ctx context.Context, rawSt
 	return rawState, nil
 }
 
-func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleZoneRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	// Create the new record
@@ -123,10 +123,10 @@ func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, 
 	data.SetId(strconv.FormatInt(resp.Data.ID, 10))
 	log.Printf("[INFO] DNSimple Record ID: %s", data.Id())
 
-	return resourceDNSimpleRecordRead(nil, data, meta)
+	return resourceDNSimpleZoneRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleZoneRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
@@ -134,17 +134,31 @@ func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, me
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
-	if err != nil {
-		if strings.Contains(err.Error(), "404") {
-			log.Printf("DNSimple Record Not Found - Refreshing from State")
-			data.SetId("")
-			return nil
+	var record *dnsimple.ZoneRecord
+
+	if provider.config.Prefetch {
+		records := fetchZoneRecords(provider, provider.config.Account, data.Get("zone_name").(string), nil)
+
+		for index := range records {
+			if records[index].Name == data.Get("name").(string) {
+				record = &records[index]
+				break
+			}
 		}
-		return diag.Errorf("Couldn't find DNSimple Record: %s", err)
+	} else {
+		resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("zone_name").(string), recordID)
+		if err != nil {
+			if strings.Contains(err.Error(), "404") {
+				log.Printf("DNSimple Record Not Found - Refreshing from State")
+				data.SetId("")
+				return nil
+			}
+			return diag.Errorf("Couldn't find DNSimple Record: %s", err)
+		}
+
+		record = resp.Data
 	}
 
-	record := resp.Data
 	data.Set("zone_id", record.ZoneID)
 	data.Set("name", record.Name)
 	data.Set("type", record.Type)
@@ -161,7 +175,7 @@ func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, me
 	return nil
 }
 
-func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleZoneRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
@@ -193,10 +207,10 @@ func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, 
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 
-	return resourceDNSimpleRecordRead(nil, data, meta)
+	return resourceDNSimpleZoneRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleZoneRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", data.Get("zone_name").(string), data.Id())
@@ -214,7 +228,7 @@ func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, 
 	return nil
 }
 
-func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDNSimpleZoneRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(data.Id(), "_")
 
 	if len(parts) != 2 {
@@ -224,7 +238,7 @@ func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, 
 	data.SetId(parts[1])
 	data.Set("zone_name", parts[0])
 
-	if err := resourceDNSimpleRecordRead(nil, data, meta); err != nil {
+	if err := resourceDNSimpleZoneRecordRead(nil, data, meta); err != nil {
 		return nil, fmt.Errorf(err[0].Summary)
 	}
 	return []*schema.ResourceData{data}, nil
