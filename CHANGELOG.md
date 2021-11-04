@@ -1,6 +1,7 @@
 ## master
 
 * Adds the `dnsimple_domain` import to import domains.
+* Adds the `resource_dnsimple_lets_encrypt_certificate_resource` to purchase and issue Let's Encrypt certificates.
 
 ## 0.10.0
 
