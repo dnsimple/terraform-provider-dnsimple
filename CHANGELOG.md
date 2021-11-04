@@ -2,6 +2,7 @@
 
 * Adds the `dnsimple_domain` import to import domains.
 * Adds the `resource_dnsimple_lets_encrypt_certificate_resource` to purchase and issue Let's Encrypt certificates.
+* Updates the `dnsimple-go` dependency to v0.71.0
 
 ## 0.10.0
 
