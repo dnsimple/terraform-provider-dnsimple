@@ -37,6 +37,20 @@ You can also run the integration tests like:
 DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN=example.com DNSIMPLE_SANDBOX=true make testacc
 ```
 
+### Testing the let's encrypt resource
+
+Our sandbox environment does not allow purchasing or issue certificates. For that reason, if you want to test the 
+`resource_dnsimple_lets_encrypt_certificate` you will have to run the tests in production 
+(setting `DNSIMPLE_SANDBOX=false` in the shell).
+
+First you will have to go to the `resource_dnsimple_lets_encrypt_certificate_test` and change the `domain` (line 21) 
+to a real domain ID you want test against.
+
+After that you will have to change the `testAccLetsEncrypConfig` (in that same file) changing the arguments marked:
+   - contact_id (required)
+   - and name (optional, but you might have to change it if you run the tests for a second time)
+
+
 ## Sideload the plugin
 
 Sideload the plugin
