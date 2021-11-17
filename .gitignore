@@ -22,9 +22,15 @@ website/node_modules
 .idea
 *.iml
 *.test
-*.iml
+
+vendor/
 
 website/vendor
+
+# Examples
+example/**/.terraform*
+example/**/*.tfstate
+example/**/*.tfvars
 
 # Test exclusions
 !command/test-fixtures/**/*.tfstate

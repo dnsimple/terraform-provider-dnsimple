@@ -1,23 +1,25 @@
 package dnsimple
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceDNSimpleRecord() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceDNSimpleRecordCreate,
-		Read:   resourceDNSimpleRecordRead,
-		Update: resourceDNSimpleRecordUpdate,
-		Delete: resourceDNSimpleRecordDelete,
+		CreateContext: resourceDNSimpleRecordCreate,
+		ReadContext:   resourceDNSimpleRecordRead,
+		UpdateContext: resourceDNSimpleRecordUpdate,
+		DeleteContext: resourceDNSimpleRecordDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceDNSimpleRecordImport,
+			StateContext: resourceDNSimpleRecordImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -68,138 +70,145 @@ func resourceDNSimpleRecord() *schema.Resource {
 	}
 }
 
-func resourceDNSimpleRecordCreate(d *schema.ResourceData, meta interface{}) error {
+func deprecationWarning() {
+	fmt.Println("WARNING! This resource (dnsimple_record) is deprecated and will be removed in future versions")
+	fmt.Println("Please consider changing your configuration to use dnsimple_zone_record instead")
+}
+
+func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
 	// Create the new record
-	newRecord := dnsimple.ZoneRecord{
-		Name:    d.Get("name").(string),
-		Type:    d.Get("type").(string),
-		Content: d.Get("value").(string),
+	recordAttributes := dnsimple.ZoneRecordAttributes{
+		Name:    dnsimple.String(data.Get("name").(string)),
+		Type:    data.Get("type").(string),
+		Content: data.Get("value").(string),
 	}
-	if attr, ok := d.GetOk("ttl"); ok {
-		newRecord.TTL, _ = strconv.Atoi(attr.(string))
+	if attr, ok := data.GetOk("ttl"); ok {
+		recordAttributes.TTL, _ = strconv.Atoi(attr.(string))
+	}
+	if attr, ok := data.GetOk("priority"); ok {
+		recordAttributes.Priority, _ = strconv.Atoi(attr.(string))
 	}
 
-	if attr, ok := d.GetOk("priority"); ok {
-		newRecord.Priority, _ = strconv.Atoi(attr.(string))
-	}
+	log.Printf("[DEBUG] DNSimple Record create recordAttributes: %#v", recordAttributes)
 
-	log.Printf("[DEBUG] DNSimple Record create configuration: %#v", newRecord)
-
-	resp, err := provider.client.Zones.CreateRecord(provider.config.Account, d.Get("domain").(string), newRecord)
+	resp, err := provider.client.Zones.CreateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordAttributes)
 	if err != nil {
-		return fmt.Errorf("Failed to create DNSimple Record: %s", err)
+		return diag.Errorf("Failed to create DNSimple Record: %s", err)
 	}
 
-	d.SetId(strconv.Itoa(resp.Data.ID))
-	log.Printf("[INFO] DNSimple Record ID: %s", d.Id())
+	data.SetId(strconv.FormatInt(resp.Data.ID, 10))
+	log.Printf("[INFO] DNSimple Record ID: %s", data.Id())
 
-	return resourceDNSimpleRecordRead(d, meta)
+	return resourceDNSimpleRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleRecordRead(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
 	if err != nil {
-		return fmt.Errorf("Error converting Record ID: %s", err)
+		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(provider.config.Account, d.Get("domain").(string), recordID)
+	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
-		if err != nil && strings.Contains(err.Error(), "404") {
+		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Record Not Found - Refreshing from State")
-			d.SetId("")
+			data.SetId("")
 			return nil
 		}
-		return fmt.Errorf("Couldn't find DNSimple Record: %s", err)
+		return diag.Errorf("Couldn't find DNSimple Record: %s", err)
 	}
 
 	record := resp.Data
-	d.Set("domain_id", record.ZoneID)
-	d.Set("name", record.Name)
-	d.Set("type", record.Type)
-	d.Set("value", record.Content)
-	d.Set("ttl", strconv.Itoa(record.TTL))
-	d.Set("priority", strconv.Itoa(record.Priority))
+	data.Set("domain_id", record.ZoneID)
+	data.Set("name", record.Name)
+	data.Set("type", record.Type)
+	data.Set("value", record.Content)
+	data.Set("ttl", strconv.Itoa(record.TTL))
+	data.Set("priority", strconv.Itoa(record.Priority))
 
 	if record.Name == "" {
-		d.Set("hostname", d.Get("domain").(string))
+		data.Set("hostname", data.Get("domain").(string))
 	} else {
-		d.Set("hostname", fmt.Sprintf("%s.%s", record.Name, d.Get("domain").(string)))
+		data.Set("hostname", fmt.Sprintf("%s.%s", record.Name, data.Get("domain").(string)))
 	}
 
 	return nil
 }
 
-func resourceDNSimpleRecordUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
 	if err != nil {
-		return fmt.Errorf("Error converting Record ID: %s", err)
+		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	updateRecord := dnsimple.ZoneRecord{}
-
-	if attr, ok := d.GetOk("name"); ok {
-		updateRecord.Name = attr.(string)
+	recordAttributes := dnsimple.ZoneRecordAttributes{}
+	if attr, ok := data.GetOk("name"); ok {
+		recordAttributes.Name = dnsimple.String(attr.(string))
 	}
-	if attr, ok := d.GetOk("type"); ok {
-		updateRecord.Type = attr.(string)
+	if attr, ok := data.GetOk("type"); ok {
+		recordAttributes.Type = attr.(string)
 	}
-	if attr, ok := d.GetOk("value"); ok {
-		updateRecord.Content = attr.(string)
+	if attr, ok := data.GetOk("value"); ok {
+		recordAttributes.Content = attr.(string)
 	}
-	if attr, ok := d.GetOk("ttl"); ok {
-		updateRecord.TTL, _ = strconv.Atoi(attr.(string))
+	if attr, ok := data.GetOk("ttl"); ok {
+		recordAttributes.TTL, _ = strconv.Atoi(attr.(string))
 	}
-
-	if attr, ok := d.GetOk("priority"); ok {
-		updateRecord.Priority, _ = strconv.Atoi(attr.(string))
+	if attr, ok := data.GetOk("priority"); ok {
+		recordAttributes.Priority, _ = strconv.Atoi(attr.(string))
 	}
 
-	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", updateRecord)
+	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", recordAttributes)
 
-	_, err = provider.client.Zones.UpdateRecord(provider.config.Account, d.Get("domain").(string), recordID, updateRecord)
+	_, err = provider.client.Zones.UpdateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID, recordAttributes)
 	if err != nil {
-		return fmt.Errorf("Failed to update DNSimple Record: %s", err)
+		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 
-	return resourceDNSimpleRecordRead(d, meta)
+	return resourceDNSimpleRecordRead(nil, data, meta)
 }
 
-func resourceDNSimpleRecordDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	deprecationWarning()
 	provider := meta.(*Client)
 
-	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", d.Get("domain").(string), d.Id())
+	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", data.Get("domain").(string), data.Id())
 
-	recordID, err := strconv.Atoi(d.Id())
+	recordID, err := strconv.ParseInt(data.Id(), 10, 64)
 	if err != nil {
-		return fmt.Errorf("Error converting Record ID: %s", err)
+		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	_, err = provider.client.Zones.DeleteRecord(provider.config.Account, d.Get("domain").(string), recordID)
+	_, err = provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
-		return fmt.Errorf("Error deleting DNSimple Record: %s", err)
+		return diag.Errorf("Error deleting DNSimple Record: %s", err)
 	}
 
 	return nil
 }
 
-func resourceDNSimpleRecordImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(d.Id(), "_")
+func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	deprecationWarning()
+	parts := strings.Split(data.Id(), "_")
 
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("Error Importing dnsimple_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234")
+		return nil, fmt.Errorf("error Importing dnsimple_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234)")
 	}
 
-	d.SetId(parts[1])
-	d.Set("domain", parts[0])
+	data.SetId(parts[1])
+	data.Set("domain", parts[0])
 
-	if err := resourceDNSimpleRecordRead(d, meta); err != nil {
-		return nil, err
+	if err := resourceDNSimpleRecordRead(nil, data, meta); err != nil {
+		return nil, fmt.Errorf(err[0].Summary)
 	}
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{data}, nil
 }
