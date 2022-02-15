@@ -1,5 +1,9 @@
 ## master
 
+## 0.11.1
+
+* Adds the documentation for the `resource_dnsimple_lets_encrypt_certificate_resource`.
+
 ## 0.11.0
 
 * Adds the `dnsimple_certificate' data-source
