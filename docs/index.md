@@ -9,7 +9,7 @@ with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
 
-[![IMAGE_ALT](https://img.youtube.com/vi/Rq2u8ZRjS8s/0.jpg)](https://www.youtube.com/watch?v=Rq2u8ZRjS8s)
+[![IMAGE_ALT](https://img.youtube.com/vi/cTWP1MWA-0c/0.jpg)](https://www.youtube.com/watch?v=cTWP1MWA-0c)
 
 ## Example Usage
 

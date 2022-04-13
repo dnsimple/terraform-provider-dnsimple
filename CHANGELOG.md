@@ -1,5 +1,9 @@
 ## master
 
+## 0.11.3
+
+* Fixes documentation
+
 ## 0.11.2
 
 * Adds helpful links to the documentation
