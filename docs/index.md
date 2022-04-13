@@ -9,6 +9,7 @@ with the proper credentials before it can be used.
 
 Use the navigation to the left to read about the available resources.
 
+[![IMAGE_ALT](https://img.youtube.com/vi/Rq2u8ZRjS8s/0.jpg)](https://www.youtube.com/watch?v=Rq2u8ZRjS8s)
 
 ## Example Usage
 
@@ -57,3 +58,8 @@ To upgrade from the DNSimple provider API v1 to DNSimple provider API v2 follow 
 1. Add the `account` configuration and update the `token`, as shown in the example above
 1. Remove the `email` configuration, as it's no longer used
 
+## Helpful Links
+
+* [Blog post](https://blog.dnsimple.com/2021/12/introducing-dnsimple-terraform-provider/)
+* [Support article](https://support.dnsimple.com/articles/terraform-provider/)
+* [GitHub Repo](https://github.com/dnsimple/terraform-provider-dnsimple)
