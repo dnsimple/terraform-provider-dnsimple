@@ -16,6 +16,7 @@ func Provider() *schema.Provider {
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_TOKEN", nil),
 				Description: "The API v2 token for API operations.",
+				Sensitive:   true,
 			},
 
 			"account": {
