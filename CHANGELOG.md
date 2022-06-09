@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.4
+
+* Updates the terraform-plugin-sdk to v2.17.0
+* Sets the token as sensitive so it is not logged
+ 
 ## 0.11.3
 
 * Fixes documentation
