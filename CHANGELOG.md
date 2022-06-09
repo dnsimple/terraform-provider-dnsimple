@@ -1,5 +1,9 @@
 # Changelog
 
+* Updates minimum go version to 1.17
+* Updates the terraform-plugin-sdk to v2.17.0
+* Sets the token as sensitive so it is not logged
+
 ## 0.11.3
 
 * Fixes documentation
