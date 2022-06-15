@@ -13,7 +13,7 @@ cd terraform-provider-dnsimple
 
 #### 2. Build and test
 
-If you wish to work on the provider, you'll first need Go installed on your machine (version 1.12+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
+If you wish to work on the provider, you'll first need Go installed on your machine (version 1.17+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
 
 To compile the provider, run make build. This will build the provider and put the provider binary in the $GOPATH/bin directory.
 
