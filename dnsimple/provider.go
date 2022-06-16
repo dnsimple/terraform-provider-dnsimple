@@ -18,14 +18,12 @@ func Provider() *schema.Provider {
 				Description: "The API v2 token for API operations.",
 				Sensitive:   true,
 			},
-
 			"account": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DNSIMPLE_ACCOUNT", nil),
 				Description: "The account for API operations.",
 			},
-
 			"sandbox": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -36,7 +34,12 @@ func Provider() *schema.Provider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("PREFETCH", nil),
-				Description: "Flag to enable the prefetch of zone records",
+				Description: "Flag to enable the prefetch of zone records.",
+			},
+			"user_agent": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Custom string to append to the user agent used for sending HTTP requests to the API.",
 			},
 		},
 
@@ -55,14 +58,16 @@ func Provider() *schema.Provider {
 			terraformVersion := schema.Provider{}.TerraformVersion
 			if terraformVersion == "" {
 				// Terraform 0.12 introduced this field to the protocol
-				// We can therefore assume that if it's missing it's 0.10 or 0.11
+				// We can therefore assume that if it's missing is 0.10 or 0.11
 				terraformVersion = "0.11+compatible"
 			}
 			config := Config{
-				Token:            data.Get("token").(string),
-				Account:          data.Get("account").(string),
-				Sandbox:          data.Get("sandbox").(bool),
-				Prefetch:         data.Get("prefetch").(bool),
+				Token:    data.Get("token").(string),
+				Account:  data.Get("account").(string),
+				Sandbox:  data.Get("sandbox").(bool),
+				Prefetch: data.Get("prefetch").(bool),
+
+				userAgentExtra:   data.Get("user_agent").(string),
 				terraformVersion: terraformVersion,
 			}
 
