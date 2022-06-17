@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"os"
-	"reflect"
 	"strconv"
 	"testing"
 
@@ -304,13 +304,8 @@ func testZoneRecordInstanceStateDataV1() map[string]interface{} {
 func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
 	expected := testZoneRecordInstanceStateDataV1()
 	actual, err := resourceDNSimpleZoneRecordInstanceStateUpgradeV0(nil, testZoneRecordInstanceStateDataV0(), nil)
-	if err != nil {
-		t.Fatalf("error migrating state: %s", err)
-	}
-
-	if !reflect.DeepEqual(expected, actual) {
-		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
-	}
+	assert.NoError(t, err, "error migrating state")
+	assert.Equal(t, expected, actual)
 }
 
 const testAccCheckDnsimpleZoneRecordConfigBasic = `

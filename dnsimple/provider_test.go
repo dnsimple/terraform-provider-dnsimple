@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 var testAccProvider *schema.Provider
@@ -39,9 +40,8 @@ func testAccPreCheck(t *testing.T) {
 }
 
 func TestProvider(t *testing.T) {
-	if err := Provider().InternalValidate(); err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	err := Provider().InternalValidate()
+	assert.NoError(t, err)
 }
 
 func TestProvider_Impl(t *testing.T) {
@@ -58,30 +58,22 @@ func TestProvider_UserAgentExtra(t *testing.T) {
 	provider.Configure(context.Background(), terraform.NewResourceConfigRaw(raw))
 	client := provider.Meta().(*Client)
 
-	want := "Consul/0.81"
-	if got := client.client.UserAgent; !strings.HasSuffix(got, want) {
-		t.Fatalf("Config UserAgent expected to end with `%v`, got `%v`", want, got)
-	}
+	suffix := "Consul/0.81"
+	got := client.client.UserAgent
+	assert.True(t, strings.HasSuffix(got, suffix), "UserAgent should contain extra suffix:\n%s", got)
 }
 
 func TestProvider_AccSandbox(t *testing.T) {
 	if v := os.Getenv("DNSIMPLE_SANDBOX"); v != "" {
 		provider := testAccProvider.Meta().(*Client)
-		if provider.config.Sandbox != true {
-			t.Fatal("Config Sandbox Flag does not equal True!")
-		}
-
-		if provider.client.BaseURL != "https://api.sandbox.dnsimple.com" {
-			t.Fatalf("Client.BaseURL is not the expected sandbox URL! Currently set to: %s", provider.client.BaseURL)
-		}
+		assert.True(t, provider.config.Sandbox, "config.Sandbox should be true")
+		assert.Equal(t, "https://api.sandbox.dnsimple.com", provider.client.BaseURL)
 	}
 }
 
 func TestProvider_AccPrefetch(t *testing.T) {
 	if v := os.Getenv("PREFETCH"); v != "" {
 		provider := testAccProvider.Meta().(*Client)
-		if provider.config.Prefetch != true {
-			t.Fatal("Config Prefetch Flag does not equal True!")
-		}
+		assert.True(t, provider.config.Prefetch, "config.Prefetch should be true")
 	}
 }
