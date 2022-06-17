@@ -1,6 +1,6 @@
 # Changelog
 
-## master
+## 0.13.0
 
 * Added ability to pass a custom user agent fragment dnsimple/terraform-provider-dnsimple#56
 
