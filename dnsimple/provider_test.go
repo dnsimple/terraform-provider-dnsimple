@@ -48,7 +48,7 @@ func TestProvider_Impl(t *testing.T) {
 	var _ = Provider()
 }
 
-func TestProvider_CustomUserAgent(t *testing.T) {
+func TestProvider_UserAgentExtra(t *testing.T) {
 	raw := map[string]interface{}{
 		"token":      "a1b2c3d4f5",
 		"user_agent": "Consul/0.81",
@@ -64,7 +64,7 @@ func TestProvider_CustomUserAgent(t *testing.T) {
 	}
 }
 
-func TestProvider_sandbox(t *testing.T) {
+func TestProvider_AccSandbox(t *testing.T) {
 	if v := os.Getenv("DNSIMPLE_SANDBOX"); v != "" {
 		provider := testAccProvider.Meta().(*Client)
 		if provider.config.Sandbox != true {
@@ -77,7 +77,7 @@ func TestProvider_sandbox(t *testing.T) {
 	}
 }
 
-func TestProvider_prefetch(t *testing.T) {
+func TestProvider_AccPrefetch(t *testing.T) {
 	if v := os.Getenv("PREFETCH"); v != "" {
 		provider := testAccProvider.Meta().(*Client)
 		if provider.config.Prefetch != true {
