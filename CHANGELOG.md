@@ -2,47 +2,49 @@
 
 ## master
 
+* Added ability to pass a custom user agent fragment dnsimple/terraform-provider-dnsimple#56
+
 ## 0.12.0
 
-* Updates minimum go version to 1.17
-* Updates the terraform-plugin-sdk to v2.17.0
-* Sets the token as sensitive so it is not logged
+* Updated minimum go version to 1.17
+* Updated the terraform-plugin-sdk to v2.17.0
+* Set the token as sensitive so it is not logged
 
 ## 0.11.3
 
-* Fixes documentation
+* Fixed documentation
 
 ## 0.11.2
 
-* Adds helpful links to the documentation
+* Added helpful links to the documentation
 
 ## 0.11.1
 
-* Adds the documentation for the `resource_dnsimple_lets_encrypt_certificate_resource`.
+* Added the documentation for the `resource_dnsimple_lets_encrypt_certificate_resource`.
 
 ## 0.11.0
 
-* Adds the `dnsimple_certificate' data-source
-* Adds the `dnsimple_domain` import to import domains.
-* Adds the `resource_dnsimple_lets_encrypt_certificate_resource` to purchase and issue Let's Encrypt certificates.
-* Updates the `dnsimple-go` dependency to v0.71.0
+* Added the `dnsimple_certificate' data-source
+* Added the `dnsimple_domain` import to import domains.
+* Added the `resource_dnsimple_lets_encrypt_certificate_resource` to purchase and issue Let's Encrypt certificates.
+* Updated the `dnsimple-go` dependency to v0.71.0
 
 ## 0.10.0
 
-* Adds the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
+* Added the `prefetch` option to avoid running into API rate limitations when dealing with big configurations.
 
 ## 0.9.2
 
-* Adds the deprecated `resource_dnsimple_record`
+* Added the deprecated `resource_dnsimple_record`
 
 ## 0.9.1
 
-* Brings the `dnsimple_record` configuration back and adds a deprecation warning
+* Bring the `dnsimple_record` configuration back and adds a deprecation warning
 
 ## 0.9.0
 
-* Adds the zone data-source
-* Adds the domain resource (to create domains in DNSimple)
+* Added the zone data-source
+* Added the domain resource (to create domains in DNSimple)
 
 ## 0.6.0
 
