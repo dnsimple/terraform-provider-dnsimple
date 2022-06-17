@@ -23,6 +23,7 @@ type Config struct {
 	Sandbox  bool
 	Prefetch bool
 
+	userAgentExtra   string
 	terraformVersion string
 }
 
@@ -42,7 +43,13 @@ func (config *Config) Client() (*Client, diag.Diagnostics) {
 	tc := oauth2.NewClient(context.Background(), ts)
 
 	client := dnsimple.NewClient(tc)
-	client.SetUserAgent(fmt.Sprintf("HashiCorp Terraform/%s (+https://www.terraform.io) Terraform Plugin SDK/%s", config.terraformVersion, meta.SDKVersionString()))
+
+	userAgent := fmt.Sprintf("HashiCorp Terraform/%s (+https://www.terraform.io) Terraform Plugin SDK/%s", config.terraformVersion, meta.SDKVersionString())
+	if config.userAgentExtra != "" {
+		userAgent = fmt.Sprintf("%s %s", userAgent, config.userAgentExtra)
+	}
+	client.SetUserAgent(userAgent)
+
 	if config.Sandbox {
 		client.BaseURL = baseURLSandbox
 	}
