@@ -1,5 +1,9 @@
 # Changelog
 
+## main
+
+* Pass parent context to DNSimple client calls to propagate errors and handling cancellation
+
 ## 0.13.0
 
 * Added ability to pass a custom user agent fragment dnsimple/terraform-provider-dnsimple#56
