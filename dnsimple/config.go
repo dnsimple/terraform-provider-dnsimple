@@ -38,9 +38,9 @@ type Client struct {
 }
 
 // Client returns a new client for accessing DNSimple.
-func (config *Config) Client() (*Client, diag.Diagnostics) {
+func (config *Config) Client(ctx context.Context) (*Client, diag.Diagnostics) {
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.Token})
-	tc := oauth2.NewClient(context.Background(), ts)
+	tc := oauth2.NewClient(ctx, ts)
 
 	client := dnsimple.NewClient(tc)
 

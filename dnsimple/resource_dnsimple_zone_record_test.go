@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -303,7 +304,7 @@ func testZoneRecordInstanceStateDataV1() map[string]interface{} {
 
 func TestResourceExampleInstanceStateUpgradeV0(t *testing.T) {
 	expected := testZoneRecordInstanceStateDataV1()
-	actual, err := resourceDNSimpleZoneRecordInstanceStateUpgradeV0(nil, testZoneRecordInstanceStateDataV0(), nil)
+	actual, err := resourceDNSimpleZoneRecordInstanceStateUpgradeV0(context.Background(), testZoneRecordInstanceStateDataV0(), nil)
 	assert.NoError(t, err, "error migrating state")
 	assert.Equal(t, expected, actual)
 }

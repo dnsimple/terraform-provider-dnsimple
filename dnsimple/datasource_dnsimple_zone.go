@@ -36,10 +36,10 @@ func datasourceDNSimpleZone() *schema.Resource {
 
 }
 
-func datasourceDNSimpleZoneRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func datasourceDNSimpleZoneRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
-	resp, err := provider.client.Zones.GetZone(context.Background(), provider.config.Account, data.Get("name").(string))
+	resp, err := provider.client.Zones.GetZone(ctx, provider.config.Account, data.Get("name").(string))
 
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {

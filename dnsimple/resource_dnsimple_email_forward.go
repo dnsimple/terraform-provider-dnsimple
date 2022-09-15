@@ -46,7 +46,7 @@ func resourceDNSimpleEmailForward() *schema.Resource {
 	}
 }
 
-func resourceDNSimpleEmailForwardCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleEmailForwardCreate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	emailForwardAttributes := dnsimple.EmailForward{
@@ -56,7 +56,7 @@ func resourceDNSimpleEmailForwardCreate(_ context.Context, data *schema.Resource
 
 	log.Printf("[DEBUG] DNSimple Email Forward create forwardAttributes: %#v", emailForwardAttributes)
 
-	resp, err := provider.client.Domains.CreateEmailForward(context.Background(), provider.config.Account, data.Get("domain").(string), emailForwardAttributes)
+	resp, err := provider.client.Domains.CreateEmailForward(ctx, provider.config.Account, data.Get("domain").(string), emailForwardAttributes)
 	if err != nil {
 		return diag.Errorf("Failed to create DNSimple EmailForward: %s", err)
 	}
@@ -64,10 +64,10 @@ func resourceDNSimpleEmailForwardCreate(_ context.Context, data *schema.Resource
 	data.SetId(strconv.FormatInt(resp.Data.ID, 10))
 	log.Printf("[INFO] DNSimple EmailForward ID: %s", data.Id())
 
-	return resourceDNSimpleEmailForwardRead(nil, data, meta)
+	return resourceDNSimpleEmailForwardRead(ctx, data, meta)
 }
 
-func resourceDNSimpleEmailForwardRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleEmailForwardRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	emailForwardID, err := strconv.ParseInt(data.Id(), 10, 64)
@@ -75,7 +75,7 @@ func resourceDNSimpleEmailForwardRead(_ context.Context, data *schema.ResourceDa
 		return diag.Errorf("Error converting Email Forward ID: %s", err)
 	}
 
-	resp, err := provider.client.Domains.GetEmailForward(context.Background(), provider.config.Account, data.Get("domain").(string), emailForwardID)
+	resp, err := provider.client.Domains.GetEmailForward(ctx, provider.config.Account, data.Get("domain").(string), emailForwardID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Email Forward Not Found - Refreshing from State")
@@ -95,13 +95,13 @@ func resourceDNSimpleEmailForwardRead(_ context.Context, data *schema.ResourceDa
 	return nil
 }
 
-func resourceDNSimpleEmailForwardUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleEmailForwardUpdate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Printf("[INFO] DNSimple doesn't support updating email forwards")
 
-	return resourceDNSimpleEmailForwardRead(nil, data, meta)
+	return resourceDNSimpleEmailForwardRead(ctx, data, meta)
 }
 
-func resourceDNSimpleEmailForwardDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleEmailForwardDelete(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	log.Printf("[INFO] Deleting DNSimple EmailForward: %s, %s", data.Get("domain").(string), data.Id())
@@ -111,7 +111,7 @@ func resourceDNSimpleEmailForwardDelete(_ context.Context, data *schema.Resource
 		return diag.Errorf("Error converting EmailForward ID: %s", err)
 	}
 
-	_, err = provider.client.Domains.DeleteEmailForward(context.Background(), provider.config.Account, data.Get("domain").(string), emailForwardID)
+	_, err = provider.client.Domains.DeleteEmailForward(ctx, provider.config.Account, data.Get("domain").(string), emailForwardID)
 	if err != nil {
 		return diag.Errorf("Error deleting DNSimple EmailForward: %s", err)
 	}
@@ -119,7 +119,7 @@ func resourceDNSimpleEmailForwardDelete(_ context.Context, data *schema.Resource
 	return nil
 }
 
-func resourceDNSimpleEmailForwardImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDNSimpleEmailForwardImport(ctx context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	parts := strings.Split(data.Id(), "_")
 
 	if len(parts) != 2 {
@@ -129,7 +129,7 @@ func resourceDNSimpleEmailForwardImport(_ context.Context, data *schema.Resource
 	data.SetId(parts[1])
 	data.Set("domain", parts[0])
 
-	if err := resourceDNSimpleEmailForwardRead(nil, data, meta); err != nil {
+	if err := resourceDNSimpleEmailForwardRead(ctx, data, meta); err != nil {
 		return nil, fmt.Errorf(err[0].Summary)
 	}
 	return []*schema.ResourceData{data}, nil

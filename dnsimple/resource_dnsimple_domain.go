@@ -54,14 +54,14 @@ func resourceDNSimpleDomain() *schema.Resource {
 	}
 }
 
-func resourceDNSimpleDomainCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleDomainCreate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	domainAttributes := dnsimple.Domain{
 		Name: data.Get("name").(string),
 	}
 
-	response, err := provider.client.Domains.CreateDomain(context.Background(), provider.config.Account, domainAttributes)
+	response, err := provider.client.Domains.CreateDomain(ctx, provider.config.Account, domainAttributes)
 
 	if err != nil {
 		return diag.Errorf("Failed to create DNSimple Domain: %s", err)
@@ -69,15 +69,15 @@ func resourceDNSimpleDomainCreate(_ context.Context, data *schema.ResourceData, 
 
 	data.SetId(strconv.FormatInt(response.Data.ID, 10))
 
-	return resourceDNSimpleDomainRead(nil, data, meta)
+	return resourceDNSimpleDomainRead(ctx, data, meta)
 }
 
-func resourceDNSimpleDomainRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleDomainRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	domainID := data.Id()
 
-	response, err := provider.client.Domains.GetDomain(context.Background(), provider.config.Account, domainID)
+	response, err := provider.client.Domains.GetDomain(ctx, provider.config.Account, domainID)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
@@ -101,14 +101,14 @@ func resourceDNSimpleDomainRead(_ context.Context, data *schema.ResourceData, me
 
 }
 
-func resourceDNSimpleDomainDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleDomainDelete(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	log.Printf("[INFO] Deleting DNSimple Record: %s, %s", data.Get("name").(string), data.Id())
 
 	domainID := data.Id()
 
-	_, err := provider.client.Domains.DeleteDomain(context.Background(), provider.config.Account, domainID)
+	_, err := provider.client.Domains.DeleteDomain(ctx, provider.config.Account, domainID)
 	if err != nil {
 		return diag.Errorf("Error deleting DNSimple Record: %s", err)
 	}

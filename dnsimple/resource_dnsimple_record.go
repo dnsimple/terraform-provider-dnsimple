@@ -75,7 +75,7 @@ func deprecationWarning() {
 	fmt.Println("Please consider changing your configuration to use dnsimple_zone_record instead")
 }
 
-func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordCreate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	deprecationWarning()
 	provider := meta.(*Client)
 
@@ -94,7 +94,7 @@ func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, 
 
 	log.Printf("[DEBUG] DNSimple Record create recordAttributes: %#v", recordAttributes)
 
-	resp, err := provider.client.Zones.CreateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordAttributes)
+	resp, err := provider.client.Zones.CreateRecord(ctx, provider.config.Account, data.Get("domain").(string), recordAttributes)
 	if err != nil {
 		return diag.Errorf("Failed to create DNSimple Record: %s", err)
 	}
@@ -102,10 +102,10 @@ func resourceDNSimpleRecordCreate(_ context.Context, data *schema.ResourceData, 
 	data.SetId(strconv.FormatInt(resp.Data.ID, 10))
 	log.Printf("[INFO] DNSimple Record ID: %s", data.Id())
 
-	return resourceDNSimpleRecordRead(nil, data, meta)
+	return resourceDNSimpleRecordRead(ctx, data, meta)
 }
 
-func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	deprecationWarning()
 	provider := meta.(*Client)
 
@@ -114,7 +114,7 @@ func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, me
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	resp, err := provider.client.Zones.GetRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
+	resp, err := provider.client.Zones.GetRecord(ctx, provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
 		if strings.Contains(err.Error(), "404") {
 			log.Printf("DNSimple Record Not Found - Refreshing from State")
@@ -141,7 +141,7 @@ func resourceDNSimpleRecordRead(_ context.Context, data *schema.ResourceData, me
 	return nil
 }
 
-func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordUpdate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	deprecationWarning()
 	provider := meta.(*Client)
 
@@ -169,15 +169,15 @@ func resourceDNSimpleRecordUpdate(_ context.Context, data *schema.ResourceData, 
 
 	log.Printf("[DEBUG] DNSimple Record update configuration: %#v", recordAttributes)
 
-	_, err = provider.client.Zones.UpdateRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID, recordAttributes)
+	_, err = provider.client.Zones.UpdateRecord(ctx, provider.config.Account, data.Get("domain").(string), recordID, recordAttributes)
 	if err != nil {
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 
-	return resourceDNSimpleRecordRead(nil, data, meta)
+	return resourceDNSimpleRecordRead(ctx, data, meta)
 }
 
-func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleRecordDelete(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	deprecationWarning()
 	provider := meta.(*Client)
 
@@ -188,7 +188,7 @@ func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, 
 		return diag.Errorf("Error converting Record ID: %s", err)
 	}
 
-	_, err = provider.client.Zones.DeleteRecord(context.Background(), provider.config.Account, data.Get("domain").(string), recordID)
+	_, err = provider.client.Zones.DeleteRecord(ctx, provider.config.Account, data.Get("domain").(string), recordID)
 	if err != nil {
 		return diag.Errorf("Error deleting DNSimple Record: %s", err)
 	}
@@ -196,7 +196,7 @@ func resourceDNSimpleRecordDelete(_ context.Context, data *schema.ResourceData, 
 	return nil
 }
 
-func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceDNSimpleRecordImport(ctx context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	deprecationWarning()
 	parts := strings.Split(data.Id(), "_")
 
@@ -207,7 +207,7 @@ func resourceDNSimpleRecordImport(_ context.Context, data *schema.ResourceData, 
 	data.SetId(parts[1])
 	data.Set("domain", parts[0])
 
-	if err := resourceDNSimpleRecordRead(nil, data, meta); err != nil {
+	if err := resourceDNSimpleRecordRead(ctx, data, meta); err != nil {
 		return nil, fmt.Errorf(err[0].Summary)
 	}
 	return []*schema.ResourceData{data}, nil
