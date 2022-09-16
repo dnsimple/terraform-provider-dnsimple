@@ -2,6 +2,7 @@ package dnsimple
 
 import (
 	"context"
+	"errors"
 	"log"
 	"strconv"
 	"strings"
@@ -64,6 +65,11 @@ func resourceDNSimpleDomainCreate(ctx context.Context, data *schema.ResourceData
 	response, err := provider.client.Domains.CreateDomain(ctx, provider.config.Account, domainAttributes)
 
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse.AttributeErrors)
+		}
+
 		return diag.Errorf("Failed to create DNSimple Domain: %s", err)
 	}
 
