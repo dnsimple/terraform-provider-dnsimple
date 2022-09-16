@@ -2,6 +2,8 @@ package dnsimple
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -75,4 +77,18 @@ func Provider() *schema.Provider {
 		},
 	}
 	return provider
+}
+
+func attributeErrorsToDiagnostics(attributeErrors map[string][]string) diag.Diagnostics {
+	result := make([]diag.Diagnostic, len(attributeErrors))
+
+	for field, errors := range attributeErrors {
+		result = append(result, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("API returned a Validation Error for: %s", field),
+			Detail:   strings.Join(errors, ", "),
+		})
+	}
+
+	return result
 }
