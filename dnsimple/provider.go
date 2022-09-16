@@ -71,7 +71,7 @@ func Provider() *schema.Provider {
 				terraformVersion: terraformVersion,
 			}
 
-			return config.Client()
+			return config.Client(ctx)
 		},
 	}
 	return provider

@@ -47,7 +47,7 @@ func dataSourceDNSimpleCertificate() *schema.Resource {
 	}
 }
 
-func dataSourceDNSimpleCertificateRead(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceDNSimpleCertificateRead(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	certificateId, err := strconv.Atoi(data.Get("certificate_id").(string))
@@ -55,7 +55,7 @@ func dataSourceDNSimpleCertificateRead(_ context.Context, data *schema.ResourceD
 		return diag.Errorf("Error converting Certificate ID: %s", err)
 	}
 
-	cert, err := provider.client.Certificates.DownloadCertificate(context.Background(), provider.config.Account, data.Get("domain").(string), int64(certificateId))
+	cert, err := provider.client.Certificates.DownloadCertificate(ctx, provider.config.Account, data.Get("domain").(string), int64(certificateId))
 
 	if err != nil {
 		return diag.Errorf("Couldn't find DNSimple SSL Certificate: %s", err)
@@ -66,7 +66,7 @@ func dataSourceDNSimpleCertificateRead(_ context.Context, data *schema.ResourceD
 	data.Set("root_certificate", certificate.RootCertificate)
 	data.Set("certificate_chain", certificate.IntermediateCertificates)
 
-	key, err := provider.client.Certificates.GetCertificatePrivateKey(context.Background(), provider.config.Account, data.Get("domain").(string), int64(certificateId))
+	key, err := provider.client.Certificates.GetCertificatePrivateKey(ctx, provider.config.Account, data.Get("domain").(string), int64(certificateId))
 
 	data.Set("private_key", key.Data.PrivateKey)
 	data.SetId(time.Now().UTC().String())

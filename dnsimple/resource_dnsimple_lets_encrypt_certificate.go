@@ -93,7 +93,7 @@ func resourceDNSimpleLetsEncryptCertificateRead(ctx context.Context, data *schem
 		domainID := data.Get("domain_id").(string)
 		certificateID, _ := strconv.ParseInt(data.Id(), 10, 64)
 
-		response, err := provider.client.Certificates.GetCertificate(context.Background(), provider.config.Account, domainID, certificateID)
+		response, err := provider.client.Certificates.GetCertificate(ctx, provider.config.Account, domainID, certificateID)
 
 		if err != nil {
 			if strings.Contains(err.Error(), "404") {
@@ -116,7 +116,7 @@ func resourceDNSimpleLetsEncryptCertificateRead(ctx context.Context, data *schem
 	return nil
 }
 
-func resourceDNSimpleLetsEncryptCertificateCreate(_ context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceDNSimpleLetsEncryptCertificateCreate(ctx context.Context, data *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	provider := meta.(*Client)
 
 	domainID := data.Get("domain_id").(string)
@@ -127,7 +127,7 @@ func resourceDNSimpleLetsEncryptCertificateCreate(_ context.Context, data *schem
 		Name:      data.Get("name").(string),
 	}
 
-	response, err := provider.client.Certificates.PurchaseLetsencryptCertificate(context.Background(), provider.config.Account, domainID, certificateAttributes)
+	response, err := provider.client.Certificates.PurchaseLetsencryptCertificate(ctx, provider.config.Account, domainID, certificateAttributes)
 
 	if err != nil {
 		return diag.Errorf("Failed to purchase Let's Encrypt Certificate: %s", err)
@@ -135,7 +135,7 @@ func resourceDNSimpleLetsEncryptCertificateCreate(_ context.Context, data *schem
 
 	certificateID := response.Data.CertificateID
 
-	issueResponse, issueErr := provider.client.Certificates.IssueLetsencryptCertificate(context.Background(), provider.config.Account, domainID, certificateID)
+	issueResponse, issueErr := provider.client.Certificates.IssueLetsencryptCertificate(ctx, provider.config.Account, domainID, certificateID)
 
 	if issueErr != nil {
 		return diag.Errorf("Failed to issue Let's Encrypt Certificate: %s", issueErr)
