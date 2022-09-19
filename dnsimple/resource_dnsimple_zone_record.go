@@ -210,6 +210,10 @@ func resourceDNSimpleZoneRecordUpdate(ctx context.Context, data *schema.Resource
 
 	_, err = provider.client.Zones.UpdateRecord(ctx, provider.config.Account, data.Get("zone_name").(string), recordID, recordAttributes)
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse.AttributeErrors)
+		}
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 
