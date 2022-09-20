@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -80,10 +81,10 @@ func Provider() *schema.Provider {
 	return provider
 }
 
-func attributeErrorsToDiagnostics(attributeErrors map[string][]string) diag.Diagnostics {
-	result := make([]diag.Diagnostic, 0, len(attributeErrors))
+func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
+	result := make([]diag.Diagnostic, 0, len(err.AttributeErrors))
 
-	for field, errors := range attributeErrors {
+	for field, errors := range err.AttributeErrors {
 		terraformField := translateFieldFromAPIToTerraform(field)
 		result = append(result, diag.Diagnostic{
 			Severity:      diag.Error,

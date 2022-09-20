@@ -99,7 +99,7 @@ func resourceDNSimpleRecordCreate(ctx context.Context, data *schema.ResourceData
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			return attributeErrorsToDiagnostics(errorResponse.AttributeErrors)
+			return attributeErrorsToDiagnostics(errorResponse)
 		}
 
 		return diag.Errorf("Failed to create DNSimple Record: %s", err)
@@ -179,7 +179,7 @@ func resourceDNSimpleRecordUpdate(ctx context.Context, data *schema.ResourceData
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			return attributeErrorsToDiagnostics(errorResponse.AttributeErrors)
+			return attributeErrorsToDiagnostics(errorResponse)
 		}
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
