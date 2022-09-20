@@ -1,10 +1,11 @@
 # Changelog
 
-## main
+## 0.14.0
 
 * Pass parent context to DNSimple client calls to propagate errors and handling cancellation
 * Updated minimum go version to 1.18
 * Updated the `dnsimple-go` dependency to v1.0.0
+* Show validation errors when applying and point to the field which is failing
 
 ## 0.13.0
 
