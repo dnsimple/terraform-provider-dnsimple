@@ -2,6 +2,7 @@ package dnsimple
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -58,6 +59,11 @@ func resourceDNSimpleEmailForwardCreate(ctx context.Context, data *schema.Resour
 
 	resp, err := provider.client.Domains.CreateEmailForward(ctx, provider.config.Account, data.Get("domain").(string), emailForwardAttributes)
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse)
+		}
+
 		return diag.Errorf("Failed to create DNSimple EmailForward: %s", err)
 	}
 

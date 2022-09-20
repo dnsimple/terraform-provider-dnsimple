@@ -2,7 +2,11 @@ package dnsimple
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
+	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -75,4 +79,31 @@ func Provider() *schema.Provider {
 		},
 	}
 	return provider
+}
+
+func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
+	result := make([]diag.Diagnostic, 0, len(err.AttributeErrors))
+
+	for field, errors := range err.AttributeErrors {
+		terraformField := translateFieldFromAPIToTerraform(field)
+		result = append(result, diag.Diagnostic{
+			Severity:      diag.Error,
+			Summary:       fmt.Sprintf("API returned a Validation Error for: %s", terraformField),
+			Detail:        strings.Join(errors, ", "),
+			AttributePath: cty.Path{cty.GetAttrStep{Name: terraformField}},
+		})
+	}
+
+	return result
+}
+
+func translateFieldFromAPIToTerraform(field string) string {
+	switch field {
+	case "record_type":
+		return "type"
+	case "content":
+		return "value"
+	default:
+		return field
+	}
 }

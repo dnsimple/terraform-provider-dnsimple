@@ -13,7 +13,7 @@ cd terraform-provider-dnsimple
 
 #### 2. Build and test
 
-If you wish to work on the provider, you'll first need Go installed on your machine (version 1.17+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
+If you wish to work on the provider, you'll first need Go installed on your machine (version 1.18+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
 
 To compile the provider, run make build. This will build the provider and put the provider binary in the $GOPATH/bin directory.
 
@@ -39,12 +39,12 @@ DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN=example.com DNSI
 
 ### Testing the let's encrypt resource and the certificate data-source
 
-Our sandbox environment does not allow purchasing or issue certificates. For that reason, if you want to test the 
-`resource_dnsimple_lets_encrypt_certificate` you will have to run the tests in production 
+Our sandbox environment does not allow purchasing or issue certificates. For that reason, if you want to test the
+`resource_dnsimple_lets_encrypt_certificate` you will have to run the tests in production
 (setting `DNSIMPLE_SANDBOX=false` in the shell).
 
 For the Let's Encrypt Resource you will...
-   have to go to the `resource_dnsimple_lets_encrypt_certificate_test` and change the `domain` (line 21) 
+   have to go to the `resource_dnsimple_lets_encrypt_certificate_test` and change the `domain` (line 21)
 to a real domain ID you want test against.
 
 After that you will have to change the `testAccLetsEncrypConfig` (in that same file) changing the arguments marked:

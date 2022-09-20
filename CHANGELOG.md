@@ -3,6 +3,8 @@
 ## main
 
 * Pass parent context to DNSimple client calls to propagate errors and handling cancellation
+* Updated minimum go version to 1.18
+* Updated the `dnsimple-go` dependency to v1.0.0
 
 ## 0.13.0
 

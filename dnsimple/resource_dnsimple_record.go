@@ -2,6 +2,7 @@ package dnsimple
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -96,6 +97,11 @@ func resourceDNSimpleRecordCreate(ctx context.Context, data *schema.ResourceData
 
 	resp, err := provider.client.Zones.CreateRecord(ctx, provider.config.Account, data.Get("domain").(string), recordAttributes)
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse)
+		}
+
 		return diag.Errorf("Failed to create DNSimple Record: %s", err)
 	}
 
@@ -171,6 +177,10 @@ func resourceDNSimpleRecordUpdate(ctx context.Context, data *schema.ResourceData
 
 	_, err = provider.client.Zones.UpdateRecord(ctx, provider.config.Account, data.Get("domain").(string), recordID, recordAttributes)
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse)
+		}
 		return diag.Errorf("Failed to update DNSimple Record: %s", err)
 	}
 

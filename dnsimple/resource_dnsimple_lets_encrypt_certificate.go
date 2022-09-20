@@ -130,6 +130,11 @@ func resourceDNSimpleLetsEncryptCertificateCreate(ctx context.Context, data *sch
 	response, err := provider.client.Certificates.PurchaseLetsencryptCertificate(ctx, provider.config.Account, domainID, certificateAttributes)
 
 	if err != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse)
+		}
+
 		return diag.Errorf("Failed to purchase Let's Encrypt Certificate: %s", err)
 	}
 
@@ -138,6 +143,11 @@ func resourceDNSimpleLetsEncryptCertificateCreate(ctx context.Context, data *sch
 	issueResponse, issueErr := provider.client.Certificates.IssueLetsencryptCertificate(ctx, provider.config.Account, domainID, certificateID)
 
 	if issueErr != nil {
+		var errorResponse *dnsimple.ErrorResponse
+		if errors.As(issueErr, &errorResponse) {
+			return attributeErrorsToDiagnostics(errorResponse)
+		}
+
 		return diag.Errorf("Failed to issue Let's Encrypt Certificate: %s", issueErr)
 	}
 
