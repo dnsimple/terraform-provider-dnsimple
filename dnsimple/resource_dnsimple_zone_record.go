@@ -143,13 +143,20 @@ func resourceDNSimpleZoneRecordRead(ctx context.Context, data *schema.ResourceDa
 	var record *dnsimple.ZoneRecord
 
 	if provider.config.Prefetch {
-		records := fetchZoneRecords(ctx, provider, provider.config.Account, data.Get("zone_name").(string), nil)
+		records, err := fetchZoneRecords(ctx, provider, provider.config.Account, data.Get("zone_name").(string), nil)
+		if err != nil {
+			return diag.Errorf("Couldn't prefetch records from zone: %s", err)
+		}
 
 		for index := range records {
 			if records[index].Name == data.Get("name").(string) {
 				record = &records[index]
 				break
 			}
+		}
+
+		if record == nil {
+			return diag.Errorf("Couldn't find DNSimple Record: %s in prefetched zone: %s", data.Get("name"), data.Get("zone_name"))
 		}
 	} else {
 		resp, err := provider.client.Zones.GetRecord(ctx, provider.config.Account, data.Get("zone_name").(string), recordID)
