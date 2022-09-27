@@ -1,5 +1,9 @@
 # Changelog
 
+## main
+
+* Avoid panic when looking for a record and it does not exist on the prefetched list
+
 ## 0.14.0
 
 * Pass parent context to DNSimple client calls to propagate errors and handling cancellation
