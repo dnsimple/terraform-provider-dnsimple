@@ -1,6 +1,6 @@
 # Changelog
 
-## main
+## 0.14.1
 
 * Avoid panic when looking for a record and it does not exist on the prefetched list
 
