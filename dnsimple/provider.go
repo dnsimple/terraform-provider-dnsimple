@@ -82,7 +82,12 @@ func Provider() *schema.Provider {
 }
 
 func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
-	result := make([]diag.Diagnostic, 0, len(err.AttributeErrors))
+	result := make([]diag.Diagnostic, 0, len(err.AttributeErrors)+1)
+
+	result = append(result, diag.Diagnostic{
+		Severity: diag.Error,
+		Summary:  fmt.Sprintf("API returned an error: %s", err.Message),
+	})
 
 	for field, errors := range err.AttributeErrors {
 		terraformField := translateFieldFromAPIToTerraform(field)
