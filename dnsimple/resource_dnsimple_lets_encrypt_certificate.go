@@ -32,8 +32,9 @@ func resourceDNSimpleLetsEncryptCertificate() *schema.Resource {
 				Optional: true,
 			},
 			"contact_id": {
-				Type:     schema.TypeInt,
-				Required: true,
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "contact_id is deprecated and will be removed in the next major version.",
 			},
 			"name": {
 				Type:     schema.TypeString,
@@ -122,7 +123,6 @@ func resourceDNSimpleLetsEncryptCertificateCreate(ctx context.Context, data *sch
 	domainID := data.Get("domain_id").(string)
 
 	certificateAttributes := dnsimple.LetsencryptCertificateAttributes{
-		ContactID: int64(data.Get("contact_id").(int)),
 		AutoRenew: data.Get("auto_renew").(bool),
 		Name:      data.Get("name").(string),
 	}

@@ -11,7 +11,6 @@ Provides a DNSimple Let's Encrypt certificate resource.
 ```hcl
 resource "dnsimple_lets_encrypt_certificate" "foobar" {
 	domain_id = "${var.dnsimple.domain_id}"
-	contact_id = "${var.dnsimple.contact_id}"
 	auto_renew = false
 	name = "www"
 }
@@ -22,7 +21,7 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 The following argument(s) are supported:
 
 * `domain_id` - (Required) The domain to be issued the certificate for
-* `contact_id` - (Required) The contact id for the certificate
+* `contact_id` - (Deprecated) The contact id for the certificate
 
 ## Attribute Reference
 
