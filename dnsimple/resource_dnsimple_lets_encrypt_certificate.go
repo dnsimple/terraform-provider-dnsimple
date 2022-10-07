@@ -34,7 +34,7 @@ func resourceDNSimpleLetsEncryptCertificate() *schema.Resource {
 			"contact_id": {
 				Type:       schema.TypeInt,
 				Optional:   true,
-				Deprecated: "contact_id is deprecated and will be removed in the next major version.",
+				Deprecated: "contact_id is deprecated and has no effect. The attribute will be removed in the next major version.",
 			},
 			"name": {
 				Type:     schema.TypeString,
