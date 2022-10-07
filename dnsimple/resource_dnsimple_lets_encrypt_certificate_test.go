@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-
-	_ "github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
