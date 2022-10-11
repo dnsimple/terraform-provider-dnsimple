@@ -3,12 +3,11 @@ package dnsimple
 import (
 	"context"
 	"fmt"
-	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"os"
 	"strconv"
 	"testing"
 
-	_ "github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -18,13 +17,13 @@ func TestAccDNSimpleLetsEncryptCertificateCreate(t *testing.T) {
 
 	if sandbox == "false" {
 		var certificate dnsimple.Certificate
-		domain := "CHANGE ME TO THE ACTUAL DOMAIN ID"
+		domain := os.Getenv("DNSIMPLE_DOMAIN")
 		resource.Test(t, resource.TestCase{
 			PreCheck:          func() { testAccPreCheck(t) },
 			ProviderFactories: testAccProviderFactories,
 			Steps: []resource.TestStep{
 				{
-					Config: fmt.Sprintf(testAccLetsEncryptConfig, domain),
+					Config: fmt.Sprintf(testAccLetsEncryptConfig, domain, os.Getenv("DNSIMPLE_CERTIFICATE_NAME")),
 					Check: resource.ComposeTestCheckFunc(
 						testAccCheckLetsEncryptCertificate("dnsimple_lets_encrypt_certificate.foobar", &certificate)),
 				},
@@ -72,7 +71,7 @@ func testAccCheckLetsEncryptCertificate(resourceName string, certificate *dnsimp
 const testAccLetsEncryptConfig = `
 resource "dnsimple_lets_encrypt_certificate" "foobar" {
 	domain_id = "%s"
-	contact_id = "FIND YOUR CONTACT ID IN THE ADMIN"
+	contact_id = 1234
 	auto_renew = false
-	name = "www"
+	name = "%s"
 }`

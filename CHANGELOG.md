@@ -1,5 +1,9 @@
 # Changelog
 
+## master
+
+* Deprecate the use of `contact_id` in the `dnsimple_lets_encrypt_certificate` resource. The field is no longer in use and there is no replacement for it.
+
 ## 0.14.1
 
 * Avoid panic when looking for a record and it does not exist on the prefetched list
