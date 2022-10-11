@@ -43,17 +43,9 @@ Our sandbox environment does not allow purchasing or issue certificates. For tha
 `resource_dnsimple_lets_encrypt_certificate` you will have to run the tests in production
 (setting `DNSIMPLE_SANDBOX=false` in the shell).
 
-For the Let's Encrypt Resource you will...
-   have to go to the `resource_dnsimple_lets_encrypt_certificate_test` and change the `domain` (line 21)
-to a real domain ID you want test against.
-
-After that you will have to change the `testAccLetsEncrypConfig` (in that same file) changing the arguments marked:
-   - contact_id (required)
-   - and name (optional, but you might have to change it if you run the tests for a second time)
-
-For the Certificate Data-Source you will...
-   have to go to the `datasource_dnsimple_certificate_test` and change the `certificate_id` in lines 26 and 39 to
-a real certificate ID in the domain you are going to test against.
+You will have to set the following env variables in your shell:
+   - `DNSIMPLE_CERTIFICATE_NAME` the name for which to request the certificate i.e. **www**
+   - `DNSIMPLE_CERTIFICATE_ID` the certificate ID used in the datasource test
 
 ## Sideload the plugin
 

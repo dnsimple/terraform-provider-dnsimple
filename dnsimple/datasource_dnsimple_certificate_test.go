@@ -18,12 +18,12 @@ func TestAccDNSimpleCertificateBasic(t *testing.T) {
 			ProviderFactories: testAccProviderFactories,
 			Steps: []resource.TestStep{
 				{
-					Config: fmt.Sprintf(testAccCheckDNSimpleCertificateConfigBasic, domain),
+					Config: fmt.Sprintf(testAccCheckDNSimpleCertificateConfigBasic, domain, os.Getenv("DNSIMPLE_CERTIFICATE_ID")),
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr(
 							"data.dnsimple_certificate.foobar", "domain", domain),
 						resource.TestCheckResourceAttr(
-							"data.dnsimple_certificate.foobar", "certificate_id", "PROD_CERT_ID"),
+							"data.dnsimple_certificate.foobar", "certificate_id", os.Getenv("DNSIMPLE_CERTIFICATE_ID")),
 					),
 				},
 			},
@@ -36,5 +36,5 @@ func TestAccDNSimpleCertificateBasic(t *testing.T) {
 const testAccCheckDNSimpleCertificateConfigBasic = `
 data "dnsimple_certificate" "foobar" {
 	domain         = "%s"
-	certificate_id = "USE A CERTIFICATE IN PROD (ALSO DON'T FORGET TO CHANGE IT IN LINE26)"
+	certificate_id = %s
 }`
