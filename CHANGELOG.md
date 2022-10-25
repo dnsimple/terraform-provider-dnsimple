@@ -2,8 +2,8 @@
 
 ## master
 
-* Deprecate the use of `contact_id` in the `dnsimple_lets_encrypt_certificate` resource. The field is no longer in use and there is no replacement for it. dnsimple/terraform-provider-dnsimple#62
-* Surface all API exceptions during a terraform run. dnsimple/terraform-provider-dnsimple#61
+* Deprecate the use of `contact_id` in the `dnsimple_lets_encrypt_certificate` resource. The field is no longer in use and there is no replacement for it (dnsimple/terraform-provider-dnsimple#62)
+* Surface all API exceptions during a terraform run (dnsimple/terraform-provider-dnsimple#61)
 
 ## 0.14.1
 
@@ -18,7 +18,7 @@
 
 ## 0.13.0
 
-* Added ability to pass a custom user agent fragment dnsimple/terraform-provider-dnsimple#56
+* Added ability to pass a custom user agent fragment (dnsimple/terraform-provider-dnsimple#56)
 
 ## 0.12.0
 
@@ -40,7 +40,7 @@
 
 ## 0.11.0
 
-* Added the `dnsimple_certificate' data-source
+* Added the `dnsimple_certificate` data-source.
 * Added the `dnsimple_domain` import to import domains.
 * Added the `resource_dnsimple_lets_encrypt_certificate_resource` to purchase and issue Let's Encrypt certificates.
 * Updated the `dnsimple-go` dependency to v0.71.0
