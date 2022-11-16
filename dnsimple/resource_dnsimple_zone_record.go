@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -246,10 +247,9 @@ func resourceDNSimpleZoneRecordDelete(ctx context.Context, data *schema.Resource
 }
 
 func resourceDNSimpleZoneRecordImport(ctx context.Context, data *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	parts := strings.Split(data.Id(), "_")
-
+	parts := importerSplitId(data.Id())
 	if len(parts) != 2 {
-		return nil, fmt.Errorf("error Importing dnsimple_zone_record. Please make sure the record ID is in the form DOMAIN_RECORDID (i.e. example.com_1234)")
+		return nil, fmt.Errorf("error importing dnsimple_zone_record. Please make sure the record ID is in the form ZONENAME_RECORDID (e.g. example.com_1234)")
 	}
 
 	data.SetId(parts[1])
@@ -259,4 +259,15 @@ func resourceDNSimpleZoneRecordImport(ctx context.Context, data *schema.Resource
 		return nil, fmt.Errorf(err[0].Summary)
 	}
 	return []*schema.ResourceData{data}, nil
+}
+
+func importerSplitId(s string) []string {
+	re := regexp.MustCompile(`(.+)_(\d+)`)
+	matches := re.FindAllStringSubmatch(s, -1)
+
+	if len(matches) == 1 {
+		return matches[0][1:]
+	}
+
+	return nil
 }

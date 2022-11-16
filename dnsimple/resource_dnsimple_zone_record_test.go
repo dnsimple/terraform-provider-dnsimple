@@ -8,11 +8,10 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccDNSimpleZoneRecord_Basic(t *testing.T) {
@@ -350,3 +349,11 @@ resource "dnsimple_zone_record" "foobar" {
 	ttl = 3600
 	priority = 10
 }`
+
+func TestImporterSplitId(t *testing.T) {
+	assert.Equal(t, []string{"example.com", "1234"}, importerSplitId("example.com_1234"))
+	assert.Equal(t, []string{"record.example.com", "1234"}, importerSplitId("record.example.com_1234"))
+	assert.Equal(t, []string{"_record.example.com", "1234"}, importerSplitId("_record.example.com_1234"))
+	assert.Nil(t, importerSplitId("_my_domain.example.com"))
+	assert.Nil(t, importerSplitId("_my_domain.example.com 1234"))
+}
