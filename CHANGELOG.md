@@ -4,6 +4,7 @@
 
 * Deprecate the use of `contact_id` in the `dnsimple_lets_encrypt_certificate` resource. The field is no longer in use and there is no replacement for it (dnsimple/terraform-provider-dnsimple#62)
 * Surface all API exceptions during a terraform run (dnsimple/terraform-provider-dnsimple#61)
+* Fixed error while importing record with underscore (dnsimple/terraform-provider-dnsimple#7)
 
 ## 0.14.1
 
