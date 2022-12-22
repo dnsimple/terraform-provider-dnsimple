@@ -11,6 +11,8 @@ Provides a DNSimple zone record resource.
 You can still use the _deprecated_ `dnsimple_record` configuration, but be aware that it will be removed in the
 upcoming 1.0.0 release.
 
+> To migrate an older `dnsimple_record` resource to the newer `dnsimple_zone_record` resource type, 1) Use `terraform state rm` ([docs](https://developer.hashicorp.com/terraform/cli/commands/state/rm)) to remove it from your Terraform state, 2) Delete its corresponding HCL code block, 3) Run `terraform plan` to confirm nothing will be changed, then 4) Use `terraform import` to re-import the record into a new `dnsimple_zone_record` resource.
+
 ## Example Usage
 
 ```hcl
