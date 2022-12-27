@@ -9,7 +9,7 @@ Provides a DNSimple zone record resource.
 ## Deprecation warning
 
 You can still use the _deprecated_ `dnsimple_record` configuration, but be aware that it will be removed in the
-upcoming 1.0.0 release.
+upcoming 1.0.0 release. To migrate existing resources, please refer to the [migration guide](https://registry.terraform.io/providers/dnsimple/dnsimple/latest/docs/guides/resource-migration).
 
 ## Example Usage
 
