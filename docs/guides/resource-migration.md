@@ -14,7 +14,7 @@ The steps to migrate a resource are as follows:
 2. Update the configuration files
 3. Import the resource into the state file
 
-### Exmaple:
+### Example:
 
 For the purpose of this guide, we will be using `dnsimple_record` as the old resource and `dnsimple_zone_record` as the new resource.
 
