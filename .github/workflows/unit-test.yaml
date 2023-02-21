@@ -1,5 +1,5 @@
----
 name: Unit Tests
+
 on:
   push:
   pull_request:
@@ -8,6 +8,12 @@ on:
       - '**.go'
       - 'vendor/**'
       - '.github/workflows/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   test:
@@ -19,10 +25,22 @@ jobs:
           - "1.18"
           - "1.19"
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
       - run: bash scripts/gogetcookie.sh
       - run: make test
 
+  slack-workflow-status:
+    if: always()
+    name: Post Workflow Status To Slack
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Workflow Notification
+        uses: Gamesight/slack-workflow-status@master
+        with:
+          repo_token: ${{secrets.GITHUB_TOKEN}}
+          slack_webhook_url: ${{secrets.SLACK_WEBHOOK_URL_DEVELOPMENT}}
