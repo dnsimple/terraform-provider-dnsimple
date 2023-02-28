@@ -72,6 +72,10 @@ func resourceDNSimpleLetsEncryptCertificate() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"signature_algorithm": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 		},
 		Timeouts: &schema.ResourceTimeout{
 			Read: schema.DefaultTimeout(45 * time.Minute),
@@ -123,8 +127,9 @@ func resourceDNSimpleLetsEncryptCertificateCreate(ctx context.Context, data *sch
 	domainID := data.Get("domain_id").(string)
 
 	certificateAttributes := dnsimple.LetsencryptCertificateAttributes{
-		AutoRenew: data.Get("auto_renew").(bool),
-		Name:      data.Get("name").(string),
+		AutoRenew:          data.Get("auto_renew").(bool),
+		Name:               data.Get("name").(string),
+		SignatureAlgorithm: data.Get("signature_algorithm").(string),
 	}
 
 	response, err := provider.client.Certificates.PurchaseLetsencryptCertificate(ctx, provider.config.Account, domainID, certificateAttributes)
