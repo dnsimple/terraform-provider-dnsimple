@@ -2,6 +2,9 @@
 
 ## master
 
+* Added support for `signature_algorithm` attribute in the `dnsimple_lets_encrypt_certificate` resource.
+* Dependency updates.
+
 ## 0.15.0
 
 * Deprecate the use of `contact_id` in the `dnsimple_lets_encrypt_certificate` resource. The field is no longer in use and there is no replacement for it (dnsimple/terraform-provider-dnsimple#62)
