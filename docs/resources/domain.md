@@ -21,6 +21,16 @@ The following argument(s) are supported:
 
 * `name` - (Required) The domain name to be created
 
+# Attributes Reference
+
+- `id` - The ID of this resource.
+- `account_id` - The account ID for the domain.
+- `auto_renew` - Whether the domain is set to auto-renew.
+- `private_whois` - Whether the domain has WhoIs privacy enabled.
+- `registrant_id` - The ID of the registrant (contact) for the domain.
+- `state` - The state of the domain.
+- `unicode_name` - The domain name in Unicode format.
+
 ## Import
 
 DNSimple domains can be imported using their numeric record ID.

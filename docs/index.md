@@ -41,7 +41,7 @@ The following arguments are supported:
 * `sandbox` - Set to true to connect to the API [sandbox environment](https://developer.dnsimple.com/sandbox/).
 * `prefetch` - Set to true to enable prefetching `ZoneRecords` when dealing with large configurations. This is useful
 when you are dealing with API rate limitations given your number of zones and zone records.
-
+* `user_agent` - (Optional) Custom string to append to the user agent used for sending HTTP requests to the API.
 
 ## API v2 vs API v1
 
