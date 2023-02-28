@@ -74,4 +74,5 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 	contact_id = 1234
 	auto_renew = false
 	name = "%s"
+	signature_algorithm = "RSA"
 }`

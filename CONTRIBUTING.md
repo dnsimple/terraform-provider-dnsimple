@@ -53,6 +53,17 @@ Sideload the plugin
 
 ```shell
 make install
+# Replace `darwin_arm64` with your arch. GOBIN should be where the Go built binary is installed to.
+ln -s "$GOBIN/terraform-provider-dnsimple" "$HOME/.terraform.d/plugins/terraform.local/dnsimple/dnsimple/0.1.0/darwin_arm64/."
+```
+
+Use this as the provider configuration:
+
+```tf
+dnsimple = {
+  source  = "terraform.local/dnsimple/dnsimple"
+  version = "0.1.0"
+}
 ```
 
 You can use the `./example/simple.tf` config to test the provider.
