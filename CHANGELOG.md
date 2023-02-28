@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.16.0
+
 * Added support for `signature_algorithm` attribute in the `dnsimple_lets_encrypt_certificate` resource.
 * Dependency updates.
 
