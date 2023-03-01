@@ -2,6 +2,12 @@
 
 ## master
 
+## 0.16.1
+
+IMPROVEMENTS:
+
+* Improved the documentation for the `dnsimple_domain` and `dnsimple_lets_encrypt_certificate` resources. (dnsimple/terraform-provider-dnsimple#82)
+
 ## 0.16.0
 
 * Added support for `signature_algorithm` attribute in the `dnsimple_lets_encrypt_certificate` resource.
