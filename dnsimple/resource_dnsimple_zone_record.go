@@ -150,7 +150,7 @@ func resourceDNSimpleZoneRecordRead(ctx context.Context, data *schema.ResourceDa
 		}
 
 		for index := range records {
-			if records[index].Name == data.Get("name").(string) {
+			if records[index].Name == data.Get("name").(string) && records[index].Type == data.Get("type").(string) && records[index].Content == data.Get("value").(string) {
 				record = &records[index]
 				break
 			}

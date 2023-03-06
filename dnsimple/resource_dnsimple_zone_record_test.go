@@ -183,14 +183,74 @@ func TestAccDNSimpleZoneRecord_Prefetch(t *testing.T) {
 			{
 				Config: fmt.Sprintf(testAccCheckDnsimpleZoneRecordConfigBasic, domain),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckDnsimpleZoneRecordPrefetch("dnsimple_zone_record.foobar", &record),
+					testAccCheckDNSimpleZoneRecordExists("dnsimple_zone_record.foobar", &record),
+					testAccCheckDnsimpleZoneRecordPrefetch("dnsimple_zone_record.foobar"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckDnsimpleZoneRecordPrefetch(n string, record *dnsimple.ZoneRecord) resource.TestCheckFunc {
+func TestAccDNSimpleZoneRecord_Prefetch_ForEach(t *testing.T) {
+	// Issue: https://github.com/dnsimple/terraform-provider-dnsimple/issues/80
+	// This test is to ensure that the prefetch behaviour is deterministic
+	var recordSet1 dnsimple.ZoneRecord
+	var recordSet2 dnsimple.ZoneRecord
+	domain := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName1 := "dnsimple_zone_record.for_each_example_1"
+	resourceName2 := "dnsimple_zone_record.for_each_example_2"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			os.Setenv("PREFETCH", "1")
+		},
+		ProviderFactories: testAccProviderFactories,
+		CheckDestroy:      testAccCheckDNSimpleZoneRecordDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(testAccExampleDnsimpleZoneRecordsForEach, domain),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckDNSimpleZoneRecordExists(resourceName1, &recordSet1),
+					testAccCheckDNSimpleZoneRecordExists(resourceName2, &recordSet2),
+				),
+			},
+			{
+				Config: fmt.Sprintf(testAccExampleDnsimpleZoneRecordsForEach, domain),
+				Check: resource.ComposeTestCheckFunc(
+					func(s *terraform.State) error {
+						resourceName := resourceName1
+						expectedID := fmt.Sprintf("%d", recordSet1.ID)
+						rs, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("Not found: %s", resourceName)
+						}
+
+						if rs.Primary.ID != expectedID {
+							return fmt.Errorf("Expected the ID of the resource (%s) to be the same as the record ID, but got %s and %s", resourceName, rs.Primary.ID, expectedID)
+						}
+						return nil
+					},
+					func(s *terraform.State) error {
+						resourceName := resourceName2
+						expectedID := fmt.Sprintf("%d", recordSet2.ID)
+						rs, ok := s.RootModule().Resources[resourceName]
+						if !ok {
+							return fmt.Errorf("Not found: %s", resourceName)
+						}
+
+						if rs.Primary.ID != expectedID {
+							return fmt.Errorf("Expected the ID of the resource (%s) to be the same as the record ID, but got %s and %s", resourceName, rs.Primary.ID, expectedID)
+						}
+						return nil
+					},
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckDnsimpleZoneRecordPrefetch(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		provider := testAccProvider.Meta().(*Client)
 
@@ -316,6 +376,25 @@ resource "dnsimple_zone_record" "foobar" {
 	value = "192.168.0.10"
 	type = "A"
 	ttl = 3600
+}`
+
+const testAccExampleDnsimpleZoneRecordsForEach = `
+resource "dnsimple_zone_record" "for_each_example_1" {
+  zone_name = %[1]q
+
+  name      = ""
+  value     = "1.1.1.1"
+  type      = "A"
+  ttl       = 600
+}
+
+resource "dnsimple_zone_record" "for_each_example_2" {
+  zone_name = %[1]q
+
+  name      = "1a"
+  value     = "1.1.1.1"
+  type      = "A"
+  ttl       = 600
 }`
 
 const testAccCheckDnsimpleZoneRecordConfigNewValue = `
