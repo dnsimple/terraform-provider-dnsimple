@@ -2,6 +2,8 @@
 
 ## master
 
+## 0.16.2
+
 BUG FIXES:
 
 * Prefetch cache lookups are deterministic (dnsimple/terraform-provider-dnsimple#84)
