@@ -2,6 +2,10 @@
 
 ## master
 
+BUG FIXES:
+
+* Correctly error out and terminate `dnsimple_zone_record` import operations when invalid (dnsimple/terraform-provider-dnsimple#88)
+
 ## 0.16.2
 
 BUG FIXES:

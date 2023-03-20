@@ -252,12 +252,35 @@ func resourceDNSimpleZoneRecordImport(ctx context.Context, data *schema.Resource
 		return nil, fmt.Errorf("error importing dnsimple_zone_record. Please make sure the record ID is in the form ZONENAME_RECORDID (e.g. example.com_1234)")
 	}
 
+	provider := meta.(*Client)
+
+	recordID, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("Error converting Record ID: %s", err)
+	}
+
+	resp, err := provider.client.Zones.GetRecord(ctx, provider.config.Account, parts[0], recordID)
+	if err != nil {
+		return nil, err
+	}
+	record := resp.Data
+
 	data.SetId(parts[1])
 	data.Set("zone_name", parts[0])
 
-	if err := resourceDNSimpleZoneRecordRead(ctx, data, meta); err != nil {
-		return nil, fmt.Errorf(err[0].Summary)
+	data.Set("zone_id", record.ZoneID)
+	data.Set("name", record.Name)
+	data.Set("type", record.Type)
+	data.Set("value", record.Content)
+	data.Set("ttl", strconv.Itoa(record.TTL))
+	data.Set("priority", strconv.Itoa(record.Priority))
+
+	if record.Name == "" {
+		data.Set("qualified_name", data.Get("zone_name").(string))
+	} else {
+		data.Set("qualified_name", fmt.Sprintf("%s.%s", record.Name, data.Get("zone_name").(string)))
 	}
+
 	return []*schema.ResourceData{data}, nil
 }
 
