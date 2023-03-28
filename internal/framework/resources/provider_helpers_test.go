@@ -1,11 +1,14 @@
-package provider_test
+package resources_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/provider"
 )
 
@@ -28,7 +31,28 @@ var (
 	testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 		"dnsimple": providerserver.NewProtocol6WithError(provider.New("test")()),
 	}
+
+	// dnsimpleClient is the DNSimple client used to make API calls during
+	// acceptance testing.
+	dnsimpleClient *dnsimple.Client
+	// testAccAccount is the DNSimple account used to make API calls during
+	// acceptance testing.
+	testAccAccount string
 )
+
+func init() {
+	// If we are running acceptance tests TC_ACC then we initialize the DNSimple client
+	// with the credentials provided in the environment variables.
+	if os.Getenv("TF_ACC") != "" {
+		token := os.Getenv("DNSIMPLE_TOKEN")
+		account := os.Getenv("DNSIMPLE_ACCOUNT")
+
+		dnsimpleClient = dnsimple.NewClient(dnsimple.StaticTokenHTTPClient(context.Background(), token))
+		dnsimpleClient.UserAgent = "terraform-provider-dnsimple/test"
+		dnsimpleClient.BaseURL = consts.BaseURLSandbox
+		testAccAccount = account
+	}
+}
 
 func testAccPreCheck(t *testing.T) {
 	// You can add code here to run prior to any test case execution, for example assertions

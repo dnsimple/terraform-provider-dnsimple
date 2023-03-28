@@ -129,8 +129,8 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	if data.Sandbox.IsNull() {
 		sandboxValue := utils.GetDefaultFromEnv("DNSIMPLE_SANDBOX", "")
-		if sandboxValue == "" {
-			sandbox = false
+		if sandboxValue != "" {
+			sandbox = true
 		}
 	} else {
 		sandbox = data.Sandbox.ValueBool()
