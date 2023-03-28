@@ -173,6 +173,7 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		resources.NewDomainResource,
+		resources.NewEmailForwardResource,
 	}
 }
 
@@ -181,7 +182,7 @@ func (p *DnsimpleProvider) DataSources(ctx context.Context) []func() datasource.
 	return []func() datasource.DataSource{}
 }
 
-// New returns a new provider factory for the DNSimpe provider.
+// New returns a new provider factory for the DNSimple provider.
 func New(version string) func() provider.Provider {
 	return func() provider.Provider {
 		return &DnsimpleProvider{
