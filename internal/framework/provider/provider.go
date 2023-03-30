@@ -161,8 +161,10 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 	}
 
 	providerData := &common.DnsimpleProviderConfig{
-		Client:    client,
-		AccountID: account,
+		Client:          client,
+		AccountID:       account,
+		Prefetch:        prefetch,
+		ZoneRecordCache: common.ZoneRecordCache{},
 	}
 	resp.DataSourceData = providerData
 	resp.ResourceData = providerData
@@ -174,6 +176,7 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 	return []func() resource.Resource{
 		resources.NewDomainResource,
 		resources.NewEmailForwardResource,
+		resources.NewZoneRecordResource,
 	}
 }
 
