@@ -27,15 +27,7 @@ type DnsimpleProvider struct {
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
-
-	// zoneRecordCache is the cache of zone records for the provider.
-	zoneRecordCache Cache
-
-	// prefetch is the flag to enable the prefetch of zone records.
-	prefetch bool
 }
-
-type Cache map[string][]dnsimple.ZoneRecord
 
 // DnsimpleProviderModel describes the provider data model.
 type DnsimpleProviderModel struct {
@@ -171,8 +163,6 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 	}
 	resp.DataSourceData = providerData
 	resp.ResourceData = providerData
-
-	p.prefetch = prefetch
 }
 
 func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Resource {
