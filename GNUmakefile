@@ -5,7 +5,7 @@ HOSTNAME     = registry.terraform.io
 NAMESPACE    = dnsimple
 BINARY       = terraform-provider-${PKG_NAME}
 VERSION      = $(shell git describe --tags --always | cut -c 2-)
-OS_ARCH      = darwin_amd64
+OS_ARCH      = darwin_$(shell uname -m)
 
 default: build
 
