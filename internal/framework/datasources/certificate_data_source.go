@@ -25,13 +25,13 @@ type CertificateDataSource struct {
 
 // CertificateDataSourceModel describes the data source data model.
 type CertificateDataSourceModel struct {
-	Id        types.String  `tfsdk:"id"`
-	CertificateId 			types.Int64  `tfsdk:"certificate_id"`
-	Domain 	types.String `tfsdk:"domain"`
+	Id                types.String `tfsdk:"id"`
+	CertificateId     types.Int64  `tfsdk:"certificate_id"`
+	Domain            types.String `tfsdk:"domain"`
 	ServerCertificate types.String `tfsdk:"server_certificate"`
-	RootCertificate types.String `tfsdk:"root_certificate"`
-	CertificateChain types.List `tfsdk:"certificate_chain"`
-	PrivateKey types.String `tfsdk:"private_key"`
+	RootCertificate   types.String `tfsdk:"root_certificate"`
+	CertificateChain  types.List   `tfsdk:"certificate_chain"`
+	PrivateKey        types.String `tfsdk:"private_key"`
 }
 
 func (d *CertificateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
