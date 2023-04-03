@@ -23,7 +23,7 @@ testacc: fmtcheck
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
 
 fmt:
-	gofmt -s -w ./$(PKG_NAME)
+	gofmt -s -w .
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
