@@ -64,9 +64,10 @@ func (d *CertificateDataSource) Schema(ctx context.Context, req datasource.Schem
 				MarkdownDescription: "Root certificate",
 				Computed:            true,
 			},
-			"certificate_chain": schema.StringAttribute{
+			"certificate_chain": schema.ListAttribute{
 				MarkdownDescription: "Certificate chain",
 				Computed:            true,
+				ElementType:         types.StringType,
 			},
 			"private_key": schema.StringAttribute{
 				MarkdownDescription: "Private key",
