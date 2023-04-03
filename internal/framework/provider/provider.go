@@ -8,10 +8,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/datasources"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 	"golang.org/x/oauth2"
@@ -182,7 +185,9 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 
 // DataSources returns the data sources supported by this provider.
 func (p *DnsimpleProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{}
+	return []func() datasource.DataSource{
+		datasources.NewZoneDataSource,
+	}
 }
 
 // New returns a new provider factory for the DNSimple provider.
@@ -191,5 +196,11 @@ func New(version string) func() provider.Provider {
 		return &DnsimpleProvider{
 			version: version,
 		}
+	}
+}
+
+func NewProto6ProviderFactory() map[string]func() (tfprotov6.ProviderServer, error) {
+	return map[string]func() (tfprotov6.ProviderServer, error){
+		"dnsimple": providerserver.NewProtocol6WithError(New("test")()),
 	}
 }
