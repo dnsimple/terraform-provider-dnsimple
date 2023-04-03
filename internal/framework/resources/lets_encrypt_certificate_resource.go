@@ -33,7 +33,7 @@ type LetsEncryptCertificateResource struct {
 // LetsEncryptCertificateResourceModel describes the resource data model.
 type LetsEncryptCertificateResourceModel struct {
 	Id                  types.Int64  `tfsdk:"id"`
-	DomainId            types.Int64  `tfsdk:"domain_id"`
+	DomainId            types.String `tfsdk:"domain_id"`
 	Name                types.String `tfsdk:"name"`
 	Years               types.Int64  `tfsdk:"years"`
 	State               types.String `tfsdk:"state"`
@@ -41,7 +41,7 @@ type LetsEncryptCertificateResourceModel struct {
 	AutoRenew           types.Bool   `tfsdk:"auto_renew"`
 	CreatedAt           types.String `tfsdk:"created_at"`
 	UpdatedAt           types.String `tfsdk:"updated_at"`
-	ExpiresOn           types.String `tfsdk:"expires_on"`
+	ExpiresAt           types.String `tfsdk:"expires_at"`
 	Csr                 types.String `tfsdk:"csr"`
 	SignatureAlgorithm  types.String `tfsdk:"signature_algorithm"`
 }
@@ -60,9 +60,6 @@ func (r *LetsEncryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 			},
 			"domain_id": schema.StringAttribute{
 				Required: true,
-			},
-			"contact_id": schema.StringAttribute{
-				Optional: true,
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -85,7 +82,7 @@ func (r *LetsEncryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 			"updated_at": schema.StringAttribute{
 				Computed: true,
 			},
-			"expires_on": schema.StringAttribute{
+			"expires_at": schema.StringAttribute{
 				Computed: true,
 			},
 			"csr": schema.StringAttribute{
@@ -136,7 +133,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 
 	tflog.Debug(ctx, "creating DNSimple LetsEncryptCertificate", map[string]interface{}{"attributes": domainAttributes})
 
-	response, err := r.config.Client.Certificates.PurchaseLetsencryptCertificate(ctx, r.config.AccountID, data.DomainId.String(), domainAttributes)
+	response, err := r.config.Client.Certificates.PurchaseLetsencryptCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), domainAttributes)
 
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -154,7 +151,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 
 	certificateId := response.Data.CertificateID
 
-	issueResponse, issueErr := r.config.Client.Certificates.IssueLetsencryptCertificate(ctx, r.config.AccountID, data.DomainId.String(), certificateId)
+	issueResponse, issueErr := r.config.Client.Certificates.IssueLetsencryptCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), certificateId)
 
 	if issueErr != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -188,7 +185,7 @@ func (r *LetsEncryptCertificateResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	response, err := r.config.Client.Certificates.GetCertificate(ctx, r.config.AccountID, data.DomainId.String(), data.Id.ValueInt64())
+	response, err := r.config.Client.Certificates.GetCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), data.Id.ValueInt64())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -218,13 +215,14 @@ func (r *LetsEncryptCertificateResource) ImportState(ctx context.Context, req re
 }
 
 func (r *LetsEncryptCertificateResource) updateModelFromAPIResponse(cert *dnsimple.Certificate, data *LetsEncryptCertificateResourceModel) {
+	// Do not set data.DomainId to cert.DomainID, as that will cause Terraform to reject it with an inconsistent state error. Neither the domain name nor ID will ever change anyway.
 	data.Id = types.Int64Value(cert.ID)
-	data.DomainId = types.Int64Value(cert.DomainID)
 	data.Years = types.Int64Value(int64(cert.Years))
 	data.State = types.StringValue(cert.State)
 	data.AuthorityIdentifier = types.StringValue(cert.AuthorityIdentifier)
 	data.AutoRenew = types.BoolValue(cert.AutoRenew)
 	data.CreatedAt = types.StringValue(cert.CreatedAt)
 	data.UpdatedAt = types.StringValue(cert.UpdatedAt)
+	data.ExpiresAt = types.StringValue(cert.ExpiresAt)
 	data.Csr = types.StringValue(cert.CertificateRequest)
 }
