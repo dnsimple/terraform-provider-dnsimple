@@ -35,11 +35,11 @@ type EmailForwardResource struct {
 
 // EmailForwardResourceModel describes the resource data model.
 type EmailForwardResourceModel struct {
-	Domain 		 types.String `tfsdk:"domain"`
-	AliasName 	types.String `tfsdk:"alias_name"`
-	AliasEmail 	types.String `tfsdk:"alias_email"`
+	Domain           types.String `tfsdk:"domain"`
+	AliasName        types.String `tfsdk:"alias_name"`
+	AliasEmail       types.String `tfsdk:"alias_email"`
 	DestinationEmail types.String `tfsdk:"destination_email"`
-	Id           types.Int64  `tfsdk:"id"`
+	Id               types.Int64  `tfsdk:"id"`
 }
 
 func (r *EmailForwardResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -59,7 +59,7 @@ func (r *EmailForwardResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"alias_name": schema.StringAttribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String {
+				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -68,7 +68,7 @@ func (r *EmailForwardResource) Schema(_ context.Context, _ resource.SchemaReques
 			},
 			"destination_email": schema.StringAttribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String {
+				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
@@ -111,10 +111,10 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 
 	domainAttributes := dnsimple.EmailForward{
 		From: data.AliasName.ValueString(),
-		To: data.DestinationEmail.ValueString(),
+		To:   data.DestinationEmail.ValueString(),
 	}
 
-	tflog.Debug(ctx, "creating DNSimple EmailForward", map[string]interface{} { "attributes": domainAttributes })
+	tflog.Debug(ctx, "creating DNSimple EmailForward", map[string]interface{}{"attributes": domainAttributes})
 
 	response, err := r.config.Client.Domains.CreateEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), domainAttributes)
 
@@ -132,16 +132,9 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 		return
 	}
 
-	// For the purposes of this example code, hardcoding a response value to
-	// save into the Terraform state.
-	data.Id = types.Int64Value(response.Data.ID)
-	data.AliasName = types.StringValue(strings.Split(response.Data.From, "@")[0])
-	data.AliasEmail = types.StringValue(response.Data.From)
-	data.DestinationEmail = types.StringValue(response.Data.To)
+	r.updateModelFromAPIResponse(response.Data, data)
 
-	// Write logs using the tflog package
-	// Documentation: https://terraform.io/plugin/log
-	tflog.Info(ctx, "created DNSimple EmailForward", map[string]interface{} { "id": data.Id.ValueInt64() })
+	tflog.Info(ctx, "created DNSimple EmailForward", map[string]interface{}{"id": data.Id.ValueInt64()})
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -166,10 +159,7 @@ func (r *EmailForwardResource) Read(ctx context.Context, req resource.ReadReques
 		)
 	}
 
-	data.Id = types.Int64Value(response.Data.ID)
-	data.AliasName = types.StringValue(strings.Split(response.Data.From, "@")[0])
-	data.AliasEmail = types.StringValue(response.Data.From)
-	data.DestinationEmail = types.StringValue(response.Data.To)
+	r.updateModelFromAPIResponse(response.Data, data)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -204,4 +194,11 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 
 func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func (r *EmailForwardResource) updateModelFromAPIResponse(emailForward *dnsimple.EmailForward, data *EmailForwardResourceModel) {
+	data.Id = types.Int64Value(emailForward.ID)
+	data.AliasName = types.StringValue(strings.Split(emailForward.From, "@")[0])
+	data.AliasEmail = types.StringValue(emailForward.From)
+	data.DestinationEmail = types.StringValue(emailForward.To)
 }

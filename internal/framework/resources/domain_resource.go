@@ -116,15 +116,6 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Check domain name is not empty
-	if data.Name.ValueString() == "" {
-		resp.Diagnostics.AddError(
-			"domain name is required",
-			"please provide a domain name",
-		)
-		return
-	}
-
 	domainAttributes := dnsimple.Domain{
 		Name: data.Name.ValueString(),
 	}
@@ -145,20 +136,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// For the purposes of this example code, hardcoding a response value to
-	// save into the Terraform state.
-	data.Id = types.Int64Value(response.Data.ID)
-	data.Name = types.StringValue(response.Data.Name)
-	data.AccountId = types.Int64Value(response.Data.AccountID)
-	data.RegistrantId = types.Int64Value(response.Data.RegistrantID)
-	data.UnicodeName = types.StringValue(response.Data.UnicodeName)
-	data.State = types.StringValue(response.Data.State)
-	data.AutoRenew = types.BoolValue(response.Data.AutoRenew)
-	data.PrivateWhois = types.BoolValue(response.Data.PrivateWhois)
-
-	// Write logs using the tflog package
-	// Documentation: https://terraform.io/plugin/log
-	tflog.Trace(ctx, "created domain resource")
+	r.updateModelFromAPIResponse(response.Data, data)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -183,14 +161,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		)
 	}
 
-	data.Id = types.Int64Value(response.Data.ID)
-	data.Name = types.StringValue(response.Data.Name)
-	data.AccountId = types.Int64Value(response.Data.AccountID)
-	data.RegistrantId = types.Int64Value(response.Data.RegistrantID)
-	data.UnicodeName = types.StringValue(response.Data.UnicodeName)
-	data.State = types.StringValue(response.Data.State)
-	data.AutoRenew = types.BoolValue(response.Data.AutoRenew)
-	data.PrivateWhois = types.BoolValue(response.Data.PrivateWhois)
+	r.updateModelFromAPIResponse(response.Data, data)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -245,6 +216,17 @@ func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics 
 	}
 
 	return diagnostics
+}
+
+func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
+	data.Id = types.Int64Value(domain.ID)
+	data.Name = types.StringValue(domain.Name)
+	data.AccountId = types.Int64Value(domain.AccountID)
+	data.RegistrantId = types.Int64Value(domain.RegistrantID)
+	data.UnicodeName = types.StringValue(domain.UnicodeName)
+	data.State = types.StringValue(domain.State)
+	data.AutoRenew = types.BoolValue(domain.AutoRenew)
+	data.PrivateWhois = types.BoolValue(domain.PrivateWhois)
 }
 
 func translateFieldFromAPIToTerraform(field string) string {
