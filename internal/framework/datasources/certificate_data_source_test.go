@@ -11,8 +11,8 @@ import (
 )
 
 func TestAccCertificateDataSource(t *testing.T) {
-	if os.Getenv("DNSIMPLE_SANDBOX") != "true" {
-		t.Skip("DNSIMPLE_SANDBOX is not set to `true` (read in CONTRIBUTING.md how to run this test)")
+	if os.Getenv("DNSIMPLE_SANDBOX") != "false" {
+		t.Skip("DNSIMPLE_SANDBOX is not set to `false` (read in CONTRIBUTING.md how to run this test)")
 		return
 	}
 	domain := os.Getenv("DNSIMPLE_DOMAIN")
