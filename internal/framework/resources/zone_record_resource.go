@@ -161,19 +161,7 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	data.Id = types.Int64Value(response.Data.ID)
-	data.ZoneId = types.StringValue(response.Data.ZoneID)
-	data.Name = types.StringValue(response.Data.Name)
-	data.Type = types.StringValue(response.Data.Type)
-	data.Value = types.StringValue(response.Data.Content)
-	data.TTL = types.Int64Value(int64(response.Data.TTL))
-	data.Priority = types.Int64Value(int64(response.Data.Priority))
-
-	if response.Data.Name == "" {
-		data.QualifiedName = data.Name
-	} else {
-		data.QualifiedName = types.StringValue(fmt.Sprintf("%s.%s", response.Data.Name, data.ZoneName.ValueString()))
-	}
+	r.updateModelFromAPIResponse(response.Data, data)
 
 	tflog.Info(ctx, "DNSimple Record ID", map[string]interface{}{"id": data.Id})
 
@@ -243,20 +231,7 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		record = *response.Data
 	}
 
-	// TODO: Extract this into a function to avoid duplication
-	data.Id = types.Int64Value(record.ID)
-	data.ZoneId = types.StringValue(record.ZoneID)
-	data.Name = types.StringValue(record.Name)
-	data.Type = types.StringValue(record.Type)
-	data.Value = types.StringValue(record.Content)
-	data.TTL = types.Int64Value(int64(record.TTL))
-	data.Priority = types.Int64Value(int64(record.Priority))
-
-	if record.Name == "" {
-		data.QualifiedName = data.Name
-	} else {
-		data.QualifiedName = types.StringValue(fmt.Sprintf("%s.%s", record.Name, data.ZoneName.ValueString()))
-	}
+	r.updateModelFromAPIResponse(&record, data)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -309,20 +284,7 @@ func (r *ZoneRecordResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	data.Id = types.Int64Value(response.Data.ID)
-	data.ZoneId = types.StringValue(response.Data.ZoneID)
-	data.Name = types.StringValue(response.Data.Name)
-	data.Type = types.StringValue(response.Data.Type)
-	data.Value = types.StringValue(response.Data.Content)
-	data.TTL = types.Int64Value(int64(response.Data.TTL))
-	data.Priority = types.Int64Value(int64(response.Data.Priority))
-
-	if response.Data.Name == "" {
-		data.QualifiedName = data.Name
-	} else {
-		data.QualifiedName = types.StringValue(fmt.Sprintf("%s.%s", response.Data.Name, data.ZoneName.ValueString()))
-	}
-
+	r.updateModelFromAPIResponse(response.Data, data)
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -351,4 +313,20 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 
 func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+func (r *ZoneRecordResource) updateModelFromAPIResponse(record *dnsimple.ZoneRecord, data *ZoneRecordResourceModel) {
+	data.Id = types.Int64Value(record.ID)
+	data.ZoneId = types.StringValue(record.ZoneID)
+	data.Name = types.StringValue(record.Name)
+	data.Type = types.StringValue(record.Type)
+	data.Value = types.StringValue(record.Content)
+	data.TTL = types.Int64Value(int64(record.TTL))
+	data.Priority = types.Int64Value(int64(record.Priority))
+
+	if record.Name == "" {
+		data.QualifiedName = data.Name
+	} else {
+		data.QualifiedName = types.StringValue(fmt.Sprintf("%s.%s", record.Name, data.ZoneName.ValueString()))
+	}
 }
