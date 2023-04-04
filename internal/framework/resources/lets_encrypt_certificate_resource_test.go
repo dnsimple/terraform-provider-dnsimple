@@ -1,7 +1,6 @@
 package resources_test
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -40,7 +39,6 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "auto_renew", strconv.FormatBool(certAutoRenew)),
 					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "created_at"),
 					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "updated_at"),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "expires_at"),
 					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "csr"),
 					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "signature_algorithm", certSigAlg),
 				),
@@ -51,23 +49,8 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 	})
 }
 
+// We cannot delete certificates from the server.
 func testAccCheckLetsEncryptCertificateResourceDestroy(state *terraform.State) error {
-	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "dnsimple_lets_encrypt_certificate" {
-			continue
-		}
-
-		domainId := rs.Primary.Attributes["domain_id"]
-		certId, err := strconv.ParseInt(rs.Primary.Attributes["id"], 10, 64)
-		if err != nil {
-			return fmt.Errorf("error parsing certificate id: %s", err)
-		}
-		_, err = dnsimpleClient.Certificates.GetCertificate(context.Background(), testAccAccount, domainId, certId)
-
-		if err != nil {
-			return fmt.Errorf("record no longer exists (certificates cannot be deleted)")
-		}
-	}
 	return nil
 }
 

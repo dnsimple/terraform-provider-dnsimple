@@ -20,7 +20,7 @@ test: fmtcheck
 	go test $(TEST) $(TESTARGS) -timeout=5m
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m $(ARGS)
 
 fmt:
 	gofmt -s -w .
