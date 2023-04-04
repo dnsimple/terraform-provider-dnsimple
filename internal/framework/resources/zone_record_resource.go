@@ -55,6 +55,7 @@ func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "DNSimple domain resource",
+		Version:             1,
 		Attributes: map[string]schema.Attribute{
 			"zone_name": schema.StringAttribute{
 				Required: true,
