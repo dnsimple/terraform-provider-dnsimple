@@ -195,20 +195,22 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 				)
 				return
 			}
-		} else {
-			tflog.Debug(ctx, "DNSimple Zone Record cache hit", map[string]interface{}{
-				"zone_name": data.ZoneName.ValueString(),
-			})
-
-			record, ok = r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.Name.ValueString(), data.Type.ValueString(), data.Value.ValueString())
-			if !ok {
-				resp.Diagnostics.AddError(
-					"record not found",
-					fmt.Sprintf("failed to find DNSimple Zone Record in the zone cache: %s", data.QualifiedName.ValueString()),
-				)
-				return
-			}
 		}
+
+		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.Name.ValueString(), data.Type.ValueString(), data.Value.ValueString())
+		if !ok {
+			resp.Diagnostics.AddError(
+				"record not found",
+				fmt.Sprintf("failed to find DNSimple Zone Record in the zone cache: %s", data.QualifiedName.ValueString()),
+			)
+			return
+		}
+
+		tflog.Debug(ctx, "DNSimple Zone Record cache hit", map[string]interface{}{
+			"zone_name": data.ZoneName.ValueString(),
+		})
+
+		record = cacheRecord
 	} else {
 		response, err := r.config.Client.Zones.GetRecord(ctx, r.config.AccountID, data.ZoneName.ValueString(), data.Id.ValueInt64())
 
