@@ -39,7 +39,7 @@ The following attributes are exported:
 * `authority_identifier` - The identifying certification authority (CA)
 * `auto_renew` - Set to true if the certificate will auto-renew
 * `csr` - The certificate signing request
-* `expires_at` - The date the certificate will expire
+* `expires_at` - The datetime the certificate will expire
 * `created_at` - The datetime the certificate was created
 * `updated_at` - The datetime the certificate was last updated
 
