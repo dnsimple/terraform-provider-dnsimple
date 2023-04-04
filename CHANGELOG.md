@@ -4,10 +4,14 @@
 
 BREAKING CHANGES:
 
-- The deprecated `contact_id` field has been removed from the `dnsimple_lets_encrypt_certificate` resource. (dnsimple/terraform-provider-dnsimple#93)
-- The `id` field on the `dnsimple_lets_encrypt_certificate` is now of type `int64` instead of `string` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
-- The `domain_id` field on the `dnsimple_lets_encrypt_certificate` is now required. (dnsimple/terraform-provider-dnsimple#93)
-- The `expires_on` attribute on the `dnsimple_lets_encrypt_certificate` has been renamed to `expires_at` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
+Resource `dnsimple_lets_encrypt_certificate`:
+  - The deprecated `contact_id` field has been removed from the `dnsimple_lets_encrypt_certificate` resource. (dnsimple/terraform-provider-dnsimple#93)
+  - The `id` field on the `dnsimple_lets_encrypt_certificate` is now of type `int64` instead of `string` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
+  - The `domain_id` field on the `dnsimple_lets_encrypt_certificate` is now required. (dnsimple/terraform-provider-dnsimple#93)
+  - The `expires_on` attribute on the `dnsimple_lets_encrypt_certificate` has been renamed to `expires_at` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
+
+Resource `dnsimple_zone_record`:
+  - The `ttl` and `priority` fields on the `dnsimple_zone_record` are now of type `int64` instead of `string`. (dnsimple/terraform-provider-dnsimple#93)
 
 ## 0.16.3
 
