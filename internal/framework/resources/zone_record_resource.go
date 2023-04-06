@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -315,7 +317,20 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 }
 
 func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	parts := strings.Split(req.ID, "_")
+	if len(parts) != 2 {
+		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<zone-name>_<record-id>'", req.ID))
+	}
+	zoneName := parts[0]
+	recordID := parts[1]
+
+	id, err := strconv.ParseInt(recordID, 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse record ID (%s) as integer", recordID))
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("zone_name"), zoneName)...)
 }
 
 func (r *ZoneRecordResource) updateModelFromAPIResponse(record *dnsimple.ZoneRecord, data *ZoneRecordResourceModel) {

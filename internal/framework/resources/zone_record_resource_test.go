@@ -2,6 +2,7 @@ package resources_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 
 func TestAccZoneRecordResource(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -39,6 +41,12 @@ func TestAccZoneRecordResource(t *testing.T) {
 					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "value", "192.168.0.12"),
 					resource.TestCheckResourceAttrSet("dnsimple_zone_record.test", "id"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportStateIdFunc: testAccZoneRecordImportStateIDFunc(resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
 		},
@@ -169,6 +177,21 @@ func testAccCheckZoneRecordResourceDestroy(state *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func testAccZoneRecordImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return "", errors.New("No resource ID set")
+		}
+
+		return fmt.Sprintf("%s_%s", rs.Primary.Attributes["zone_name"], rs.Primary.ID), nil
+	}
 }
 
 func testAccCheckZoneRecordExists(n string, record *dnsimple.ZoneRecord) resource.TestCheckFunc {
