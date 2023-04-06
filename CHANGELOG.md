@@ -13,6 +13,9 @@ Resource `dnsimple_lets_encrypt_certificate`:
 Resource `dnsimple_zone_record`:
   - The `ttl` and `priority` fields on the `dnsimple_zone_record` are now of type `int64` instead of `string`. (dnsimple/terraform-provider-dnsimple#93)
 
+Resource `dnsimple_record`:
+  - The resource has been removed from the provider as it was deprecated in v0.9.2. (dnsimple/terraform-provider-dnsimple#93)
+
 ## 0.16.3
 
 BUG FIXES:
