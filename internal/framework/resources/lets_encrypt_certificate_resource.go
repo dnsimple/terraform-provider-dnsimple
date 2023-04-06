@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
@@ -224,7 +223,8 @@ func (r *LetsEncryptCertificateResource) Delete(ctx context.Context, req resourc
 }
 
 func (r *LetsEncryptCertificateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	// No-op
+	tflog.Info(ctx, "DNSimple does not support importing Let's Encrypt certificates")
 }
 
 func (r *LetsEncryptCertificateResource) updateModelFromAPIResponse(cert *dnsimple.Certificate, data *LetsEncryptCertificateResourceModel) {

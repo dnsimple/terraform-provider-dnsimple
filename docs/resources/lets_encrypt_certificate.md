@@ -46,13 +46,3 @@ The following additional attributes are exported:
 Optional:
 
 - `read` (String) - The timeout for the read operation
-
-## Import
-
-Resource can be imported using the domain name and numeric certificate ID.
-
-**Importing certificate example.com with certificate ID 1234**
-
-```bash
-terraform import dnsimple_lets_encrypt_certificate.resource_name example.com_1234
-```

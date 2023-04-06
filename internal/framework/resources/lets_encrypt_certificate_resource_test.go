@@ -16,6 +16,7 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 		t.Skip("DNSIMPLE_SANDBOX is not set to `false` (read in CONTRIBUTING.md how to run this test)")
 		return
 	}
+	resourceName := "dnsimple_lets_encrypt_certificate.test"
 
 	domainId := os.Getenv("DNSIMPLE_DOMAIN")
 	certName := os.Getenv("DNSIMPLE_CERTIFICATE_NAME")
@@ -30,17 +31,17 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 			{
 				Config: testAccLetsEncryptCertificateResourceConfig(domainId, certName, certAutoRenew, certSigAlg),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "id"),
-					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "domain_id", domainId),
-					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "name", certName),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "years"),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "state"),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "authority_identifier"),
-					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "auto_renew", strconv.FormatBool(certAutoRenew)),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "created_at"),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "updated_at"),
-					resource.TestCheckResourceAttrSet("dnsimple_lets_encrypt_certificate.test", "csr"),
-					resource.TestCheckResourceAttr("dnsimple_lets_encrypt_certificate.test", "signature_algorithm", certSigAlg),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "domain_id", domainId),
+					resource.TestCheckResourceAttr(resourceName, "name", certName),
+					resource.TestCheckResourceAttrSet(resourceName, "years"),
+					resource.TestCheckResourceAttrSet(resourceName, "state"),
+					resource.TestCheckResourceAttrSet(resourceName, "authority_identifier"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew", strconv.FormatBool(certAutoRenew)),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "csr"),
+					resource.TestCheckResourceAttr(resourceName, "signature_algorithm", certSigAlg),
 				),
 			},
 			// Update is a no-op
