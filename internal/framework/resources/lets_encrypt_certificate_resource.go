@@ -58,9 +58,7 @@ func (r *LetsEncryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "DNSimple Let's Encrypt certificate resource",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				Computed: true,
-			},
+			"id": common.IDInt64Attribute(),
 			"domain_id": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{

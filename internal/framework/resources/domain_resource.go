@@ -79,9 +79,7 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 			"private_whois": schema.BoolAttribute{
 				Computed: true,
 			},
-			"id": schema.Int64Attribute{
-				Computed: true,
-			},
+			"id": common.IDInt64Attribute(),
 		},
 	}
 }

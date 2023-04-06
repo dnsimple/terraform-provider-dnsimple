@@ -72,9 +72,7 @@ func (r *EmailForwardResource) Schema(_ context.Context, _ resource.SchemaReques
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"id": schema.Int64Attribute{
-				Computed: true,
-			},
+			"id": common.IDInt64Attribute(),
 		},
 	}
 }
