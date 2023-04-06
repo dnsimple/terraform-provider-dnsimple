@@ -34,15 +34,7 @@ func main() {
 
 	ctx := context.Background()
 
-	// sdkProvider, err := tf5to6server.UpgradeServer(context.Background(), sdkprovider.Provider().GRPCProvider)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	providers := []func() tfprotov6.ProviderServer{
-		// func() tfprotov6.ProviderServer {
-		// 	return sdkProvider
-		// },
 		providerserver.NewProtocol6(framework.New(version)()),
 	}
 
