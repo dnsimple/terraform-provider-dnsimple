@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
@@ -191,7 +192,20 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 }
 
 func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	parts := strings.Split(req.ID, "_")
+	if len(parts) != 2 {
+		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<email-forward-id>'", req.ID))
+	}
+	domainName := parts[0]
+	recordID := parts[1]
+
+	id, err := strconv.ParseInt(recordID, 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse email forward ID (%s) as integer", recordID))
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("domain"), domainName)...)
 }
 
 func (r *EmailForwardResource) updateModelFromAPIResponse(emailForward *dnsimple.EmailForward, data *EmailForwardResourceModel) {

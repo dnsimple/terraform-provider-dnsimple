@@ -2,6 +2,7 @@ package resources_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 
 func TestAccEmailForwardResource(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_email_forward.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -23,12 +25,18 @@ func TestAccEmailForwardResource(t *testing.T) {
 			{
 				Config: testAccEmailForwardResourceConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("dnsimple_email_forward.test", "id"),
-					resource.TestCheckResourceAttrSet("dnsimple_email_forward.test", "alias_email"),
-					resource.TestCheckResourceAttr("dnsimple_email_forward.test", "domain", domainName),
-					resource.TestCheckResourceAttr("dnsimple_email_forward.test", "alias_name", "hello"),
-					resource.TestCheckResourceAttr("dnsimple_email_forward.test", "destination_email", "hi@hey.com"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "alias_email"),
+					resource.TestCheckResourceAttr(resourceName, "domain", domainName),
+					resource.TestCheckResourceAttr(resourceName, "alias_name", "hello"),
+					resource.TestCheckResourceAttr(resourceName, "destination_email", "hi@hey.com"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportStateIdFunc: testAccEmailForwardImportStateIDFunc(resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Update is a no-op
 			// Delete testing automatically occurs in TestCase
@@ -54,6 +62,21 @@ func testAccCheckEmailForwardResourceDestroy(state *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func testAccEmailForwardImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return "", errors.New("No resource ID set")
+		}
+
+		return fmt.Sprintf("%s_%s", rs.Primary.Attributes["domain"], rs.Primary.ID), nil
+	}
 }
 
 func testAccEmailForwardResourceConfig(domainName string) string {
