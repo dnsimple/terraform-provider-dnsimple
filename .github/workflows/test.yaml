@@ -59,14 +59,11 @@ jobs:
       fail-fast: false
       matrix:
         terraform:
-          - '0.14.*'
           - '0.15.*'
           - '1.0.*'
           - '1.1.*'
           - '1.2.*'
         include:
-          - terraform: '0.14.*'
-            domain: 'dnsimple-014.terraform'
           - terraform: '0.15.*'
             domain: 'dnsimple-015.terraform'
           - terraform: '1.0.*'

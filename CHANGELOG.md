@@ -4,6 +4,8 @@
 
 BREAKING CHANGES:
 
+- Drop support for Terraform 0.14 (dnsimple/terraform-provider-dnsimple#93)
+
 - Resource `dnsimple_lets_encrypt_certificate`:
   - The deprecated `contact_id` field has been removed from the `dnsimple_lets_encrypt_certificate` resource. (dnsimple/terraform-provider-dnsimple#93)
   - The `id` field on the `dnsimple_lets_encrypt_certificate` is now of type `int64` instead of `string` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
