@@ -40,10 +40,7 @@ func (d *ZoneDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 		MarkdownDescription: "DNSimple zone data source",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.Int64Attribute{
-				MarkdownDescription: "Zone ID",
-				Computed:            true,
-			},
+			"id": common.IDInt64Attribute(),
 			"account_id": schema.Int64Attribute{
 				MarkdownDescription: "DNSimple Account ID to which the zone belongs to",
 				Computed:            true,

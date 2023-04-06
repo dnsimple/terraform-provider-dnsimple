@@ -44,10 +44,7 @@ func (d *CertificateDataSource) Schema(ctx context.Context, req datasource.Schem
 		MarkdownDescription: "DNSimple certificate data source",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				MarkdownDescription: "Certificate data ID",
-				Computed:            true,
-			},
+			"id": common.IDStringAttribute(),
 			"certificate_id": schema.Int64Attribute{
 				MarkdownDescription: "Certificate ID",
 				Required:            true,
