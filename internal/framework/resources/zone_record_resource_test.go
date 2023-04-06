@@ -26,20 +26,20 @@ func TestAccZoneRecordResource(t *testing.T) {
 			{
 				Config: testAccZoneRecordResourceStandardConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "zone_name", domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "qualified_name", "terraform."+domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "ttl", "2800"),
-					resource.TestCheckResourceAttrSet("dnsimple_zone_record.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "2800"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			{
 				Config: testAccZoneRecordResourceStandardWithDefaultsConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "zone_name", domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "qualified_name", "terraform."+domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "ttl", "3600"),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "value", "192.168.0.12"),
-					resource.TestCheckResourceAttrSet("dnsimple_zone_record.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.12"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			{
@@ -55,6 +55,7 @@ func TestAccZoneRecordResource(t *testing.T) {
 
 func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -64,11 +65,11 @@ func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 			{
 				Config: testAccZoneRecordResourcePriorityConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "zone_name", domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "qualified_name", "terraform."+domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "ttl", "3600"),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "priority", "10"),
-					resource.TestCheckResourceAttrSet("dnsimple_zone_record.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "10"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -78,6 +79,7 @@ func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 
 func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -87,11 +89,11 @@ func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 			{
 				Config: testAccZoneRecordResourcePriorityConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "zone_name", domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "qualified_name", "terraform."+domainName),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "ttl", "3600"),
-					resource.TestCheckResourceAttr("dnsimple_zone_record.test", "priority", "10"),
-					resource.TestCheckResourceAttrSet("dnsimple_zone_record.test", "id"),
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "10"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
