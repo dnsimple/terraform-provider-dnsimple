@@ -2,6 +2,7 @@ package resources_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"testing"
@@ -13,6 +14,7 @@ import (
 
 func TestAccDomainResource(t *testing.T) {
 	domainName := "test-" + os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_domain.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -22,14 +24,35 @@ func TestAccDomainResource(t *testing.T) {
 			{
 				Config: testAccDomainResourceConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("dnsimple_domain.test", "name", domainName),
-					resource.TestCheckResourceAttr("dnsimple_domain.test", "state", "hosted"),
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "state", "hosted"),
 				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportStateIdFunc: testAccDomainImportStateIDFunc(resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			// Update is a no-op
 			// Delete testing automatically occurs in TestCase
 		},
 	})
+}
+
+func testAccDomainImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return "", fmt.Errorf("Resource not found: %s", resourceName)
+		}
+
+		if rs.Primary.ID == "" {
+			return "", errors.New("No resource ID set")
+		}
+
+		return rs.Primary.ID, nil
+	}
 }
 
 func testAccCheckDomainResourceDestroy(state *terraform.State) error {

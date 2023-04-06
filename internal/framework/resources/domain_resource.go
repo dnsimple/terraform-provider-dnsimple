@@ -192,7 +192,17 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	response, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, req.ID)
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("failed to find DNSimple Domain ID: %s", req.ID),
+			err.Error(),
+		)
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
 }
 
 func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
