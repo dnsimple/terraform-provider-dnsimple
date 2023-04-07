@@ -2,6 +2,24 @@
 
 ## main
 
+BREAKING CHANGES:
+
+- Drop support for Terraform 0.14 (dnsimple/terraform-provider-dnsimple#93)
+
+- Resource `dnsimple_lets_encrypt_certificate`:
+  - The deprecated `contact_id` field has been removed from the `dnsimple_lets_encrypt_certificate` resource. (dnsimple/terraform-provider-dnsimple#93)
+  - The `id` field on the `dnsimple_lets_encrypt_certificate` is now of type `int64` instead of `string` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
+  - The `domain_id` field on the `dnsimple_lets_encrypt_certificate` is now required. (dnsimple/terraform-provider-dnsimple#93)
+  - The `expires_on` attribute on the `dnsimple_lets_encrypt_certificate` has been renamed to `expires_at` to keep in line with the API. (dnsimple/terraform-provider-dnsimple#93)
+
+- Resource `dnsimple_zone_record`:
+  - The `ttl` and `priority` fields on the `dnsimple_zone_record` are now of type `int64` instead of `string`. (dnsimple/terraform-provider-dnsimple#93)
+
+- Resource `dnsimple_record`:
+  - The resource has been removed from the provider as it was deprecated in v0.9.2. (dnsimple/terraform-provider-dnsimple#93)
+
+- The `PREFETCH` environment variable has been renamed to `DNSIMPLE_PREFETCH` to avoid conflicts with other services. (dnsimple/terraform-provider-dnsimple#93)
+
 ## 0.16.3
 
 BUG FIXES:

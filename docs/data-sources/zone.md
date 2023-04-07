@@ -24,9 +24,8 @@ The following arguments are supported:
 
 # Attributes Reference
 
-The following attributes are exported:
+The following additional attributes are exported:
 
 * `id` - The zone ID
 * `account_id` - The account ID
-* `name` - The name of the zone
 * `reverse` - True for a reverse zone, false for a forward zone.

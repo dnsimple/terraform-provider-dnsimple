@@ -35,14 +35,14 @@ The following argument(s) are supported:
 
 DNSimple domains can be imported using their numeric record ID.
 
-```
-$ terraform import dnsimple_domain.resource_name 5678
+```bash
+terraform import dnsimple_domain.resource_name 5678
 ```
 
 The record ID can be found within [DNSimple Domains API](https://developer.dnsimple.com/v2/domains/#listDomains). Check out [Authentication](https://developer.dnsimple.com/v2/#authentication) in API Overview for available options.
 
-```
-$ curl -u 'EMAIL:PASSWORD' https://api.dnsimple.com/v2/1234/domains?name_like=example.com | jq
+```bash
+curl -u 'EMAIL:PASSWORD' https://api.dnsimple.com/v2/1234/domains?name_like=example.com | jq
 {
   "data": [
     {

@@ -38,25 +38,10 @@ The following arguments are supported:
 
 * `token` - (Required) The DNSimple API v2 token. It must be provided, but it can also be sourced from the `DNSIMPLE_TOKEN` environment variable. Please note that this must be an [API v2 token](https://support.dnsimple.com/articles/api-access-token/). You can use either an User or Account token, but an Account token is recommended.
 * `account` - (Required) The ID of the account associated with the token. It must be provided, but it can also be sourced from the `DNSIMPLE_ACCOUNT` environment variable.
-* `sandbox` - Set to true to connect to the API [sandbox environment](https://developer.dnsimple.com/sandbox/).
+* `sandbox` - Set to true to connect to the API [sandbox environment](https://developer.dnsimple.com/sandbox/). `DNSIMPLE_SANDBOX` environment variable can also be used.
 * `prefetch` - Set to true to enable prefetching `ZoneRecords` when dealing with large configurations. This is useful
-when you are dealing with API rate limitations given your number of zones and zone records.
+when you are dealing with API rate limitations given your number of zones and zone records. `DNSIMPLE_PREFETCH` environment variable can also be used.
 * `user_agent` - (Optional) Custom string to append to the user agent used for sending HTTP requests to the API.
-
-## API v2 vs API v1
-
--> This integration uses the new DNSimple API v2 [released on December 2016](https://blog.dnsimple.com/2016/12/api-v2-stable/). The API v2 provides support for multi-accounts and requires a new authentication mechanism.
-
-If you are upgrading from a previous Terraform version, and you were using the API v1, you will need to upgrade the DNSimple provider configuration to use the new API access token and specify the Account ID. Terraform will automatically detect an existing legacy configurations and it will return an error message asking to upgrade.
-
-API v1 is no longer supported. If you are using the `DNSIMPLE_EMAIL` argument, you can safely remove it once you have upgraded to API v2. To use API v1 you will need to use a Terraform version lower than 0.9.
-
-To upgrade from the DNSimple provider API v1 to DNSimple provider API v2 follow these steps:
-
-1. [Generate an API v2 access token](https://support.dnsimple.com/articles/api-access-token/)
-1. [Determine the Account ID](https://developer.dnsimple.com/v2/#account-scope)
-1. Add the `account` configuration and update the `token`, as shown in the example above
-1. Remove the `email` configuration, as it's no longer used
 
 ## Helpful Links
 

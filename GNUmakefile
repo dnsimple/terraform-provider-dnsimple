@@ -1,11 +1,11 @@
-TEST         ?= ./...
+TEST         ?= ./internal/...
 WEBSITE_REPO = github.com/hashicorp/terraform-website
 PKG_NAME     = dnsimple
 HOSTNAME     = registry.terraform.io
 NAMESPACE    = dnsimple
 BINARY       = terraform-provider-${PKG_NAME}
 VERSION      = $(shell git describe --tags --always | cut -c 2-)
-OS_ARCH      = darwin_amd64
+OS_ARCH      = darwin_$(shell uname -m)
 
 default: build
 
@@ -20,10 +20,10 @@ test: fmtcheck
 	go test $(TEST) $(TESTARGS) -timeout=5m
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 10m $(ARGS)
 
 fmt:
-	gofmt -s -w ./$(PKG_NAME)
+	gofmt -s -w .
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
