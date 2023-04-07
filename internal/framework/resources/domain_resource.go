@@ -179,7 +179,7 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple Record: %s, %s", data.Name, data.Id))
+	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple Domain: %s, %s", data.Name, data.Id))
 
 	_, err := r.config.Client.Domains.DeleteDomain(ctx, r.config.AccountID, data.Name.ValueString())
 
