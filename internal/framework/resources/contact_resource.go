@@ -47,7 +47,9 @@ type ContactResourceModel struct {
 	PostalCode       types.String `tfsdk:"postal_code"`
 	Country          types.String `tfsdk:"country"`
 	Phone            types.String `tfsdk:"phone"`
+	PhoneNormalized  types.String `tfsdk:"phone_normalized"`
 	Fax              types.String `tfsdk:"fax"`
+	FaxNormalized    types.String `tfsdk:"fax_normalized"`
 	Email            types.String `tfsdk:"email"`
 	CreatedAt        types.String `tfsdk:"created_at"`
 	UpdatedAt        types.String `tfsdk:"updated_at"`
@@ -102,8 +104,14 @@ func (r *ContactResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			"phone": schema.StringAttribute{
 				Required: true,
 			},
+			"phone_normalized": schema.StringAttribute{
+				Computed: true,
+			},
 			"fax": schema.StringAttribute{
 				Optional: true,
+			},
+			"fax_normalized": schema.StringAttribute{
+				Computed: true,
 			},
 			"email": schema.StringAttribute{
 				Required: true,
@@ -324,7 +332,9 @@ func (r *ContactResource) ImportState(ctx context.Context, req resource.ImportSt
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("postal_code"), response.Data.PostalCode)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("country"), response.Data.Country)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("phone"), response.Data.Phone)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("phone_normalized"), response.Data.Phone)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fax"), response.Data.Fax)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fax_normalized"), response.Data.Fax)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("email"), response.Data.Email)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("created_at"), response.Data.CreatedAt)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("updated_at"), response.Data.UpdatedAt)...)
@@ -344,8 +354,8 @@ func (r *ContactResource) updateModelFromAPIResponse(contact *dnsimple.Contact, 
 	data.StateProvince = types.StringValue(contact.StateProvince)
 	data.PostalCode = types.StringValue(contact.PostalCode)
 	data.Country = types.StringValue(contact.Country)
-	data.Phone = types.StringValue(contact.Phone)
-	data.Fax = types.StringValue(contact.Fax)
+	data.PhoneNormalized = types.StringValue(contact.Phone)
+	data.FaxNormalized = types.StringValue(contact.Fax)
 	data.Email = types.StringValue(contact.Email)
 	data.CreatedAt = types.StringValue(contact.CreatedAt)
 	data.UpdatedAt = types.StringValue(contact.UpdatedAt)
