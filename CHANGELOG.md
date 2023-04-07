@@ -2,6 +2,8 @@
 
 ## main
 
+## 0.17.0
+
 BREAKING CHANGES:
 
 - Drop support for Terraform 0.14 (dnsimple/terraform-provider-dnsimple#93)
