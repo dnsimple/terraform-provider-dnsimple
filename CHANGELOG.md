@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.0.0
+
+We've reached a stable 1.0.0 release! This is identical to version 0.17.0, but the API is now stable and we will follow semantic versioning from now on.
+
+If you are migrating from version 0.16.3 or earlier, refer to the changelog for [0.17.0](#0170) for the breaking changes.
+
 ## 0.17.0
 
 BREAKING CHANGES:
