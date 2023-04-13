@@ -13,6 +13,7 @@ build: fmtcheck
 	go install
 
 install: build
+# VERSION contains the Git commit, which is not a valid version for Terraform. We also use 0.0.1 so that the version never conflicts with versions from the registry, and also so it's easy to see when a local override is being used.
 	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/0.0.1/${OS_ARCH}
 	mv ${GOPATH}/bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/0.0.1/${OS_ARCH}
 
