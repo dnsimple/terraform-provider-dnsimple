@@ -10,9 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/modifiers"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -69,7 +71,9 @@ func (r *ContactResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed: true,
 			},
 			"label": schema.StringAttribute{
-				Optional: true,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{modifiers.StringDefaultValue("")},
 			},
 			"first_name": schema.StringAttribute{
 				Required: true,
@@ -78,16 +82,22 @@ func (r *ContactResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Required: true,
 			},
 			"organization_name": schema.StringAttribute{
-				Optional: true,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{modifiers.StringDefaultValue("")},
 			},
 			"job_title": schema.StringAttribute{
-				Optional: true,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{modifiers.StringDefaultValue("")},
 			},
 			"address1": schema.StringAttribute{
 				Required: true,
 			},
 			"address2": schema.StringAttribute{
-				Optional: true,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{modifiers.StringDefaultValue("")},
 			},
 			"city": schema.StringAttribute{
 				Required: true,
@@ -108,7 +118,9 @@ func (r *ContactResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Computed: true,
 			},
 			"fax": schema.StringAttribute{
-				Optional: true,
+				Optional:      true,
+				Computed:      true,
+				PlanModifiers: []planmodifier.String{modifiers.StringDefaultValue("")},
 			},
 			"fax_normalized": schema.StringAttribute{
 				Computed: true,
