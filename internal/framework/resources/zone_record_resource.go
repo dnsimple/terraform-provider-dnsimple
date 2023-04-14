@@ -220,7 +220,7 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			var errorResponse *dnsimple.ErrorResponse
 			if errors.As(err, &errorResponse) {
 				if errorResponse.Response.HTTPResponse.StatusCode == http.StatusNotFound {
-					tflog.Warn(ctx, fmt.Sprintf("removing zone record from state because it is not present in the remote"))
+					tflog.Warn(ctx, "removing zone record from state because it is not present in the remote")
 					resp.State.RemoveResource(ctx)
 					return
 				}

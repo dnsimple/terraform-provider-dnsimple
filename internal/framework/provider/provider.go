@@ -168,6 +168,7 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		resources.NewDomainResource,
+		resources.NewRegisteredDomainResource,
 		resources.NewEmailForwardResource,
 		resources.NewLetsEncryptCertificateResource,
 		resources.NewZoneRecordResource,

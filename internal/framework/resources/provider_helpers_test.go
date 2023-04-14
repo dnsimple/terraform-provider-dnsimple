@@ -12,17 +12,6 @@ import (
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/provider"
 )
 
-const (
-	providerConfig = `
-provider "dnsimple" {
-  # token   = "<token>"
-	# account = "<account>"
-
-	sandbox = true
-}
-`
-)
-
 var (
 	// testAccProtoV6ProviderFactories are used to instantiate a provider during
 	// acceptance testing. The factory function will be invoked for every Terraform
