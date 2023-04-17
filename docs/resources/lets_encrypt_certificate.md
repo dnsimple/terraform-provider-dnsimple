@@ -13,7 +13,7 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 	domain_id = "${var.dnsimple.domain_id}"
 	auto_renew = false
 	name = "www"
-  alternate_names = ["docs.example.com", "status.example.com"]
+	alternate_names = ["docs.example.com", "status.example.com"]
 }
 ```
 
