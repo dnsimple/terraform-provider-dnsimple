@@ -1,9 +1,11 @@
 package resources_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -20,8 +22,11 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 
 	domainId := os.Getenv("DNSIMPLE_DOMAIN")
 	certName := os.Getenv("DNSIMPLE_CERTIFICATE_NAME")
+	certAltNamesRaw := os.Getenv("DNSIMPLE_CERTIFICATE_ALTERNATE_NAMES")
 	certAutoRenew := os.Getenv("DNSIMPLE_CERTIFICATE_AUTO_RENEW") == "1"
 	certSigAlg := os.Getenv("DNSIMPLE_CERTIFICATE_SIGNATURE_ALGORITHM")
+
+	certAltNames := strings.Split(certAltNamesRaw, ",")
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -29,11 +34,12 @@ func TestAccLetsEncryptCertificateResource(t *testing.T) {
 		CheckDestroy:             testAccCheckLetsEncryptCertificateResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccLetsEncryptCertificateResourceConfig(domainId, certName, certAutoRenew, certSigAlg),
+				Config: testAccLetsEncryptCertificateResourceConfig(domainId, certAutoRenew, certName, certAltNames, certSigAlg),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "domain_id", domainId),
 					resource.TestCheckResourceAttr(resourceName, "name", certName),
+					resource.TestCheckResourceAttr(resourceName, "alternate_names.#", fmt.Sprintf("%d", len(certAltNames))),
 					resource.TestCheckResourceAttrSet(resourceName, "years"),
 					resource.TestCheckResourceAttrSet(resourceName, "state"),
 					resource.TestCheckResourceAttrSet(resourceName, "authority_identifier"),
@@ -55,12 +61,17 @@ func testAccCheckLetsEncryptCertificateResourceDestroy(state *terraform.State) e
 	return nil
 }
 
-func testAccLetsEncryptCertificateResourceConfig(domainId string, name string, autoRenew bool, signatureAlgorithm string) string {
+func testAccLetsEncryptCertificateResourceConfig(domainId string, autoRenew bool, name string, alternateNames []string, signatureAlgorithm string) string {
+	alternateNamesRaw, err := json.Marshal(alternateNames)
+	if err != nil {
+		panic(err)
+	}
 	return fmt.Sprintf(`
 resource "dnsimple_lets_encrypt_certificate" "test" {
 	domain_id = %[1]q
-	auto_renew = %[3]t
-	name = %[2]q
-	signature_algorithm = %[4]q
-}`, domainId, name, autoRenew, signatureAlgorithm)
+	auto_renew = %[2]t
+	name = %[3]q
+	alternate_names = %[4]s
+	signature_algorithm = %[5]q
+}`, domainId, autoRenew, name, string(alternateNamesRaw), signatureAlgorithm)
 }
