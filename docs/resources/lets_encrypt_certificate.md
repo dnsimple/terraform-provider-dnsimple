@@ -13,6 +13,7 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 	domain_id = "${var.dnsimple.domain_id}"
 	auto_renew = false
 	name = "www"
+  alternate_names = ["docs.example.com", "status.example.com"]
 }
 ```
 
@@ -22,6 +23,7 @@ The following argument(s) are supported:
 
 * `domain_id` - (Required) The domain to be issued the certificate for
 * `name` - (Required) The certificate name
+* `alternate_names` - (Optional) The certificate alternate names
 * `auto_renew` - (Required) True if the certificate should auto-renew
 * `signature_algorithm` - (Optional) The signature algorithm to use for the certificate
 * `timeouts` - (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
