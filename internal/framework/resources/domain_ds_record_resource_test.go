@@ -92,6 +92,6 @@ resource "dnsimple_domain_ds_record" "test" {
 	algorithm = "13"
 	digest = "2FD4E1C67A2D28FCED849EE1BB76E7391B93EB12"
 	digest_type = "2"
-	key_tag = "12345"
+	keytag = "12345"
 }`, domainName)
 }
