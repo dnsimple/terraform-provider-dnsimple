@@ -48,7 +48,7 @@ type DomainDsRecordResourceModel struct {
 }
 
 func (r *DomainDsRecordResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_contact"
+	resp.TypeName = req.ProviderTypeName + "_domain_ds_record"
 }
 
 func (r *DomainDsRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
