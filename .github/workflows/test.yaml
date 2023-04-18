@@ -65,13 +65,13 @@ jobs:
           - '1.2.*'
         include:
           - terraform: '0.15.*'
-            domain: 'dnsimple-015.terraform'
+            domain: 'dnsimple-0-15-terraform.com '
           - terraform: '1.0.*'
-            domain: 'dnsimple-10.terraform'
+            domain: 'dnsimple-1-0-terraform.com'
           - terraform: '1.1.*'
-            domain: 'dnsimple-11.terraform'
+            domain: 'dnsimple-1-1-terraform.com'
           - terraform: '1.2.*'
-            domain: 'dnsimple-12.terraform'
+            domain: 'dnsimple-1-2-terraform.com'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
