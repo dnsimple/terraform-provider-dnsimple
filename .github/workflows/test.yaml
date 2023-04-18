@@ -65,7 +65,7 @@ jobs:
           - '1.2.*'
         include:
           - terraform: '0.15.*'
-            domain: 'dnsimple-0-15-terraform.com '
+            domain: 'dnsimple-0-15-terraform.com'
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.com'
           - terraform: '1.1.*'
