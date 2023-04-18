@@ -33,7 +33,7 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
-					resource.TestCheckResourceAttr(resourceName, "auto_renewal_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
 				),
@@ -44,7 +44,6 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Update is a no-op
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -71,7 +70,7 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
-					resource.TestCheckResourceAttr(resourceName, "auto_renewal_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
 				),

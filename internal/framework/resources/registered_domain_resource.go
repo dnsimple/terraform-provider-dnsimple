@@ -270,7 +270,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 			return
 		}
 
-		utils.RetryWithTimeout(ctx, func() error {
+		err := utils.RetryWithTimeout(ctx, func() error {
 
 			domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(response.Data.ID)))
 
@@ -290,6 +290,14 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 
 			return nil
 		}, timeouts.CreateDuration(), 20*time.Second)
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"failed to converge on domain registration",
+				err.Error(),
+			)
+			return
+		}
 	}
 
 	if !data.DNSSECEnabled.IsNull() && data.DNSSECEnabled.ValueBool() {
