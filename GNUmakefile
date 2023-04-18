@@ -22,6 +22,9 @@ test: fmtcheck
 testacc: fmtcheck
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 10m $(ARGS)
 
+sweep:
+	go run $(CURDIR)/tools/sweep/main.go
+
 fmt:
 	gofmt -s -w .
 
