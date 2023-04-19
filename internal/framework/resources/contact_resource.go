@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -311,7 +312,11 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 func (r *ContactResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	id, err := strconv.ParseInt(req.ID, 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse contact ID (%s) as integer", req.ID))
+	}
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
 
 func (r *ContactResource) updateModelFromAPIResponse(contact *dnsimple.Contact, data *ContactResourceModel) {
