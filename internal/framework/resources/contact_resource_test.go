@@ -52,6 +52,7 @@ func TestAccContactResource(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportStateIdFunc: testAccContactImportStateIDFunc(resourceName),
 				ImportState:       true,
+				// We cannot use this as we store `phone` and `fax` into `phone_normalized` and `fax_normalized`. Therefore, we write out the checks manually.
 				ImportStateVerify: false,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "first_name", "Alice"),
