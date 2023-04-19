@@ -312,44 +312,7 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 func (r *ContactResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	id, err := strconv.ParseInt(req.ID, 10, 64)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"failed to import DNSimple Contact",
-			fmt.Sprintf("Invalid ID: %s", req.ID),
-		)
-		return
-	}
-
-	response, err := r.config.Client.Contacts.GetContact(ctx, r.config.AccountID, id)
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to find DNSimple Contact ID: %s", req.ID),
-			err.Error(),
-		)
-	}
-
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("account_id"), response.Data.AccountID)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("label"), response.Data.Label)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("first_name"), response.Data.FirstName)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("last_name"), response.Data.LastName)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("organization_name"), response.Data.Organization)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("job_title"), response.Data.JobTitle)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("address1"), response.Data.Address1)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("address2"), response.Data.Address2)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("city"), response.Data.City)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("state_province"), response.Data.StateProvince)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("postal_code"), response.Data.PostalCode)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("country"), response.Data.Country)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("phone"), response.Data.Phone)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("phone_normalized"), response.Data.Phone)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fax"), response.Data.Fax)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("fax_normalized"), response.Data.Fax)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("email"), response.Data.Email)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("created_at"), response.Data.CreatedAt)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("updated_at"), response.Data.UpdatedAt)...)
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 func (r *ContactResource) updateModelFromAPIResponse(contact *dnsimple.Contact, data *ContactResourceModel) {
