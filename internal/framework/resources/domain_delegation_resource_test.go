@@ -25,10 +25,9 @@ func TestAccDomainDelegationResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "id", domainId),
 					resource.TestCheckResourceAttr(resourceName, "name_servers.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "name_servers.0", "example.com"),
-					resource.TestCheckResourceAttr(resourceName, "name_servers.1", "example.org"),
+					resource.TestCheckResourceAttr(resourceName, "name_servers.0", "ns-998.awsdns-60.net"),
+					resource.TestCheckResourceAttr(resourceName, "name_servers.1", "ns-1556.awsdns-02.co.uk"),
 				),
-			},
 			{
 				ResourceName:      resourceName,
 				ImportStateIdFunc: testAccDomainDelegationImportStateIDFunc(resourceName),
