@@ -5,7 +5,7 @@ HOSTNAME     = registry.terraform.io
 NAMESPACE    = dnsimple
 BINARY       = terraform-provider-${PKG_NAME}
 VERSION      = $(shell git describe --tags --always | cut -c 2-)
-OS_ARCH      := $(shell echo "$$(uname -s)_$$(go env GOARCH)" | tr A-Z a-z)
+OS_ARCH      = darwin_$(shell uname -m)
 
 default: build
 
@@ -13,9 +13,8 @@ build: fmtcheck
 	go install
 
 install: build
-# VERSION contains the Git commit, which is not a valid version for Terraform. We also use 0.0.1 so that the version never conflicts with versions from the registry, and also so it's easy to see when a local override is being used.
-	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/0.0.1/${OS_ARCH}
-	mv ${GOPATH}/bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/0.0.1/${OS_ARCH}
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/${VERSION}/${OS_ARCH}
+	mv ${GOPATH}/bin/${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${PKG_NAME}/${VERSION}/${OS_ARCH}
 
 test: fmtcheck
 	go test $(TEST) $(TESTARGS) -timeout=5m
