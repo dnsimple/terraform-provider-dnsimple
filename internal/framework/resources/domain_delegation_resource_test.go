@@ -28,6 +28,7 @@ func TestAccDomainDelegationResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_servers.0", "ns-998.awsdns-60.net"),
 					resource.TestCheckResourceAttr(resourceName, "name_servers.1", "ns-1556.awsdns-02.co.uk"),
 				),
+			},
 			{
 				ResourceName:      resourceName,
 				ImportStateIdFunc: testAccDomainDelegationImportStateIDFunc(resourceName),
