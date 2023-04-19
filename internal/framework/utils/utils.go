@@ -41,12 +41,16 @@ func HasUnicodeChars(s string) bool {
 	return false
 }
 
-func RetryWithTimeout(ctx context.Context, fn func() error, timeout time.Duration, delay time.Duration) error {
+func RetryWithTimeout(ctx context.Context, fn func() (error, bool), timeout time.Duration, delay time.Duration) error {
 	deadline := time.Now().Add(timeout)
 	for {
-		err := fn()
+		err, suspend := fn()
 		if err == nil {
 			return nil
+		}
+
+		if suspend {
+			return err
 		}
 
 		if time.Now().After(deadline) {

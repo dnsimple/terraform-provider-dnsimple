@@ -1,0 +1,178 @@
+package registered_domain
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+)
+
+func (r *RegisteredDomainResource) setAutoRenewal(ctx context.Context, data *RegisteredDomainResourceModel) diag.Diagnostics {
+	diagnostics := diag.Diagnostics{}
+
+	tflog.Debug(ctx, fmt.Sprintf("setting auto_renew_enabled to %t", data.AutoRenewEnabled.ValueBool()))
+
+	if data.AutoRenewEnabled.ValueBool() {
+		_, err := r.config.Client.Registrar.EnableDomainAutoRenewal(ctx, r.config.AccountID, data.Name.ValueString())
+		if err != nil {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to enable DNSimple Domain Auto Renewal: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+				err.Error(),
+			)
+		}
+		return diagnostics
+	}
+
+	_, err := r.config.Client.Registrar.DisableDomainAutoRenewal(ctx, r.config.AccountID, data.Name.ValueString())
+	if err != nil {
+		diagnostics.AddError(
+			fmt.Sprintf("failed to disable DNSimple Domain Auto Renewal: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+			err.Error(),
+		)
+	}
+
+	return diagnostics
+}
+
+func (r *RegisteredDomainResource) setWhoisPrivacy(ctx context.Context, data *RegisteredDomainResourceModel) diag.Diagnostics {
+	diagnostics := diag.Diagnostics{}
+
+	tflog.Debug(ctx, fmt.Sprintf("setting whois_privacy_enabled to %t", data.WhoisPrivacyEnabled.ValueBool()))
+
+	if data.WhoisPrivacyEnabled.ValueBool() {
+		_, err := r.config.Client.Registrar.EnableWhoisPrivacy(ctx, r.config.AccountID, data.Name.ValueString())
+		if err != nil {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to enable DNSimple Domain Whois Privacy: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+				err.Error(),
+			)
+		}
+		return diagnostics
+	}
+
+	_, err := r.config.Client.Registrar.DisableWhoisPrivacy(ctx, r.config.AccountID, data.Name.ValueString())
+	if err != nil {
+		diagnostics.AddError(
+			fmt.Sprintf("failed to disable DNSimple Domain Whois Privacy: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+			err.Error(),
+		)
+	}
+
+	return diagnostics
+}
+
+func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *RegisteredDomainResourceModel) diag.Diagnostics {
+	diagnostics := diag.Diagnostics{}
+
+	tflog.Debug(ctx, fmt.Sprintf("setting dnssec_enabled to %t", data.DNSSECEnabled.ValueBool()))
+
+	if data.DNSSECEnabled.ValueBool() {
+		_, err := r.config.Client.Domains.EnableDnssec(ctx, r.config.AccountID, data.Name.ValueString())
+
+		if err != nil {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to enable DNSimple Domain DNSSEC: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+				err.Error(),
+			)
+		}
+		return diagnostics
+	}
+
+	_, err := r.config.Client.Domains.DisableDnssec(ctx, r.config.AccountID, data.Name.ValueString())
+	if err != nil {
+		diagnostics.AddError(
+			fmt.Sprintf("failed to disable DNSimple Domain DNSSEC: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+			err.Error(),
+		)
+	}
+
+	return diagnostics
+}
+
+func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain, dnssec *dnsimple.Dnssec) diag.Diagnostics {
+	domainRegistrationObject, diags := r.domainRegistrationAPIResponseToObject(ctx, domainRegistration)
+
+	if diags.HasError() {
+		return diags
+	}
+
+	data.DomainRegistration = domainRegistrationObject
+
+	if domain != nil {
+		data.Id = types.Int64Value(domain.ID)
+		data.AutoRenewEnabled = types.BoolValue(domain.AutoRenew)
+		data.WhoisPrivacyEnabled = types.BoolValue(domain.PrivateWhois)
+		data.State = types.StringValue(domain.State)
+		data.UnicodeName = types.StringValue(domain.UnicodeName)
+		data.AccountId = types.Int64Value(domain.AccountID)
+		data.ContactId = types.Int64Value(domain.RegistrantID)
+		data.Name = types.StringValue(domain.Name)
+	}
+
+	if dnssec != nil {
+		data.DNSSECEnabled = types.BoolValue(dnssec.Enabled)
+	}
+
+	return nil
+}
+
+func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain) *diag.Diagnostics {
+	domainRegistrationObject, diags := r.domainRegistrationAPIResponseToObject(ctx, domainRegistration)
+
+	if diags.HasError() {
+		return &diags
+	}
+
+	data.DomainRegistration = domainRegistrationObject
+
+	if domain != nil {
+		data.Id = types.Int64Value(domain.ID)
+
+		if data.AutoRenewEnabled.IsNull() {
+			data.AutoRenewEnabled = types.BoolValue(domain.AutoRenew)
+		}
+
+		if data.WhoisPrivacyEnabled.IsNull() {
+			data.WhoisPrivacyEnabled = types.BoolValue(domain.PrivateWhois)
+		}
+
+		data.State = types.StringValue(domain.State)
+		data.UnicodeName = types.StringValue(domain.UnicodeName)
+		data.AccountId = types.Int64Value(domain.AccountID)
+		data.ContactId = types.Int64Value(domain.RegistrantID)
+		data.Name = types.StringValue(domain.Name)
+	}
+
+	data.DNSSECEnabled = types.BoolValue(false)
+
+	return nil
+}
+
+func (r *RegisteredDomainResource) domainRegistrationAPIResponseToObject(ctx context.Context, domainRegistration *dnsimple.DomainRegistration) (basetypes.ObjectValue, diag.Diagnostics) {
+	domainRegistrationData := common.DomainRegistration{
+		Id:     types.Int64Value(domainRegistration.ID),
+		Period: types.Int64Value(int64(domainRegistration.Period)),
+		State:  types.StringValue(domainRegistration.State),
+	}
+
+	return types.ObjectValueFrom(ctx, common.DomainRegistrationAttrType, domainRegistrationData)
+}
+
+func getTimeouts(ctx context.Context, model *RegisteredDomainResourceModel) (*common.Timeouts, diag.Diagnostics) {
+	timeouts := &common.Timeouts{}
+	diags := model.Timeouts.As(ctx, timeouts, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+	return timeouts, diags
+}
+
+func getDomainRegistration(ctx context.Context, data *RegisteredDomainResourceModel) (*common.DomainRegistration, diag.Diagnostics) {
+	domainRegistration := &common.DomainRegistration{}
+	diags := data.DomainRegistration.As(ctx, domainRegistration, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
+
+	return domainRegistration, diags
+}
