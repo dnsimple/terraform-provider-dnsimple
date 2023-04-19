@@ -27,10 +27,11 @@ func TestAccDomainDsRecordResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
-					resource.TestCheckResourceAttr(resourceName, "algorithm", "13"),
-					resource.TestCheckResourceAttr(resourceName, "digest", "2FD4E1C67A2D28FCED849EE1BB76E7391B93EB12"),
+					resource.TestCheckResourceAttr(resourceName, "algorithm", "8"),
+					resource.TestCheckResourceAttr(resourceName, "digest", "C3D49CB83734B22CF3EF9A193B94302FA3BB68013E3E149786D40CDC1BBACD93"),
 					resource.TestCheckResourceAttr(resourceName, "digest_type", "2"),
-					resource.TestCheckResourceAttr(resourceName, "key_tag", "12345"),
+					resource.TestCheckResourceAttr(resourceName, "key_tag", "51301"),
+					resource.TestCheckResourceAttr(resourceName, "public_key", "AwEAAd4gdAYAeCnAsYYStm/eWd6uRn5XvT14D9DDM9TbmCvLKCuRA6WYz7suLAziJ5hvk2I7aTOVK8Wd1fDmVxHXGg0Jd6P2+GQpg7AGghD+oLeg0I7AesSIKO3o1ffr58x6iIsxVZ+fcC7G6vdr/d8oIJ/SZdAvghQnCNmCm49HLoN6bWJWNJIXzmxFrptvfgfB4B+PVzbquZrJ0W10KrD394U="),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
@@ -89,9 +90,10 @@ func testAccDomainDsRecordResourceConfig(domainName string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_domain_ds_record" "test" {
 	domain_id = %[1]q
-	algorithm = "13"
-	digest = "2FD4E1C67A2D28FCED849EE1BB76E7391B93EB12"
+	algorithm = "8"
+	digest = "C3D49CB83734B22CF3EF9A193B94302FA3BB68013E3E149786D40CDC1BBACD93"
 	digest_type = "2"
-	keytag = "12345"
+	keytag = "51301"
+	public_key = "AwEAAd4gdAYAeCnAsYYStm/eWd6uRn5XvT14D9DDM9TbmCvLKCuRA6WYz7suLAziJ5hvk2I7aTOVK8Wd1fDmVxHXGg0Jd6P2+GQpg7AGghD+oLeg0I7AesSIKO3o1ffr58x6iIsxVZ+fcC7G6vdr/d8oIJ/SZdAvghQnCNmCm49HLoN6bWJWNJIXzmxFrptvfgfB4B+PVzbquZrJ0W10KrD394U="
 }`, domainName)
 }
