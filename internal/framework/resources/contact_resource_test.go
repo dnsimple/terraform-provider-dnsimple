@@ -35,12 +35,25 @@ func TestAccContactResource(t *testing.T) {
 				),
 			},
 			{
+				Config: testAccContactResourceConfigUpdated(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "first_name", "Alice"),
+					resource.TestCheckResourceAttr(resourceName, "last_name", "Townseed"),
+					resource.TestCheckResourceAttr(resourceName, "address1", "123 Main St"),
+					resource.TestCheckResourceAttr(resourceName, "city", "San Francisco"),
+					resource.TestCheckResourceAttr(resourceName, "state_province", "CA"),
+					resource.TestCheckResourceAttr(resourceName, "postal_code", "90210"),
+					resource.TestCheckResourceAttr(resourceName, "country", "US"),
+					resource.TestCheckResourceAttr(resourceName, "phone", "+1.5555555555"),
+					resource.TestCheckResourceAttr(resourceName, "email", "alice.appleseed@example.com"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportStateIdFunc: testAccContactImportStateIDFunc(resourceName),
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// TODO: Add test for update
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -92,6 +105,22 @@ resource "dnsimple_contact" "test" {
 	city = "San Francisco"
 	state_province = "CA"
 	postal_code = "94105"
+	country = "US"
+	phone = "+1.5555555555"
+	email = "alice.appleseed@example.com"
+}`
+}
+
+func testAccContactResourceConfigUpdated() string {
+	// Required attributes only.
+	return `
+resource "dnsimple_contact" "test" {
+	first_name = "Alice"
+	last_name = "Townseed"
+	address1 = "123 Main St"
+	city = "San Francisco"
+	state_province = "CA"
+	postal_code = "90210"
 	country = "US"
 	phone = "+1.5555555555"
 	email = "alice.appleseed@example.com"
