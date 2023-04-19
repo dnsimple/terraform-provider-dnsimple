@@ -59,19 +59,19 @@ jobs:
       fail-fast: false
       matrix:
         terraform:
-          - '0.15.*'
           - '1.0.*'
           - '1.1.*'
           - '1.2.*'
+          - '1.4.*'
         include:
-          - terraform: '0.15.*'
-            domain: 'dnsimple-015.terraform'
           - terraform: '1.0.*'
-            domain: 'dnsimple-10.terraform'
+            domain: 'dnsimple-1-0-terraform.bio'
           - terraform: '1.1.*'
-            domain: 'dnsimple-11.terraform'
+            domain: 'dnsimple-1-1-terraform.bio'
           - terraform: '1.2.*'
-            domain: 'dnsimple-12.terraform'
+            domain: 'dnsimple-1-2-terraform.bio'
+          - terraform: '1.4.*'
+            domain: 'dnsimple-1-4-terraform.bio'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
