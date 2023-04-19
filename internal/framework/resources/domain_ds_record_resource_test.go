@@ -30,7 +30,7 @@ func TestAccDomainDsRecordResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "algorithm", "8"),
 					resource.TestCheckResourceAttr(resourceName, "digest", "C3D49CB83734B22CF3EF9A193B94302FA3BB68013E3E149786D40CDC1BBACD93"),
 					resource.TestCheckResourceAttr(resourceName, "digest_type", "2"),
-					resource.TestCheckResourceAttr(resourceName, "key_tag", "51301"),
+					resource.TestCheckResourceAttr(resourceName, "keytag", "51301"),
 					resource.TestCheckResourceAttr(resourceName, "public_key", "AwEAAd4gdAYAeCnAsYYStm/eWd6uRn5XvT14D9DDM9TbmCvLKCuRA6WYz7suLAziJ5hvk2I7aTOVK8Wd1fDmVxHXGg0Jd6P2+GQpg7AGghD+oLeg0I7AesSIKO3o1ffr58x6iIsxVZ+fcC7G6vdr/d8oIJ/SZdAvghQnCNmCm49HLoN6bWJWNJIXzmxFrptvfgfB4B+PVzbquZrJ0W10KrD394U="),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
