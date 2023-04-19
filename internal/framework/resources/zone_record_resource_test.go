@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	_ "github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/test_utils"
 )
 
 func TestAccZoneRecordResource(t *testing.T) {
@@ -19,7 +20,7 @@ func TestAccZoneRecordResource(t *testing.T) {
 	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
 		Steps: []resource.TestStep{
@@ -58,7 +59,7 @@ func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
 		Steps: []resource.TestStep{
@@ -82,7 +83,7 @@ func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
 		Steps: []resource.TestStep{
@@ -112,7 +113,7 @@ func TestAccZoneRecordResource_Prefetch_ForEach(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			testAccPreCheck(t)
+			test_utils.TestAccPreCheck(t)
 			os.Setenv("PREFETCH", "1")
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,

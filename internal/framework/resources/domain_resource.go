@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -121,7 +122,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 
@@ -201,4 +202,15 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
+}
+
+func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
+	data.Id = types.Int64Value(domain.ID)
+	data.Name = types.StringValue(domain.Name)
+	data.AccountId = types.Int64Value(domain.AccountID)
+	data.RegistrantId = types.Int64Value(domain.RegistrantID)
+	data.UnicodeName = types.StringValue(domain.UnicodeName)
+	data.State = types.StringValue(domain.State)
+	data.AutoRenew = types.BoolValue(domain.AutoRenew)
+	data.PrivateWhois = types.BoolValue(domain.PrivateWhois)
 }

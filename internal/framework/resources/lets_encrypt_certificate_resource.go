@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -150,7 +151,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 
@@ -168,7 +169,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 	if issueErr != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(issueErr, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 
