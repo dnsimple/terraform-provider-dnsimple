@@ -37,6 +37,7 @@ type DomainDelegationResource struct {
 // DomainDelegationResourceModel describes the resource data model.
 type DomainDelegationResourceModel struct {
 	Id          types.String `tfsdk:"id"`
+	Domain      types.String `tfsdk:"domain"`
 	NameServers types.List   `tfsdk:"name_servers"`
 }
 
@@ -49,7 +50,8 @@ func (r *DomainDelegationResource) Schema(_ context.Context, _ resource.SchemaRe
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "DNSimple domain delegation resource",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			"id": common.IDStringAttribute(),
+			"domain": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -101,7 +103,7 @@ func (r *DomainDelegationResource) Create(ctx context.Context, req resource.Crea
 
 	tflog.Debug(ctx, "creating domain delegation", map[string]interface{}{"name servers": nameServers})
 
-	_, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Id.ValueString(), &nameServers)
+	_, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString(), &nameServers)
 
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -117,7 +119,9 @@ func (r *DomainDelegationResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	tflog.Info(ctx, "created domain delegation", map[string]interface{}{"domain": data.Id})
+	data.Id = data.Domain
+
+	tflog.Info(ctx, "created domain delegation", map[string]interface{}{"domain": data.Domain})
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -131,10 +135,10 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, data.Id.ValueString())
+	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read domain delegation for domain %s", data.Id.ValueString()),
+			fmt.Sprintf("failed to read domain delegation for domain %s", data.Domain.ValueString()),
 			err.Error(),
 		)
 	}
@@ -158,10 +162,10 @@ func (r *DomainDelegationResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	response, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Id.ValueString(), &nameServers)
+	response, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString(), &nameServers)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to update domain delegation for domain %s", data.Id.ValueString()),
+			fmt.Sprintf("failed to update domain delegation for domain %s", data.Domain.ValueString()),
 			err.Error(),
 		)
 	}
@@ -178,7 +182,7 @@ func (r *DomainDelegationResource) Delete(ctx context.Context, req resource.Dele
 
 func (r *DomainDelegationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	domainId := req.ID
-	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, domainId)
+	_, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, domainId)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to fetch domain delegation for domain %s", domainId),

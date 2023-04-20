@@ -25,12 +25,12 @@ resource "dnsimple_domain_delegation" "foobar" {
 
 The following argument(s) are supported:
 
-* `id` - (Required) The domain ID.
+* `domain` - (Required) The domain ID or name.
 * `name_servers` - (Required) The list of name servers to delegate to.
 
 # Attributes Reference
 
-There are no additional attributes.
+* `id` - The domain ID or name.
 
 ## Import
 
