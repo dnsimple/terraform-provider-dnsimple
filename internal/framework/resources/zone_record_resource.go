@@ -314,6 +314,7 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 			fmt.Sprintf("failed to delete DNSimple Record: %s", data.Name.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 }
 
@@ -321,6 +322,7 @@ func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.Impor
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<zone-name>_<record-id>'", req.ID))
+		return
 	}
 	zoneName := parts[0]
 	recordID := parts[1]
@@ -328,6 +330,7 @@ func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.Impor
 	id, err := strconv.ParseInt(recordID, 10, 64)
 	if err != nil {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse record ID (%s) as integer", recordID))
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)

@@ -66,7 +66,7 @@ func testAccCheckDomainResourceDestroy(state *terraform.State) error {
 		_, err := dnsimpleClient.Domains.GetDomain(context.Background(), testAccAccount, domainName)
 
 		if err == nil {
-			return fmt.Errorf("record still exists")
+			return fmt.Errorf("domain still exists")
 		}
 	}
 	return nil
