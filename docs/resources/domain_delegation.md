@@ -17,7 +17,7 @@ This resource allows you to control the delegation records (name servers) for a 
 # Create a domain delegation
 resource "dnsimple_domain_delegation" "foobar" {
   id = "${var.dnsimple.domain}"
-  name_servers = ["example.org", "example.com"]
+  name_servers = ["ns1.example.org", "ns2.example.com"]
 }
 ```
 
