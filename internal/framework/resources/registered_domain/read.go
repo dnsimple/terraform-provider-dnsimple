@@ -42,6 +42,7 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
