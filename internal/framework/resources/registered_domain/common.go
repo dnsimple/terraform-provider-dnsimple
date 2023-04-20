@@ -3,13 +3,22 @@ package registered_domain
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
+)
+
+const (
+	RegistrationConverged          = "registration_converged"
+	RegistrationConvergenceTimeout = "registration_converged_timeout"
+	RegistrationFailed             = "registration_failed"
 )
 
 func (r *RegisteredDomainResource) setAutoRenewal(ctx context.Context, data *RegisteredDomainResourceModel) diag.Diagnostics {
@@ -177,4 +186,56 @@ func getDomainRegistration(ctx context.Context, data *RegisteredDomainResourceMo
 	diags := data.DomainRegistration.As(ctx, domainRegistration, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
 
 	return domainRegistration, diags
+}
+
+func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainResourceModel, diagnostics *diag.Diagnostics, r *RegisteredDomainResource, registrationID string) (string, error) {
+	timeouts, diags := getTimeouts(ctx, data)
+	diagnostics.Append(diags...)
+	if diagnostics.HasError() {
+		return RegistrationFailed, nil
+	}
+
+	err := utils.RetryWithTimeout(ctx, func() (error, bool) {
+		domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), registrationID)
+
+		if err != nil {
+			return err, false
+		}
+
+		if domainRegistration.Data.State == consts.DomainStateFailed {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
+				"domain registration failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+			)
+			return nil, true
+		}
+
+		if domainRegistration.Data.State == consts.DomainStateCancelling || domainRegistration.Data.State == consts.DomainStateCancelled {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
+				"domain registration was cancelled, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+			)
+			return nil, true
+		}
+
+		if domainRegistration.Data.State != consts.DomainStateRegistered {
+			tflog.Info(ctx, fmt.Sprintf("[RETRYING] Domain registration is not complete, current state: %s", domainRegistration.Data.State))
+
+			return fmt.Errorf("domain registration is not complete, current state: %s. You can try to run terraform again to try and converge the domain registration", domainRegistration.Data.State), false
+		}
+
+		return nil, false
+	}, timeouts.CreateDuration(), 20*time.Second)
+
+	if diagnostics.HasError() {
+		// If we have diagnostic errors, we suspended the retry loop because the domain is in a bad state, and cannot converge.
+		return RegistrationFailed, nil
+	}
+
+	if err != nil {
+		// If we have an error, it means the retry loop timed out, and we cannot converge during this run.
+		return RegistrationConvergenceTimeout, nil
+	}
+
+	return RegistrationConverged, nil
 }
