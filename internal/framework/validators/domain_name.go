@@ -22,7 +22,7 @@ func (v DomainName) Description(ctx context.Context) string {
 // MarkdownDescription returns a markdown formatted description of the
 // validator's behavior, suitable for a practitioner to understand its impact.
 func (v DomainName) MarkdownDescription(ctx context.Context) string {
-	return "a domain name should always be lower case"
+	return v.Description(ctx)
 }
 
 // Validate runs the main validation logic of the validator, reading

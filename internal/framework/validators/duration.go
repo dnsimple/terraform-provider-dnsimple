@@ -20,7 +20,7 @@ func (v Duration) Description(ctx context.Context) string {
 // MarkdownDescription returns a markdown formatted description of the
 // validator's behavior, suitable for a practitioner to understand its impact.
 func (v Duration) MarkdownDescription(ctx context.Context) string {
-	return "a duration given as a parsable string as in `60m` or `2h`"
+	return v.Description(ctx)
 }
 
 // Validate runs the main validation logic of the validator, reading
