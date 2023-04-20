@@ -52,7 +52,7 @@ func (m domainRegistrationState) PlanModifyObject(ctx context.Context, req planm
 	// this will trigger a plan change and result in an update so we can attempt to sync
 	if domainRegistration.State.ValueString() == consts.DomainStateRegistered {
 		return
-        }
+	}
 	domainRegistration.State = types.StringValue(consts.DomainStateRegistered)
 
 	obj, diags := types.ObjectValueFrom(ctx, common.DomainRegistrationAttrType, domainRegistration)

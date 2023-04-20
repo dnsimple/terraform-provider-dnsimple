@@ -90,6 +90,7 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "extended_attributes.x-eu-registrant-citizenship", "bg"),
 				),
 			},
 			{
