@@ -64,7 +64,7 @@ func testAccDomainDelegationImportStateIDFunc(resourceName string) resource.Impo
 func testAccDomainDelegationResourceConfig(domainId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_domain_delegation" "test" {
-	id = %[1]q
+	domain = %[1]q
 	name_servers = ["ns-998.awsdns-60.net", "ns-1556.awsdns-02.co.uk"]
 }`, domainId)
 }
