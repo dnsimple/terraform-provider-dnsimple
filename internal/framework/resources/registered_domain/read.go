@@ -52,6 +52,7 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", data.Name.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 
 	diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
