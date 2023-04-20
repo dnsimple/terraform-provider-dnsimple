@@ -184,15 +184,8 @@ func (r *DomainDelegationResource) Delete(ctx context.Context, req resource.Dele
 
 func (r *DomainDelegationResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	domainId := req.ID
-	_, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, domainId)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to fetch domain delegation for domain %s", domainId),
-			err.Error(),
-		)
-		return
-	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), domainId)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("domain"), domainId)...)
 }
 
 func (r *DomainDelegationResource) updateModelFromAPIResponse(ctx context.Context, delegation *dnsimple.Delegation, data *DomainDelegationResourceModel) diag.Diagnostics {
