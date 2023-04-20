@@ -157,6 +157,7 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)
@@ -188,6 +189,7 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			fmt.Sprintf("failed to delete DNSimple Domain: %s", data.Name.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 }
 
@@ -199,6 +201,7 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 			fmt.Sprintf("failed to find DNSimple Domain ID: %s", req.ID),
 			err.Error(),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
