@@ -169,6 +169,7 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 	return []func() resource.Resource{
 		resources.NewContactResource,
 		resources.NewDomainResource,
+		resources.NewDsRecordResource,
 		resources.NewEmailForwardResource,
 		resources.NewLetsEncryptCertificateResource,
 		resources.NewZoneRecordResource,
