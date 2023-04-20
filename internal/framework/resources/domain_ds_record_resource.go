@@ -20,24 +20,24 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &DomainDsRecordResource{}
-	_ resource.ResourceWithConfigure   = &DomainDsRecordResource{}
-	_ resource.ResourceWithImportState = &DomainDsRecordResource{}
+	_ resource.Resource                = &DsRecordResource{}
+	_ resource.ResourceWithConfigure   = &DsRecordResource{}
+	_ resource.ResourceWithImportState = &DsRecordResource{}
 )
 
-func NewDomainDsRecordResource() resource.Resource {
-	return &DomainDsRecordResource{}
+func NewDsRecordResource() resource.Resource {
+	return &DsRecordResource{}
 }
 
-// DomainDsRecordResource defines the resource implementation.
-type DomainDsRecordResource struct {
+// DsRecordResource defines the resource implementation.
+type DsRecordResource struct {
 	config *common.DnsimpleProviderConfig
 }
 
-// DomainDsRecordResourceModel describes the resource data model.
-type DomainDsRecordResourceModel struct {
+// DsRecordResourceModel describes the resource data model.
+type DsRecordResourceModel struct {
 	Id         types.Int64  `tfsdk:"id"`
-	DomainId   types.String `tfsdk:"domain_id"`
+	Domain     types.String `tfsdk:"domain"`
 	Algorithm  types.String `tfsdk:"algorithm"`
 	Digest     types.String `tfsdk:"digest"`
 	DigestType types.String `tfsdk:"digest_type"`
@@ -47,17 +47,17 @@ type DomainDsRecordResourceModel struct {
 	UpdatedAt  types.String `tfsdk:"updated_at"`
 }
 
-func (r *DomainDsRecordResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_domain_ds_record"
+func (r *DsRecordResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_ds_record"
 }
 
-func (r *DomainDsRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *DsRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "DNSimple domain delegation signer record resource",
 		Attributes: map[string]schema.Attribute{
 			"id": common.IDInt64Attribute(),
-			"domain_id": schema.StringAttribute{
+			"domain": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -103,7 +103,7 @@ func (r *DomainDsRecordResource) Schema(_ context.Context, _ resource.SchemaRequ
 	}
 }
 
-func (r *DomainDsRecordResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *DsRecordResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
@@ -123,8 +123,8 @@ func (r *DomainDsRecordResource) Configure(ctx context.Context, req resource.Con
 	r.config = config
 }
 
-func (r *DomainDsRecordResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data *DomainDsRecordResourceModel
+func (r *DsRecordResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data *DsRecordResourceModel
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -141,7 +141,7 @@ func (r *DomainDsRecordResource) Create(ctx context.Context, req resource.Create
 		PublicKey:  data.PublicKey.ValueString(),
 	}
 
-	response, err := r.config.Client.Domains.CreateDelegationSignerRecord(ctx, r.config.AccountID, data.DomainId.ValueString(), dsAttributes)
+	response, err := r.config.Client.Domains.CreateDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), dsAttributes)
 
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -163,8 +163,8 @@ func (r *DomainDsRecordResource) Create(ctx context.Context, req resource.Create
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *DomainDsRecordResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data *DomainDsRecordResourceModel
+func (r *DsRecordResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data *DsRecordResourceModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -173,7 +173,7 @@ func (r *DomainDsRecordResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	response, err := r.config.Client.Domains.GetDelegationSignerRecord(ctx, r.config.AccountID, data.DomainId.ValueString(), data.Id.ValueInt64())
+	response, err := r.config.Client.Domains.GetDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -188,13 +188,13 @@ func (r *DomainDsRecordResource) Read(ctx context.Context, req resource.ReadRequ
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *DomainDsRecordResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *DsRecordResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// No-op
-	tflog.Info(ctx, "DNSimple does not support updating domain delegation signer records")
+	tflog.Info(ctx, "delegation signer records cannot be updated")
 }
 
-func (r *DomainDsRecordResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data *DomainDsRecordResourceModel
+func (r *DsRecordResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data *DsRecordResourceModel
 
 	// Read Terraform prior state data into the model
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
@@ -205,7 +205,7 @@ func (r *DomainDsRecordResource) Delete(ctx context.Context, req resource.Delete
 
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple domain delegation signer record: %s", data.Id))
 
-	_, err := r.config.Client.Domains.DeleteDelegationSignerRecord(ctx, r.config.AccountID, data.DomainId.ValueString(), data.Id.ValueInt64())
+	_, err := r.config.Client.Domains.DeleteDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -215,15 +215,15 @@ func (r *DomainDsRecordResource) Delete(ctx context.Context, req resource.Delete
 	}
 }
 
-func (r *DomainDsRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *DsRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
 		resp.Diagnostics.AddError(
 			"resource import invalid ID",
-			fmt.Sprintf("wrong format of import ID (%s), use: '<domain-id>_<delegation-signer-record-id>'", req.ID),
+			fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<delegation-signer-record-id>'", req.ID),
 		)
 	}
-	domainId := parts[0]
+	domain := parts[0]
 	dsIdRaw := parts[1]
 
 	dsId, err := strconv.ParseInt(dsIdRaw, 10, 64)
@@ -236,10 +236,10 @@ func (r *DomainDsRecordResource) ImportState(ctx context.Context, req resource.I
 	}
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), dsId)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("domain_id"), domainId)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("domain"), domain)...)
 }
 
-func (r *DomainDsRecordResource) updateModelFromAPIResponse(ds *dnsimple.DelegationSignerRecord, data *DomainDsRecordResourceModel) {
+func (r *DsRecordResource) updateModelFromAPIResponse(ds *dnsimple.DelegationSignerRecord, data *DsRecordResourceModel) {
 	data.Id = types.Int64Value(ds.ID)
 	data.Algorithm = types.StringValue(ds.Algorithm)
 	data.Digest = types.StringValue(ds.Digest)

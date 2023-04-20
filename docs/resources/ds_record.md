@@ -1,8 +1,8 @@
 ---
-page_title: "DNSimple: dnsimple_domain_ds_record"
+page_title: "DNSimple: dnsimple_ds_record"
 ---
 
-# dnsimple\_domain\_ds\_record
+# dnsimple\_ds\_record
 
 Provides a DNSimple domain delegation signer record resource.
 
@@ -10,10 +10,10 @@ Provides a DNSimple domain delegation signer record resource.
 
 ```hcl
 # Create a domain
-resource "dnsimple_domain_ds_record" "foobar" {
-  domain_id = "${var.dnsimple.domain}"
-	algorithm = "13"
-	digest = "2FD4E1C67A2D28FCED849EE1BB76E7391B93EB12"
+resource "dnsimple_ds_record" "foobar" {
+  domain = "${var.dnsimple.domain}"
+	algorithm = "8"
+	digest = "6CEEA0117A02480216EBF745A7B690F938860074E4AD11AF2AC573007205682B"
 	digest_type = "2"
 	key_tag = "12345"
 }
@@ -23,7 +23,7 @@ resource "dnsimple_domain_ds_record" "foobar" {
 
 The following argument(s) are supported:
 
-* `domain_id` - (Required) The domain ID or name to create the delegation signer record for.
+* `domain` - (Required) The domain name or numeric ID to create the delegation signer record for.
 * `algorithm` - (Required) DNSSEC algorithm number as a string.
 * `digest` - (Optional) The hexidecimal representation of the digest of the corresponding DNSKEY record.
 * `digest_type` - (Optional) DNSSEC digest type number as a string.

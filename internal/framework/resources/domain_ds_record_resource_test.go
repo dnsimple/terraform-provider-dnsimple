@@ -15,7 +15,7 @@ import (
 
 func TestAccDomainDsRecordResource(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
-	resourceName := "dnsimple_domain_ds_record.test"
+	resourceName := "dnsimple_ds_record.test"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -26,7 +26,7 @@ func TestAccDomainDsRecordResource(t *testing.T) {
 				Config: testAccDomainDsRecordResourceConfig(domainName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain"),
 					resource.TestCheckResourceAttr(resourceName, "algorithm", "8"),
 					resource.TestCheckResourceAttr(resourceName, "digest", "C3D49CB83734B22CF3EF9A193B94302FA3BB68013E3E149786D40CDC1BBACD93"),
 					resource.TestCheckResourceAttr(resourceName, "digest_type", "2"),
@@ -42,7 +42,7 @@ func TestAccDomainDsRecordResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// TODO: Add test for update
+			// Updates are a no-op
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -59,25 +59,25 @@ func testAccDomainDsRecordImportStateIDFunc(resourceName string) resource.Import
 			return "", errors.New("No resource ID set")
 		}
 
-		return fmt.Sprintf("%s_%s", rs.Primary.Attributes["domain_id"], rs.Primary.ID), nil
+		return fmt.Sprintf("%s_%s", rs.Primary.Attributes["domain"], rs.Primary.ID), nil
 	}
 }
 
 func testAccCheckDomainDsRecordResourceDestroy(state *terraform.State) error {
 	for _, rs := range state.RootModule().Resources {
-		if rs.Type != "dnsimple_domain_ds_record" {
+		if rs.Type != "dnsimple_ds_record" {
 			continue
 		}
 
 		dsIdRaw := rs.Primary.Attributes["id"]
-		domainId := rs.Primary.Attributes["domain_id"]
+		domain := rs.Primary.Attributes["domain"]
 
 		dsId, err := strconv.ParseInt(dsIdRaw, 10, 64)
 		if err != nil {
 			return fmt.Errorf("failed to convert domain delegation signer record ID to int: %s", err)
 		}
 
-		_, err = dnsimpleClient.Domains.GetDelegationSignerRecord(context.Background(), testAccAccount, domainId, dsId)
+		_, err = dnsimpleClient.Domains.GetDelegationSignerRecord(context.Background(), testAccAccount, domain, dsId)
 
 		if err == nil {
 			return fmt.Errorf("domain delegation signer record still exists")
@@ -88,8 +88,8 @@ func testAccCheckDomainDsRecordResourceDestroy(state *terraform.State) error {
 
 func testAccDomainDsRecordResourceConfig(domainName string) string {
 	return fmt.Sprintf(`
-resource "dnsimple_domain_ds_record" "test" {
-	domain_id = %[1]q
+resource "dnsimple_ds_record" "test" {
+	domain = %[1]q
 	algorithm = "8"
 	digest = "C3D49CB83734B22CF3EF9A193B94302FA3BB68013E3E149786D40CDC1BBACD93"
 	digest_type = "2"
