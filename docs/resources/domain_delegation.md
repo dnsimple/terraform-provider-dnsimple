@@ -6,7 +6,10 @@ page_title: "DNSimple: dnsimple_domain_delegation"
 
 Provides a DNSimple domain delegation resource.
 
-This resource works differently to other resources. It does not create a new resource, but instead updates the existing domain delegation. This is because the domain delegation is a property of the domain, not a separate resource. When this resource is destroyed, only the Terraform state is removed; the domain delegation is left intact and unmanaged by Terraform.
+This resource allows you to control the delegation records (name servers) for a domain.
+
+~> **Note:** This resource currently only supports the management of domains that are registered with DNSimple.
+-> **Note:** When this resource is destroyed, only the Terraform state is removed; the domain delegation is left intact and unmanaged by Terraform.
 
 ## Example Usage
 
