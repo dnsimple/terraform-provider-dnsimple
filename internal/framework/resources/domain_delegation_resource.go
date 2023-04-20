@@ -141,6 +141,7 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 			fmt.Sprintf("failed to read domain delegation for domain %s", data.Domain.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(r.updateModelFromAPIResponse(ctx, response.Data, data)...)
@@ -168,6 +169,7 @@ func (r *DomainDelegationResource) Update(ctx context.Context, req resource.Upda
 			fmt.Sprintf("failed to update domain delegation for domain %s", data.Domain.ValueString()),
 			err.Error(),
 		)
+		return
 	}
 
 	resp.Diagnostics.Append(r.updateModelFromAPIResponse(ctx, response.Data, data)...)
@@ -188,6 +190,7 @@ func (r *DomainDelegationResource) ImportState(ctx context.Context, req resource
 			fmt.Sprintf("failed to fetch domain delegation for domain %s", domainId),
 			err.Error(),
 		)
+		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), domainId)...)
 }

@@ -156,6 +156,7 @@ func (r *EmailForwardResource) Read(ctx context.Context, req resource.ReadReques
 			fmt.Sprintf("failed to read DNSimple EmailForward: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)
@@ -188,6 +189,7 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 			fmt.Sprintf("failed to delete DNSimple EmailForward: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 }
 
@@ -195,6 +197,7 @@ func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.Imp
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<email-forward-id>'", req.ID))
+		return
 	}
 	domainName := parts[0]
 	recordID := parts[1]
@@ -202,6 +205,7 @@ func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.Imp
 	id, err := strconv.ParseInt(recordID, 10, 64)
 	if err != nil {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse email forward ID (%s) as integer", recordID))
+		return
 	}
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)

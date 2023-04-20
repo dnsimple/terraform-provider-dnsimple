@@ -216,6 +216,7 @@ func (r *LetsEncryptCertificateResource) Read(ctx context.Context, req resource.
 			fmt.Sprintf("failed to read DNSimple LetsEncryptCertificate: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)

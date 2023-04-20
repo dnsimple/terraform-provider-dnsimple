@@ -224,6 +224,7 @@ func (r *ContactResource) Read(ctx context.Context, req resource.ReadRequest, re
 			fmt.Sprintf("failed to read DNSimple Contact: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)
@@ -308,6 +309,7 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 			fmt.Sprintf("failed to delete DNSimple Contact: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 }
 
@@ -315,6 +317,7 @@ func (r *ContactResource) ImportState(ctx context.Context, req resource.ImportSt
 	id, err := strconv.ParseInt(req.ID, 10, 64)
 	if err != nil {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse contact ID (%s) as integer", req.ID))
+		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 }
