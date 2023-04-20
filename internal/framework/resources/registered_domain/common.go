@@ -234,7 +234,7 @@ func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainResour
 
 	if err != nil {
 		// If we have an error, it means the retry loop timed out, and we cannot converge during this run.
-		return RegistrationConvergenceTimeout, nil
+		return RegistrationConvergenceTimeout, err
 	}
 
 	return RegistrationConverged, nil
