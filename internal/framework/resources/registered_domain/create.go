@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
@@ -51,8 +50,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		domainAttributes.ExtendedAttributes = extendedAttrs
 	}
 
-	lowerCaseDomainName := strings.ToLower(data.Name.ValueString())
-	registerDomainResponse, err := r.config.Client.Registrar.RegisterDomain(ctx, r.config.AccountID, lowerCaseDomainName, &domainAttributes)
+	registerDomainResponse, err := r.config.Client.Registrar.RegisterDomain(ctx, r.config.AccountID, data.Name.ValueString(), &domainAttributes)
 
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -84,7 +82,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		}
 
 		err := utils.RetryWithTimeout(ctx, func() (error, bool) {
-			domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(registerDomainResponse.Data.ID)))
+			domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), strconv.Itoa(int(registerDomainResponse.Data.ID)))
 
 			if err != nil {
 				return err, false
@@ -92,7 +90,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 
 			if domainRegistration.Data.State == consts.DomainStateFailed {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
 					"domain registration failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return nil, true
@@ -100,7 +98,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 
 			if domainRegistration.Data.State == consts.DomainStateCancelling || domainRegistration.Data.State == consts.DomainStateCancelled {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
 					"domain registration was cancelled, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return nil, true
@@ -121,21 +119,21 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		}
 
 		if err != nil {
-			domainRegistration, secondaryErr := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(registerDomainResponse.Data.ID)))
+			domainRegistration, secondaryErr := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), strconv.Itoa(int(registerDomainResponse.Data.ID)))
 
 			if secondaryErr != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to read DNSimple Domain Registration: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to read DNSimple Domain Registration: %s", data.Name.ValueString()),
 					secondaryErr.Error(),
 				)
 				return
 			}
 
-			domainResponse, secondaryErr := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, lowerCaseDomainName)
+			domainResponse, secondaryErr := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 
 			if secondaryErr != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to read DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
 					secondaryErr.Error(),
 				)
 				return
@@ -163,21 +161,21 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		}
 	}
 
-	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, lowerCaseDomainName)
+	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain: %s", lowerCaseDomainName),
+			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
 			err.Error(),
 		)
 		return
 	}
 
-	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, lowerCaseDomainName)
+	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", lowerCaseDomainName),
+			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", data.Name.ValueString()),
 			err.Error(),
 		)
 		return

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
@@ -67,8 +66,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	lowerCaseDomainName := strings.ToLower(configData.Name.ValueString())
-	response, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(domainRegistration.Id.ValueInt64())))
+	response, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(domainRegistration.Id.ValueInt64())))
 
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
@@ -94,7 +92,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 		err := utils.RetryWithTimeout(ctx, func() (error, bool) {
 
-			domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(response.Data.ID)))
+			domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(response.Data.ID)))
 
 			if err != nil {
 				return err, false
@@ -102,7 +100,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 			if domainRegistration.Data.State == consts.DomainStateFailed {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", configData.Name.ValueString()),
 					"domain registration failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return nil, true
@@ -110,7 +108,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 			if domainRegistration.Data.State == consts.DomainStateCancelling || domainRegistration.Data.State == consts.DomainStateCancelled {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", configData.Name.ValueString()),
 					"domain registration was cancelled, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return nil, true
@@ -131,11 +129,11 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 
 		if err != nil {
-			domainRegistration, secondaryErr := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, lowerCaseDomainName, strconv.Itoa(int(response.Data.ID)))
+			domainRegistration, secondaryErr := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(response.Data.ID)))
 
 			if secondaryErr != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to read DNSimple Domain Registration: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to read DNSimple Domain Registration: %s", configData.Name.ValueString()),
 					secondaryErr.Error(),
 				)
 				return
@@ -143,7 +141,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 			if domainRegistration.Data.State == consts.DomainStateFailed {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", configData.Name.ValueString()),
 					"domain registration failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return
@@ -151,7 +149,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 			if domainRegistration.Data.State == consts.DomainStateCancelling || domainRegistration.Data.State == consts.DomainStateCancelled {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to register DNSimple Domain: %s", lowerCaseDomainName),
+					fmt.Sprintf("failed to register DNSimple Domain: %s", configData.Name.ValueString()),
 					"domain registration was cancelled, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
 				)
 				return
