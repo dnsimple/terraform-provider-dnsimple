@@ -186,7 +186,6 @@ func (r *DomainDelegationResource) ImportState(ctx context.Context, req resource
 		)
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), domainId)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name_servers"), response.Data)...)
 }
 
 func (r *DomainDelegationResource) updateModelFromAPIResponse(ctx context.Context, delegation *dnsimple.Delegation, data *DomainDelegationResourceModel) diag.Diagnostics {
