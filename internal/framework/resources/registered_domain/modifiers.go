@@ -43,7 +43,7 @@ func (m domainRegistrationState) PlanModifyObject(ctx context.Context, req planm
 		return
 	}
 
-	// If the domain registration state is a failing state, do not attempt to update it
+	// If the domain registration state is a cancelled state, do not attempt to update it
 	if domainRegistration.State.ValueString() == consts.DomainStateCancelling || domainRegistration.State.ValueString() == consts.DomainStateCancelled {
 		return
 	}
