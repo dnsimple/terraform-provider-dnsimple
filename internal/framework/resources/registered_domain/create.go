@@ -116,7 +116,7 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		}, timeouts.CreateDuration(), 20*time.Second)
 
 		if resp.Diagnostics.HasError() {
-			// If we have an error, we likely suspended the retry loop, due to bad state
+			// If we have diagnostic errors, we suspended the retry loop because the domain is in a bad state, and cannot converge.
 			return
 		}
 
