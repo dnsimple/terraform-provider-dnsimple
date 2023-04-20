@@ -111,6 +111,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 		data.UnicodeName = types.StringValue(domain.UnicodeName)
 		data.AccountId = types.Int64Value(domain.AccountID)
 		data.ContactId = types.Int64Value(domain.RegistrantID)
+		data.ExpiresAt = types.StringValue(domain.ExpiresAt)
 		data.Name = types.StringValue(domain.Name)
 	}
 
@@ -145,6 +146,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx c
 		data.UnicodeName = types.StringValue(domain.UnicodeName)
 		data.AccountId = types.Int64Value(domain.AccountID)
 		data.ContactId = types.Int64Value(domain.RegistrantID)
+		data.ExpiresAt = types.StringValue(domain.ExpiresAt)
 		data.Name = types.StringValue(domain.Name)
 	}
 

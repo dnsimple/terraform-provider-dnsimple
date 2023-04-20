@@ -53,6 +53,7 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
 			{
@@ -90,6 +91,7 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 					resource.TestCheckResourceAttr(resourceName, "extended_attributes.x-eu-registrant-citizenship", "bg"),
 				),
 			},
@@ -127,6 +129,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
 			{
@@ -138,6 +141,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
 			{

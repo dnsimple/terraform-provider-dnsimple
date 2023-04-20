@@ -41,6 +41,7 @@ type RegisteredDomainResourceModel struct {
 	WhoisPrivacyEnabled types.Bool   `tfsdk:"whois_privacy_enabled"`
 	DNSSECEnabled       types.Bool   `tfsdk:"dnssec_enabled"`
 	ContactId           types.Int64  `tfsdk:"contact_id"`
+	ExpiresAt           types.String `tfsdk:"expires_at"`
 	ExtendedAttributes  types.Map    `tfsdk:"extended_attributes"`
 	PremiumPrice        types.String `tfsdk:"premium_price"`
 	DomainRegistration  types.Object `tfsdk:"domain_registration"`
@@ -89,6 +90,9 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 			},
 			"contact_id": schema.Int64Attribute{
 				Required: true,
+			},
+			"expires_at": schema.StringAttribute{
+				Computed: true,
 			},
 			"extended_attributes": schema.MapAttribute{
 				Optional:    true,
