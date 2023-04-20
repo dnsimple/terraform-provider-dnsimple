@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -37,6 +38,7 @@ type LetsEncryptCertificateResourceModel struct {
 	Id                  types.Int64  `tfsdk:"id"`
 	DomainId            types.String `tfsdk:"domain_id"`
 	Name                types.String `tfsdk:"name"`
+	AlternateNames      types.List   `tfsdk:"alternate_names"`
 	Years               types.Int64  `tfsdk:"years"`
 	State               types.String `tfsdk:"state"`
 	AuthorityIdentifier types.String `tfsdk:"authority_identifier"`
@@ -69,6 +71,13 @@ func (r *LetsEncryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"alternate_names": schema.ListAttribute{
+				Optional: true,
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.RequiresReplace(),
+				},
+				ElementType: types.StringType,
 			},
 			"years": schema.Int64Attribute{
 				Computed: true,
@@ -132,6 +141,8 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	alternateNames := make([]string, len(data.AlternateNames.Elements()))
+	resp.Diagnostics.Append(data.AlternateNames.ElementsAs(ctx, alternateNames, false)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -140,6 +151,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 	domainAttributes := dnsimple.LetsencryptCertificateAttributes{
 		AutoRenew:          data.AutoRenew.ValueBool(),
 		Name:               data.Name.ValueString(),
+		AlternateNames:     alternateNames,
 		SignatureAlgorithm: data.SignatureAlgorithm.ValueString(),
 	}
 
