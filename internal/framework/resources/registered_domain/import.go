@@ -13,6 +13,7 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<domain-registration-id>'", req.ID))
+		return
 	}
 	domainName := parts[0]
 	domainRegistrationID := parts[1]
