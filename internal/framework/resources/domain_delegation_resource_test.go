@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	_ "github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/test_utils"
 )
 
 func TestAccDomainDelegationResource(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAccDomainDelegationResource(t *testing.T) {
 	resourceName := "dnsimple_domain_delegation.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckDomainDelegationResourceDestroy,
 		Steps: []resource.TestStep{
