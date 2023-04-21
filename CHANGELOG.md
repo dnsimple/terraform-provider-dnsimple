@@ -2,6 +2,19 @@
 
 ## main
 
+## 1.1.0
+
+FEATURES:
+
+- **New Resource:** `dnsimple_contact` (dnsimple/terraform-provider-dnsimple#98)
+- **New Resource:** `dnsimple_domain_delegation` (dnsimple/terraform-provider-dnsimple#99)
+- **New Resource:** `dnsimple_ds_record` (dnsimple/terraform-provider-dnsimple#101)
+- **New Resource:** `dnsimple_registered_domain` (dnsimple/terraform-provider-dnsimple#100)
+
+IMPROVEMENTS:
+
+- `dnsimple_lets_encrypt_certificate`: Add `alternate_names` attribute (dnsimple/terraform-provider-dnsimple#102)
+
 ## 1.0.0
 
 We've reached a stable 1.0.0 release! This is identical to version 0.17.0, but the API is now stable and we will follow semantic versioning from now on.
