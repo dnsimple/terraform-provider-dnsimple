@@ -1,8 +1,16 @@
 package utils
 
 import (
+	"context"
+	"fmt"
+	"math/rand"
 	"os"
-	"testing"
+	"strings"
+	"time"
+
+	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 )
 
 func GetDefaultFromEnv(key, fallback string) string {
@@ -12,19 +20,80 @@ func GetDefaultFromEnv(key, fallback string) string {
 	return fallback
 }
 
-func TestAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
-	if v := os.Getenv("DNSIMPLE_TOKEN"); v == "" {
-		t.Fatal("DNSIMPLE_TOKEN must be set for acceptance tests")
+const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+func RandomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = alphabet[rand.Intn(len(alphabet))]
+	}
+	return string(b)
+}
+
+func HasUnicodeChars(s string) bool {
+	for _, r := range s {
+		if r > 127 {
+			return true
+		}
+	}
+	return false
+}
+
+func RetryWithTimeout(ctx context.Context, fn func() (error, bool), timeout time.Duration, delay time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	for {
+		err, suspend := fn()
+		if err == nil {
+			return nil
+		}
+
+		if suspend {
+			return err
+		}
+
+		if time.Now().After(deadline) {
+			return err
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(delay):
+			continue
+		}
+	}
+}
+
+func AttributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
+	diagnostics := diag.Diagnostics{}
+
+	diagnostics.AddError(
+		"API returned an error",
+		err.Message,
+	)
+
+	for field, errors := range err.AttributeErrors {
+		terraformField := TranslateFieldFromAPIToTerraform(field)
+
+		diagnostics.AddAttributeError(
+			path.Root(terraformField),
+			fmt.Sprintf("API returned a Validation Error for: %s", terraformField),
+			strings.Join(errors, ", "),
+		)
 	}
 
-	if v := os.Getenv("DNSIMPLE_ACCOUNT"); v == "" {
-		t.Fatal("DNSIMPLE_ACCOUNT must be set for acceptance tests")
-	}
+	return diagnostics
+}
 
-	if v := os.Getenv("DNSIMPLE_DOMAIN"); v == "" {
-		t.Fatal("DNSIMPLE_DOMAIN must be set for acceptance tests. The domain is used to create and destroy record against.")
+func TranslateFieldFromAPIToTerraform(field string) string {
+	switch field {
+	case "record_type":
+		return "type"
+	case "content":
+		return "value"
+	default:
+		return field
 	}
 }

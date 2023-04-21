@@ -59,19 +59,19 @@ jobs:
       fail-fast: false
       matrix:
         terraform:
-          - '0.15.*'
           - '1.0.*'
           - '1.1.*'
           - '1.2.*'
+          - '1.4.*'
         include:
-          - terraform: '0.15.*'
-            domain: 'dnsimple-0-15-terraform.bio'
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.bio'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
+          - terraform: '1.4.*'
+            domain: 'dnsimple-1-4-terraform.bio'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -89,6 +89,7 @@ jobs:
           DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
           DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
           DNSIMPLE_DOMAIN: ${{ matrix.domain }}
+          DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10
 

@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/modifiers"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -153,7 +154,7 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 
@@ -220,7 +221,7 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			var errorResponse *dnsimple.ErrorResponse
 			if errors.As(err, &errorResponse) {
 				if errorResponse.Response.HTTPResponse.StatusCode == http.StatusNotFound {
-					tflog.Warn(ctx, fmt.Sprintf("removing zone record from state because it is not present in the remote"))
+					tflog.Warn(ctx, "removing zone record from state because it is not present in the remote")
 					resp.State.RemoveResource(ctx)
 					return
 				}
@@ -276,7 +277,7 @@ func (r *ZoneRecordResource) Update(ctx context.Context, req resource.UpdateRequ
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 

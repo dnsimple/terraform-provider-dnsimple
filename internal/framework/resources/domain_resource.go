@@ -4,10 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -123,7 +122,7 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(attributeErrorsToDiagnostics(errorResponse)...)
+			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
 			return
 		}
 
@@ -208,27 +207,6 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
 }
 
-func attributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics {
-	diagnostics := diag.Diagnostics{}
-
-	diagnostics.AddError(
-		"API returned an error",
-		err.Message,
-	)
-
-	for field, errors := range err.AttributeErrors {
-		terraformField := translateFieldFromAPIToTerraform(field)
-
-		diagnostics.AddAttributeError(
-			path.Root(terraformField),
-			fmt.Sprintf("API returned a Validation Error for: %s", terraformField),
-			strings.Join(errors, ", "),
-		)
-	}
-
-	return diagnostics
-}
-
 func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
 	data.Id = types.Int64Value(domain.ID)
 	data.Name = types.StringValue(domain.Name)
@@ -238,15 +216,4 @@ func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, dat
 	data.State = types.StringValue(domain.State)
 	data.AutoRenew = types.BoolValue(domain.AutoRenew)
 	data.PrivateWhois = types.BoolValue(domain.PrivateWhois)
-}
-
-func translateFieldFromAPIToTerraform(field string) string {
-	switch field {
-	case "record_type":
-		return "type"
-	case "content":
-		return "value"
-	default:
-		return field
-	}
 }
