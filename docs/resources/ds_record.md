@@ -9,9 +9,8 @@ Provides a DNSimple domain delegation signer record resource.
 ## Example Usage
 
 ```hcl
-# Create a domain
 resource "dnsimple_ds_record" "foobar" {
-  domain = "${var.dnsimple.domain}"
+	domain = "${var.dnsimple.domain}"
 	algorithm = "8"
 	digest = "6CEEA0117A02480216EBF745A7B690F938860074E4AD11AF2AC573007205682B"
 	digest_type = "2"
