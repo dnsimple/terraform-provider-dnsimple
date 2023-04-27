@@ -9,7 +9,6 @@ Provides a DNSimple email forward resource.
 ## Example Usage
 
 ```hcl
-# Add an email forwarding rule to the domain
 resource "dnsimple_email_forward" "foobar" {
   domain            = "${var.dnsimple_domain.name}"
   alias_name        = "sales"
