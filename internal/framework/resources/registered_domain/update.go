@@ -56,43 +56,50 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	if domainRegistration.Id.IsNull() {
-		resp.Diagnostics.AddError(
-			"failed to read domain registration from state",
-			"domain registration is nil. This should not happen. Please remove the resource from the state and try importing.",
-		)
-		return
-	}
+	var domainRegistrationResponse *dnsimple.DomainRegistrationResponse
+	var err error
+	if !domainRegistration.Id.IsNull() {
+		registerDomainResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(domainRegistration.Id.ValueInt64())))
 
-	registerDomainResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(domainRegistration.Id.ValueInt64())))
+		if err != nil {
+			var errorResponse *dnsimple.ErrorResponse
+			if errors.As(err, &errorResponse) {
+				resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
+				return
+			}
 
-	if err != nil {
-		var errorResponse *dnsimple.ErrorResponse
-		if errors.As(err, &errorResponse) {
-			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
-			return
-		}
-
-		resp.Diagnostics.AddError(
-			"failed to register DNSimple Domain",
-			err.Error(),
-		)
-		return
-	}
-
-	// Check if the domain is in registered state
-	if registerDomainResponse.Data.State != consts.DomainStateRegistered {
-		convergenceState, err := tryToConvergeRegistration(ctx, planData, &resp.Diagnostics, r, strconv.Itoa(int(registerDomainResponse.Data.ID)))
-		if convergenceState == RegistrationFailed {
-			// Response is already populated with the error we can safely return
-			return
-		}
-
-		if convergenceState == RegistrationConvergenceTimeout {
-			// We attempted to converge on the domain registration, but the domain registration was not ready
-			// user needs to run terraform again to try and converge the domain registration
 			resp.Diagnostics.AddError(
-				"failed to converge on domain registration",
+				"failed to register DNSimple Domain",
+				err.Error(),
+			)
+			return
+		}
+
+		// Check if the domain is in registered state
+		if registerDomainResponse.Data.State != consts.DomainStateRegistered {
+			convergenceState, err := tryToConvergeRegistration(ctx, planData, &resp.Diagnostics, r, strconv.Itoa(int(registerDomainResponse.Data.ID)))
+			if convergenceState == RegistrationFailed {
+				// Response is already populated with the error we can safely return
+				return
+			}
+
+			if convergenceState == RegistrationConvergenceTimeout {
+				// We attempted to converge on the domain registration, but the domain registration was not ready
+				// user needs to run terraform again to try and converge the domain registration
+				resp.Diagnostics.AddError(
+					"failed to converge on domain registration",
+					err.Error(),
+				)
+				return
+			}
+		}
+
+		domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
+		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, planData.Name.ValueString(), domainRegistrationId)
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", planData.Name.ValueString(), domainRegistration.Id.ValueInt64()),
 				err.Error(),
 			)
 			return
@@ -126,17 +133,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
-	domainRegistrationResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, planData.Name.ValueString(), domainRegistrationId)
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", planData.Name.ValueString(), domainRegistration.Id.ValueInt64()),
-			err.Error(),
-		)
-		return
-	}
-
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, planData.Name.ValueString())
 
 	if err != nil {
@@ -157,7 +153,11 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	diags = r.updateModelFromAPIResponse(ctx, planData, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
+	if domainRegistrationResponse == nil {
+		diags = r.updateModelFromAPIResponse(ctx, planData, nil, domainResponse.Data, dnssecResponse.Data)
+	} else {
+		diags = r.updateModelFromAPIResponse(ctx, planData, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
+	}
 	if diags != nil && diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
