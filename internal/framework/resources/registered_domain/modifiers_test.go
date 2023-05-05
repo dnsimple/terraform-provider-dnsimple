@@ -40,46 +40,66 @@ func TestDomainRegistrationStateModifier(t *testing.T) {
 	ctx := context.Background()
 
 	type testCase struct {
-		plannedValue  types.Object
-		currentValue  types.Object
-		expectedValue types.Object
-		expectError   bool
+		skipDomainRegistration bool
+		plannedValue           types.Object
+		currentValue           types.Object
+		expectedValue          types.Object
+		expectError            bool
 	}
 	tests := map[string]testCase{
+		"imported has no plan and state and is unkown": {
+			skipDomainRegistration: true,
+			plannedValue:           types.ObjectUnknown(common.DomainRegistrationAttrType),
+			currentValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			expectedValue:          types.ObjectNull(common.DomainRegistrationAttrType),
+		},
+		"imported has no plan and is null": {
+			skipDomainRegistration: true,
+			plannedValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			currentValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			expectedValue:          types.ObjectNull(common.DomainRegistrationAttrType),
+		},
 		"not registered has plan and state": {
-			plannedValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
-			currentValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
-			expectedValue: domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateRegistered)}),
+			skipDomainRegistration: false,
+			plannedValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
+			currentValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
+			expectedValue:          domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateRegistered)}),
 		},
 		"state null but plan is known": {
-			plannedValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
-			currentValue:  types.ObjectNull(common.DomainRegistrationAttrType),
-			expectedValue: domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateRegistered)}),
+			skipDomainRegistration: false,
+			plannedValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateNew)}),
+			currentValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			expectedValue:          domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateRegistered)}),
 		},
 		"null planned": {
-			plannedValue:  types.ObjectNull(common.DomainRegistrationAttrType),
-			currentValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
-			expectedValue: types.ObjectNull(common.DomainRegistrationAttrType),
+			skipDomainRegistration: false,
+			plannedValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			currentValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
+			expectedValue:          types.ObjectNull(common.DomainRegistrationAttrType),
 		},
 		"state failing": {
-			plannedValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
-			currentValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
-			expectedValue: domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
+			skipDomainRegistration: false,
+			plannedValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
+			currentValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
+			expectedValue:          domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateFailed)}),
 		},
 		"state cancelling": {
-			plannedValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
-			currentValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
-			expectedValue: domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
+			skipDomainRegistration: false,
+			plannedValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
+			currentValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
+			expectedValue:          domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelling)}),
 		},
 		"state cancelled": {
-			plannedValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
-			currentValue:  domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
-			expectedValue: domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
+			skipDomainRegistration: false,
+			plannedValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
+			currentValue:           domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
+			expectedValue:          domainRegistrationToObject(ctx, &common.DomainRegistration{State: types.StringValue(consts.DomainStateCancelled)}),
 		},
 		"on create": {
-			plannedValue:  types.ObjectNull(common.DomainRegistrationAttrType),
-			currentValue:  types.ObjectNull(common.DomainRegistrationAttrType),
-			expectedValue: types.ObjectNull(common.DomainRegistrationAttrType),
+			skipDomainRegistration: false,
+			plannedValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			currentValue:           types.ObjectNull(common.DomainRegistrationAttrType),
+			expectedValue:          types.ObjectNull(common.DomainRegistrationAttrType),
 		},
 	}
 
@@ -94,6 +114,11 @@ func TestDomainRegistrationStateModifier(t *testing.T) {
 				PlanValue:  test.plannedValue,
 				StateValue: test.currentValue,
 			}
+
+			if test.skipDomainRegistration {
+				request.Private.SetKey(ctx, "skipDomainRegistration", []byte("true"))
+			}
+
 			response := planmodifier.ObjectResponse{
 				PlanValue: request.PlanValue,
 			}

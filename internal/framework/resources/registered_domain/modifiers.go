@@ -27,6 +27,15 @@ func (m domainRegistrationState) MarkdownDescription(ctx context.Context) string
 }
 
 func (m domainRegistrationState) PlanModifyObject(ctx context.Context, req planmodifier.ObjectRequest, resp *planmodifier.ObjectResponse) {
+	if value, diags := req.Private.GetKey(ctx, "skip_domain_registration"); diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+	} else {
+		if string(value) == "true" {
+			resp.PlanValue = basetypes.NewObjectNull(common.DomainRegistrationAttrType)
+			return
+		}
+	}
+
 	if !req.ConfigValue.IsNull() || req.PlanValue.IsUnknown() || req.PlanValue.IsNull() {
 		return
 	}
