@@ -104,13 +104,15 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 }
 
 func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain, dnssec *dnsimple.Dnssec) diag.Diagnostics {
-	domainRegistrationObject, diags := r.domainRegistrationAPIResponseToObject(ctx, domainRegistration)
+	if domainRegistration != nil {
+		domainRegistrationObject, diags := r.domainRegistrationAPIResponseToObject(ctx, domainRegistration)
 
-	if diags.HasError() {
-		return diags
+		if diags.HasError() {
+			return diags
+		}
+
+		data.DomainRegistration = domainRegistrationObject
 	}
-
-	data.DomainRegistration = domainRegistrationObject
 
 	if domain != nil {
 		data.Id = types.Int64Value(domain.ID)
