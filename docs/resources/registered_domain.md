@@ -81,7 +81,13 @@ Attributes Reference:
 
 ## Import
 
-DNSimple registered domains can be imported using their domain name and domain registration ID.
+DNSimple registered domains can be imported using their domain name and **optionally** with domain registration ID.
+
+**Importing registered domain example.com**
+
+```bash
+terraform import dnsimple_registered_domain.resource_name example.com
+```
 
 **Importing registered domain example.com with domain registration ID 1234**
 
@@ -89,4 +95,4 @@ DNSimple registered domains can be imported using their domain name and domain r
 terraform import dnsimple_registered_domain.resource_name example.com_1234
 ```
 
-~> **Note:** At present there is no way to retrieve the domain registration ID from the DNSimple API or UI. You will need to have noted the ID when you created the domain registration. While we work on a solution to this, you can reach out to our support team and we will be happy to help.
+~> **Note:** At present there is no way to retrieve the domain registration ID from the DNSimple API or UI. You will need to have noted the ID when you created the domain registration. Prefer using the domain name only when importing.

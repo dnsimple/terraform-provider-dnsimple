@@ -2,6 +2,14 @@
 
 ## main
 
+IMPROVEMENTS:
+
+- `dnsimple_registered_domain`: Support resource importing with domain name only (dnsimple/terraform-provider-dnsimple#107)
+
+NOTES:
+
+Prior to this release the `dnsimple_registered_domain` resource could only be imported using the domain name and the domain registration ID. This release adds support for importing the resource using the domain name only. This has no effects on existing resources.
+
 ## 1.1.0
 
 FEATURES:
