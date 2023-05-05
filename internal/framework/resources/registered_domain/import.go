@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 )
 
@@ -39,6 +40,14 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("unexpected error when trying to find DNSimple Domain ID: %s", domainName),
 			err.Error(),
+		)
+		return
+	}
+
+	if domainResponse.Data.State != consts.DomainStateRegistered {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("domain %s is not registered", domainName),
+			"domain must be registered before it can be imported",
 		)
 		return
 	}
