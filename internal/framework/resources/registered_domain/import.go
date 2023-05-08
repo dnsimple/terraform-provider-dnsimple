@@ -16,7 +16,8 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 	parts := strings.Split(req.ID, "_")
 	domainName := parts[0]
 
-	if len(parts) == 2 {
+	usingDomainAndRegistrationID := len(parts) == 2
+	if usingDomainAndRegistrationID {
 		domainRegistrationID := parts[1]
 
 		domainRegistrationResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, domainName, domainRegistrationID)
@@ -44,7 +45,7 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 		return
 	}
 
-	if domainResponse.Data.State != consts.DomainStateRegistered {
+	if domainResponse.Data.State != consts.DomainStateRegistered && !usingDomainAndRegistrationID {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("domain %s is not registered", domainName),
 			"domain must be registered before it can be imported",
