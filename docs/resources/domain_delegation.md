@@ -17,7 +17,7 @@ This resource allows you to control the delegation records (name servers) for a 
 ```hcl
 # Create a domain delegation
 resource "dnsimple_domain_delegation" "foobar" {
-  id = "${var.dnsimple.domain}"
+  domain = "${var.dnsimple.domain}"
   name_servers = ["ns1.example.org", "ns2.example.com"]
 }
 ```
@@ -26,17 +26,19 @@ resource "dnsimple_domain_delegation" "foobar" {
 
 The following argument(s) are supported:
 
-* `domain` - (Required) The domain ID or name.
+* `domain` - (Required) The domain name.
 * `name_servers` - (Required) The list of name servers to delegate to.
 
 # Attributes Reference
 
-* `id` - The domain ID or name.
+* `id` - The domain name.
 
 ## Import
 
-DNSimple domain delegations can be imported.
+DNSimple domain delegations can be imported using the domain name.
+
+**Importing domain delegation for example.com**
 
 ```bash
-terraform import dnsimple_domain.resource_name domain_id
+terraform import dnsimple_domain_delegation.resource_name example.com
 ```

@@ -34,7 +34,7 @@ resource "dnsimple_zone_record" "foobar" {
 
 The following arguments are supported:
 
-* `zone_name` - (Required) The domain to add the record to
+* `zone_name` - (Required) The zone name to add the record to
 * `name` - (Required) The name of the record
 * `value` - (Required) The value of the record
 * `type` - (Required) The type of the record
@@ -45,7 +45,7 @@ The following arguments are supported:
 ## Attributes Reference
 
 * `id` - The record ID
-* `zone_id` - The domain ID of the record
+* `zone_id` - The zone ID of the record
 * `qualified_name` - The FQDN of the record
 
 ## Import

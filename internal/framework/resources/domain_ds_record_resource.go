@@ -181,6 +181,7 @@ func (r *DsRecordResource) Read(ctx context.Context, req resource.ReadRequest, r
 			fmt.Sprintf("failed to read DNSimple domain delegation signer record: %d", data.Id.ValueInt64()),
 			err.Error(),
 		)
+		return
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
@@ -24,15 +25,19 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
-	domainRegistrationResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
+	var domainRegistrationResponse *dnsimple.DomainRegistrationResponse
+	var err error
+	if !domainRegistration.Id.IsNull() {
+		domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
+		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
 
-	if err != nil {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", data.Name.ValueString(), domainRegistration.Id.ValueInt64()),
-			err.Error(),
-		)
-		return
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", data.Name.ValueString(), domainRegistration.Id.ValueInt64()),
+				err.Error(),
+			)
+			return
+		}
 	}
 
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
@@ -55,7 +60,12 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
+	if domainRegistrationResponse == nil {
+		diags = r.updateModelFromAPIResponse(ctx, data, nil, domainResponse.Data, dnssecResponse.Data)
+	} else {
+		diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
+	}
+
 	if diags != nil && diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
