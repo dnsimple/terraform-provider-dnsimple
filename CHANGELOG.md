@@ -2,6 +2,8 @@
 
 ## main
 
+## 1.1.1
+
 IMPROVEMENTS:
 
 - `dnsimple_registered_domain`: Support resource importing with domain name only (dnsimple/terraform-provider-dnsimple#107)
