@@ -143,9 +143,7 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	alternateNames := make([]string, len(data.AlternateNames.Elements()))
-	if !data.AlternateNames.IsNull() {
-		resp.Diagnostics.Append(data.AlternateNames.ElementsAs(ctx, alternateNames, false)...)
-	}
+	resp.Diagnostics.Append(data.AlternateNames.ElementsAs(ctx, &alternateNames, false)...)
 
 	if resp.Diagnostics.HasError() {
 		return
