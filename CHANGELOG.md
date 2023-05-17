@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.1.2
+
+BUG FIXES:
+
+- Fix error when no alternate names are provided for the Let's Encrypt certificate resource (dnsimple/terraform-provider-dnsimple#111)
+
 ## 1.1.1
 
 IMPROVEMENTS:
