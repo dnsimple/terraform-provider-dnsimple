@@ -77,3 +77,5 @@ require (
 )
 
 go 1.19
+
+replace github.com/dnsimple/dnsimple-go v1.2.0 => github.com/stormforge-llc/dnsimple-go v1.2.0-stormforge1
