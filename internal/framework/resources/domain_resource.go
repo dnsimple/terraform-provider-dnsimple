@@ -166,7 +166,34 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// No-op
+	// Extract the old and new state
+	oldState := req.OldState
+	newState := req.NewState
+
+	domainID := oldState["id"]
+
+	// Check if contact_id has changed
+	oldContactID, oldHas := oldState["contact_id"]
+	newContactID, newHas := newState["contact_id"]
+
+	if oldHas && newHas && oldContactID != newContactID {
+		// TODO: Check for any new/pending registrant changes for this domain
+
+		// Trigger registrant change with the new ID
+		tflog.Info(ctx, fmt.Sprintf("Updating DNSimple Domain: %s, with contact %s", data.Name, newContactID))
+
+		// Call the DNSimple API to initiate the registrant change
+		response, err := r.config.Client.RegistrantChanges.CreateRegistrantChange(ctx, r.config.AccountID, domainID, newContactID)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to initiate registrant change for %s from %s to %s: %v", data.Name.ValueString(), oldID, newID, err),
+				err.Error(),
+			)
+			return
+		}
+	}
+
+	return nil
 }
 
 func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
