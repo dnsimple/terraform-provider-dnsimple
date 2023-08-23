@@ -156,8 +156,12 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 		client.BaseURL = consts.BaseURLSandbox
 	}
 
+	// TODO: Remove this once the official client supports the new endpoints
+	tempClient := utils.NewDNSimpleClient(account, token, sandbox)
+
 	providerData := &common.DnsimpleProviderConfig{
 		Client:          client,
+		TempClient:      tempClient,
 		AccountID:       account,
 		Prefetch:        prefetch,
 		ZoneRecordCache: common.ZoneRecordCache{},
