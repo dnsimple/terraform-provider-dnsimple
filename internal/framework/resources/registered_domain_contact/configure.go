@@ -1,4 +1,4 @@
-package registrant_change
+package registered_domain_contact
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 )
 
-func (r *RegistrantChangeResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *RegisteredDomainContactResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
