@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -26,7 +27,7 @@ type RegistrantChangeCheckDataSource struct {
 // RegistrantChangeCheckDataSourceModel describes the data source data model.
 type RegistrantChangeCheckDataSourceModel struct {
 	Id                  types.String        `tfsdk:"id"`
-	ContactId           types.Int64         `tfsdk:"contact_id"`
+	ContactId           types.String        `tfsdk:"contact_id"`
 	DomainId            types.String        `tfsdk:"domain_id"`
 	ExtendedAttributes  []ExtendedAttribute `tfsdk:"extended_attributes"`
 	RegistryOwnerChange types.Bool          `tfsdk:"registry_owner_change"`
@@ -55,8 +56,8 @@ func (d *RegistrantChangeCheckDataSource) Schema(ctx context.Context, req dataso
 		MarkdownDescription: "DNSimple registrant change check data source",
 
 		Attributes: map[string]schema.Attribute{
-			"id": common.IDInt64Attribute(),
-			"contact_id": schema.Int64Attribute{
+			"id": common.IDStringAttribute(),
+			"contact_id": schema.StringAttribute{
 				MarkdownDescription: "DNSimple contact ID for which the registrant change check is being performed",
 				Required:            true,
 			},
@@ -82,6 +83,7 @@ func (d *RegistrantChangeCheckDataSource) Schema(ctx context.Context, req dataso
 						},
 					},
 				},
+				Computed: true,
 			},
 			"registry_owner_change": schema.BoolAttribute{
 				MarkdownDescription: "True if the registrant change will result in a registry owner change",
@@ -121,9 +123,12 @@ func (d *RegistrantChangeCheckDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	// TODO: Replace with official DNSimple Go client
-	response, err := d.config.TempClient.CheckRegistrantChange(data.DomainId.ValueString(), data.ContactId.ValueInt64())
+	requestInput := dnsimple.CheckRegistrantChangeInput{
+		ContactId: data.ContactId.ValueString(),
+		DomainId:  data.DomainId.ValueString(),
+	}
 
+	response, err := d.config.Client.Registrar.CheckRegistrantChange(ctx, d.config.AccountID, &requestInput)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"failed to check registrant change",
@@ -132,20 +137,19 @@ func (d *RegistrantChangeCheckDataSource) Read(ctx context.Context, req datasour
 		return
 	}
 
-	contactIdString := fmt.Sprintf("%d", response.Data.ContactID)
+	contactIdString := fmt.Sprintf("%d", response.Data.ContactId)
 	data.Id = types.StringValue(data.DomainId.ValueString() + ":" + contactIdString)
-	data.ContactId = types.Int64Value(response.Data.ContactID)
-	data.DomainId = types.StringValue(fmt.Sprintf("%d", response.Data.DomainID))
+	data.ContactId = types.StringValue(contactIdString)
 	data.ExtendedAttributes = make([]ExtendedAttribute, len(response.Data.ExtendedAttributes))
 	for i, extendedAttribute := range response.Data.ExtendedAttributes {
-		data.ExtendedAttributes[i].Name = types.StringValue(extendedAttribute["name"].(string))
-		data.ExtendedAttributes[i].Description = types.StringValue(extendedAttribute["description"].(string))
-		data.ExtendedAttributes[i].Required = types.BoolValue(extendedAttribute["required"].(bool))
-		data.ExtendedAttributes[i].Options = make([]ExtendedAttributeOption, len(extendedAttribute["options"].([]map[string]interface{})))
-		for j, option := range extendedAttribute["options"].([]map[string]interface{}) {
-			data.ExtendedAttributes[i].Options[j].Title = types.StringValue(option["title"].(string))
-			data.ExtendedAttributes[i].Options[j].Value = types.StringValue(option["value"].(string))
-			data.ExtendedAttributes[i].Options[j].Description = types.StringValue(option["description"].(string))
+		data.ExtendedAttributes[i].Name = types.StringValue(extendedAttribute.Name)
+		data.ExtendedAttributes[i].Description = types.StringValue(extendedAttribute.Description)
+		data.ExtendedAttributes[i].Required = types.BoolValue(extendedAttribute.Required)
+		data.ExtendedAttributes[i].Options = make([]ExtendedAttributeOption, len(extendedAttribute.Options))
+		for j, option := range extendedAttribute.Options {
+			data.ExtendedAttributes[i].Options[j].Title = types.StringValue(option.Title)
+			data.ExtendedAttributes[i].Options[j].Value = types.StringValue(option.Value)
+			data.ExtendedAttributes[i].Options[j].Description = types.StringValue(option.Description)
 		}
 	}
 	data.RegistryOwnerChange = types.BoolValue(response.Data.RegistryOwnerChange)
