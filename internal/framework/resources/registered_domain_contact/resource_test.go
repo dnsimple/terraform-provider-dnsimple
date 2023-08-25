@@ -30,46 +30,6 @@ func init() {
 	dnsimpleClient, testAccAccount = test_utils.LoadDNSimpleTestClient()
 }
 
-func TestAccRegisteredDomainContactResource(t *testing.T) {
-	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
-	resourceName := "dnsimple_registered_domain_contact.test"
-
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheckRegisteredDomainContact(t) },
-		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
-		CheckDestroy:             testAccCheckRegisteredDomainContactResourceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccRegisteredDomainContactResourceConfig(domainName, contactID),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "state"),
-					resource.TestCheckResourceAttrSet(resourceName, "registry_owner_change"),
-					resource.TestCheckResourceAttr(resourceName, "domain_id", domainName),
-					resource.TestCheckResourceAttr(resourceName, "contact_id", fmt.Sprintf("%d", contactID)),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportStateIdFunc: testAccRegisteredDomainImportStateIDFunc(resourceName),
-				ImportState:       true,
-				ImportStateVerify: false,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttrSet(resourceName, "state"),
-					resource.TestCheckResourceAttrSet(resourceName, "registry_owner_change"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
-				),
-			},
-			// Delete testing automatically occurs in TestCase
-		},
-	})
-}
-
 func TestAccRegisteredDomainContactResource_WithExtendedAttrs(t *testing.T) {
 	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID"))
 	if err != nil {
@@ -99,6 +59,12 @@ func TestAccRegisteredDomainContactResource_WithExtendedAttrs(t *testing.T) {
 				ImportStateIdFunc: testAccRegisteredDomainImportStateIDFunc(resourceName),
 				ImportState:       true,
 				ImportStateVerify: false,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "state"),
+					resource.TestCheckResourceAttrSet(resourceName, "registry_owner_change"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_id"),
+				),
 			},
 			// Delete testing automatically occurs in TestCase
 		},

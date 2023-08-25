@@ -72,8 +72,16 @@ func (r *RegisteredDomainContactResource) Create(ctx context.Context, req resour
 			if convergenceState == RegistrantChangeConvergenceTimeout {
 				// We attempted to converge on the registrant change, but the registrant change was not ready
 				// user needs to run terraform again to try and converge the registrant change
-				resp.Diagnostics.AddError(
-					"failed to converge on registrant change",
+
+				// Update the data with the current registrant change
+				r.updateModelFromAPIResponse(registrantChangeResponse.Data, data)
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
+				// Exit with warning to prevent the state from being tainted
+				resp.Diagnostics.AddWarning(
+					"failed to converge on domain registration",
 					err.Error(),
 				)
 				return
