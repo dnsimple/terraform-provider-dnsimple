@@ -112,6 +112,17 @@ func (r *RegisteredDomainContactResource) Schema(_ context.Context, _ resource.S
 							modifiers.StringDefaultValue("1m"),
 						},
 					},
+					"delete": schema.StringAttribute{
+						Optional:    true,
+						Computed:    true,
+						Description: "Delete timeout.",
+						Validators: []validator.String{
+							validators.Duration{},
+						},
+						PlanModifiers: []planmodifier.String{
+							modifiers.StringDefaultValue("1m"),
+						},
+					},
 				},
 				PlanModifiers: []planmodifier.Object{
 					objectplanmodifier.UseStateForUnknown(),
