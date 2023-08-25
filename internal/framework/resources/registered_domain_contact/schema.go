@@ -92,6 +92,7 @@ func (r *RegisteredDomainContactResource) Schema(_ context.Context, _ resource.S
 				Attributes: map[string]schema.Attribute{
 					"create": schema.StringAttribute{
 						Optional:    true,
+						Computed:    true,
 						Description: "Create timeout.",
 						Validators: []validator.String{
 							validators.Duration{},
@@ -102,6 +103,7 @@ func (r *RegisteredDomainContactResource) Schema(_ context.Context, _ resource.S
 					},
 					"update": schema.StringAttribute{
 						Optional:    true,
+						Computed:    true,
 						Description: "Update timeout.",
 						Validators: []validator.String{
 							validators.Duration{},
