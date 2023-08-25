@@ -2,6 +2,13 @@
 
 ## main
 
+## 1.2.0
+
+FEATURES:
+
+- **New Resource:** `dnsimple_registered_domain_contact` (dnsimple/terraform-provider-dnsimple#142)
+- **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple#142)
+
 ## 1.1.2
 
 BUG FIXES:
