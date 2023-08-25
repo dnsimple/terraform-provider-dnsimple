@@ -53,6 +53,9 @@ func TestAccRegisteredDomainContactResource_WithExtendedAttrs(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "contact_id", fmt.Sprintf("%d", contactID)),
 					resource.TestCheckResourceAttr(resourceName, "extended_attributes.x-eu-registrant-citizenship", "bg"),
 				),
+				// We expect the plan to be non-empty because we are creating a registrant change that will not be completed
+				// and we will attempt to converge it by setting the state to completed
+				ExpectNonEmptyPlan: true,
 			},
 			{
 				ResourceName:      resourceName,

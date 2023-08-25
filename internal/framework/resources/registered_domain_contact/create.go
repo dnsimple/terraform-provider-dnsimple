@@ -81,7 +81,7 @@ func (r *RegisteredDomainContactResource) Create(ctx context.Context, req resour
 
 				// Exit with warning to prevent the state from being tainted
 				resp.Diagnostics.AddWarning(
-					"failed to converge on domain registration",
+					"failed to converge on registrant change",
 					err.Error(),
 				)
 				return
