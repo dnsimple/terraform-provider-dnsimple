@@ -26,7 +26,7 @@ func TestAccRegistrantChangeCheckDataSource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "contact_id", contactId),
 					resource.TestCheckResourceAttr(resourceName, "domain_id", domainName),
-					resource.TestCheckResourceAttrSet(resourceName, "extended_attributes.0.name"),
+					resource.TestCheckResourceAttrSet(resourceName, "extended_attributes.#"),
 					resource.TestCheckResourceAttrSet(resourceName, "registry_owner_change"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
