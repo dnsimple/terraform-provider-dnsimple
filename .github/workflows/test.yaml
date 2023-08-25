@@ -66,12 +66,16 @@ jobs:
         include:
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.bio'
+            registrant_change_domain: '6xjh9macv560eydj0frnloi0v1sgz1i1wcxsytjqt9pmo4y8vq21n2h8sqm4zu.eu'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
+            registrant_change_domain: '6e640p3gc3yoh1szlntwhxvkk23f8jo8q7a64kuoghepq0q77iyg0nyqnc7nap.eu'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
+            registrant_change_domain: '56gz94oqngp5xb82a04ugewpbv80hqj72kc8p3o3gd550esemiv2bzhjhoihs8.eu'
           - terraform: '1.4.*'
             domain: 'dnsimple-1-4-terraform.bio'
+            registrant_change_domain: '3177iktacmv2bg05lkvgsmpoysq5i1vniu6glxl6kq4picv5lvlj2blexwi6bw.eu'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v4
@@ -90,7 +94,7 @@ jobs:
           DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
           DNSIMPLE_DOMAIN: ${{ matrix.domain }}
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
-          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: 3177iktacmv2bg05lkvgsmpoysq5i1vniu6glxl6kq4picv5lvlj2blexwi6bw.eu
+          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: 10854
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10

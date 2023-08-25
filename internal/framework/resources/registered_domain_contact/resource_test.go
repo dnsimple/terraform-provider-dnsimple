@@ -122,14 +122,6 @@ func testAccCheckRegisteredDomainContactResourceDestroy(state *terraform.State) 
 	return nil
 }
 
-func testAccRegisteredDomainContactResourceConfig(domainName string, contactId int) string {
-	return fmt.Sprintf(`
-resource "dnsimple_registered_domain_contact" "test" {
-	domain_id = %[1]q
-	contact_id = %[2]d
-}`, domainName, contactId)
-}
-
 func testAccRegisteredDomainContactResourceConfig_WithExtendedAttrs(domainName string, contactId int) string {
 	return fmt.Sprintf(`
 resource "dnsimple_registered_domain_contact" "test" {
@@ -137,6 +129,9 @@ resource "dnsimple_registered_domain_contact" "test" {
 	contact_id = %[2]d
 	extended_attributes = {
 		"x-eu-registrant-citizenship" = "bg"
+	}
+	timeouts = {
+		create = "40s"
 	}
 }`, domainName, contactId)
 }
