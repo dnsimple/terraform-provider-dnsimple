@@ -35,9 +35,9 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
-			"contact_id change not supported by the DNSimple API",
+		resp.Diagnostics.AddWarning(
+			fmt.Sprintf("remote contact_id has changed: %s, %d", planData.Name.ValueString(), stateData.ContactId.ValueInt64()),
+			"update plan's resource contact_id to match remote state",
 		)
 		return
 	}
