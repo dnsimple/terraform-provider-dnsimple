@@ -34,14 +34,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
-	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		resp.Diagnostics.AddWarning(
-			fmt.Sprintf("remote contact_id has changed: %s, %d", planData.Name.ValueString(), stateData.ContactId.ValueInt64()),
-			"update plan's resource contact_id to match remote state",
-		)
-		return
-	}
-
 	if !planData.ExtendedAttributes.Equal(stateData.ExtendedAttributes) {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),

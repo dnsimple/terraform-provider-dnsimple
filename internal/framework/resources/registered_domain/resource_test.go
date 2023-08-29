@@ -188,16 +188,23 @@ func TestAccRegisteredDomainResource_WithContactChange(t *testing.T) {
 		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
 		Steps: []resource.TestStep{
 			{
-				ResourceName:      resourceName,
-				Config:            testAccRegisteredDomainResourceConfig(domainName, 1234),
-				ImportStateId:     domainName,
-				ImportState:       true,
-				ImportStateVerify: false,
+				ResourceName:       resourceName,
+				Config:             testAccRegisteredDomainResourceConfig(domainName, 1234),
+				ImportStateId:      domainName,
+				ImportState:        true,
+				ImportStateVerify:  false,
+				ImportStatePersist: true,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
-					resource.TestCheckResourceAttr(resourceName, "registrant_id", "5678"),
+					resource.TestCheckResourceAttr(resourceName, "contact_id", "1234"),
 					resource.TestCheckNoResourceAttr(resourceName, "domain_registration"),
+				),
+			},
+			{
+				Config: testAccRegisteredDomainResourceConfig(domainName, 5678),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "contact_id", "5678"),
 				),
 			},
 		},
