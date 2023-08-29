@@ -63,13 +63,8 @@ func (r *RegisteredDomainContactResource) Update(ctx context.Context, req resour
 			// We attempted to converge on the registrant change, but the registrant change was not ready
 			// user needs to run terraform again to try and converge the registrant change
 
-			r.updateModelFromAPIResponse(registrantChangeResponse.Data, planData)
-
-			// Save updated planData into Terraform state
-			resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
-
 			// Exit with warning to prevent the state from being tainted
-			resp.Diagnostics.AddWarning(
+			resp.Diagnostics.AddError(
 				"failed to converge on registrant change",
 				err.Error(),
 			)

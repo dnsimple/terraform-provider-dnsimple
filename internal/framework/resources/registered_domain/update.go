@@ -150,8 +150,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	} else {
 		diags = r.updateModelFromAPIResponse(ctx, planData, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
 	}
-	if diags != nil && diags.HasError() {
-		resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
