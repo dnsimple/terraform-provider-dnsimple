@@ -40,6 +40,7 @@ type RegisteredDomainResourceModel struct {
 	AutoRenewEnabled    types.Bool   `tfsdk:"auto_renew_enabled"`
 	WhoisPrivacyEnabled types.Bool   `tfsdk:"whois_privacy_enabled"`
 	DNSSECEnabled       types.Bool   `tfsdk:"dnssec_enabled"`
+	TransferLockEnabled types.Bool   `tfsdk:"transfer_lock_enabled"`
 	ContactId           types.Int64  `tfsdk:"contact_id"`
 	ExpiresAt           types.String `tfsdk:"expires_at"`
 	ExtendedAttributes  types.Map    `tfsdk:"extended_attributes"`
@@ -85,6 +86,10 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 				Computed: true,
 			},
 			"dnssec_enabled": schema.BoolAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"transfer_lock_enabled": schema.BoolAttribute{
 				Optional: true,
 				Computed: true,
 			},
