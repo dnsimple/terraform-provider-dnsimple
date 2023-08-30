@@ -124,6 +124,12 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 		data.UnicodeName = types.StringValue(domain.UnicodeName)
 		data.AccountId = types.Int64Value(domain.AccountID)
 
+		// If the contact_id is null, we need to set it to the registrant_id from the domain
+		// this can happen when the contact_id is not set in the config, and the domain is imported
+		if data.ContactId.IsNull() {
+			data.ContactId = types.Int64Value(domain.RegistrantID)
+		}
+
 		if data.ContactId.ValueInt64() != domain.RegistrantID {
 			diags.AddWarning(
 				fmt.Sprintf(`The contact_id does not match your local state and what you have at DNSimple for: domain=%s config_contact_id=%d remote_contact_id=%d.
@@ -134,6 +140,7 @@ Until the change has completed successfully you will continue to receive this wa
 				"update plan's resource contact_id to match remote state",
 			)
 		}
+
 		data.ExpiresAt = types.StringValue(domain.ExpiresAt)
 		data.Name = types.StringValue(domain.Name)
 	}
