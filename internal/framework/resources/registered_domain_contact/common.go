@@ -54,7 +54,7 @@ func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainContac
 		if registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelled || registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelling {
 			diagnostics.AddError(
 				fmt.Sprintf("failed to change registrant for DNSimple Domain: %s, registrant change id: %d", data.DomainId.ValueString(), registrantChangeId),
-				"registrant change was cancelled, please investigate why this happened. You can refer to our support article https://support.dnsimple.com/articles/changing-domain-contact/ to get started and if you need assistance, please contact support at support@dnsimple.com",
+				"Registrant change was cancelled, please investigate why this happened. You can refer to our support article https://support.dnsimple.com/articles/changing-domain-contact/ to get started and if you need assistance, please contact support at support@dnsimple.com.",
 			)
 			return nil, true
 		}
