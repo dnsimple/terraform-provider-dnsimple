@@ -126,7 +126,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 
 		if data.ContactId.ValueInt64() != domain.RegistrantID {
 			diags.AddWarning(
-				fmt.Sprintf(`the contact_id does not match your local state and what you have at DNSimple for: domain=%s config_contact_id=%d remote_contact_id=%d.
+				fmt.Sprintf(`The contact_id does not match your local state and what you have at DNSimple for: domain=%s config_contact_id=%d remote_contact_id=%d.
 This can be due to a contact change that has not been reflected in your local config,
 if you have changed your local config due to a registered_domain_contact change.
 It may be that the contact change has not yet been completed.
