@@ -116,6 +116,14 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		}
 	}
 
+	if !data.TransferLockEnabled.IsNull() && data.TransferLockEnabled.ValueBool() {
+		diags := r.setTransferLock(ctx, data)
+		if diags.HasError() {
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+	}
+
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 
 	if err != nil {
@@ -136,7 +144,17 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		return
 	}
 
-	diags := r.updateModelFromAPIResponse(ctx, data, registerDomainResponse.Data, domainResponse.Data, dnssecResponse.Data)
+	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", data.Name.ValueString()),
+			err.Error(),
+		)
+		return
+	}
+
+	diags := r.updateModelFromAPIResponse(ctx, data, registerDomainResponse.Data, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
 	if diags != nil && diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
