@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.3.0 (Unreleased)
+
+FEATURES:
+
+- **Updated Resource:** `dnsimple_registered_domain` (dnsimple/terraform-provider-dnsimple#143)
+
 ## 1.2.0 (Unreleased)
 
 FEATURES:
