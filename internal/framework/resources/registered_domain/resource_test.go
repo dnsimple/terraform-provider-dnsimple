@@ -121,7 +121,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 		CheckDestroy:             testAccCheckRegisteredDomainResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, false, true, true),
+				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, false, true, true, true),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
@@ -129,11 +129,12 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "true"),
+					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
 			{
-				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, true, false, false),
+				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, true, false, false, false),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
@@ -141,6 +142,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
@@ -274,7 +276,7 @@ resource "dnsimple_registered_domain" "test" {
 }`, domainName, contactId)
 }
 
-func testAccRegisteredDomainResourceConfig_WithOptions(domainName string, contactId int, withAutoRenew, withWhoisPrivacy, withDNSSEC bool) string {
+func testAccRegisteredDomainResourceConfig_WithOptions(domainName string, contactId int, withAutoRenew, withWhoisPrivacy, withDNSSEC bool, withTransferLock bool) string {
 	return fmt.Sprintf(`
 resource "dnsimple_registered_domain" "test" {
 	name = %[1]q
@@ -283,5 +285,6 @@ resource "dnsimple_registered_domain" "test" {
 	auto_renew_enabled = %[3]t
 	whois_privacy_enabled = %[4]t
 	dnssec_enabled = %[5]t
-}`, domainName, contactId, withAutoRenew, withWhoisPrivacy, withDNSSEC)
+	transfer_lock_enabled = %[6]t
+}`, domainName, contactId, withAutoRenew, withWhoisPrivacy, withDNSSEC, withTransferLock)
 }
