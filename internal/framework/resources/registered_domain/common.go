@@ -104,6 +104,8 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 }
 
 func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain, dnssec *dnsimple.Dnssec) diag.Diagnostics {
+	diags := diag.Diagnostics{}
+
 	if domainRegistration != nil {
 		domainRegistrationObject, diags := r.domainRegistrationAPIResponseToObject(ctx, domainRegistration)
 
@@ -121,7 +123,24 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 		data.State = types.StringValue(domain.State)
 		data.UnicodeName = types.StringValue(domain.UnicodeName)
 		data.AccountId = types.Int64Value(domain.AccountID)
-		data.ContactId = types.Int64Value(domain.RegistrantID)
+
+		// If the contact_id is null, we need to set it to the registrant_id from the domain
+		// this can happen when the contact_id is not set in the config, and the domain is imported
+		if data.ContactId.IsNull() {
+			data.ContactId = types.Int64Value(domain.RegistrantID)
+		}
+
+		if data.ContactId.ValueInt64() != domain.RegistrantID {
+			diags.AddWarning(
+				fmt.Sprintf(`The contact_id does not match your local state and what you have at DNSimple for: domain=%s config_contact_id=%d remote_contact_id=%d.
+This can be due to a contact change that has not been reflected in your local config,
+if you have changed your local config due to a registered_domain_contact change.
+It may be that the contact change has not yet been completed.
+Until the change has completed successfully you will continue to receive this warning.`, data.Name.ValueString(), data.ContactId.ValueInt64(), domain.RegistrantID),
+				"update plan's resource contact_id to match remote state",
+			)
+		}
+
 		data.ExpiresAt = types.StringValue(domain.ExpiresAt)
 		data.Name = types.StringValue(domain.Name)
 	}
@@ -130,7 +149,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 		data.DNSSECEnabled = types.BoolValue(dnssec.Enabled)
 	}
 
-	return nil
+	return diags
 }
 
 func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain) *diag.Diagnostics {

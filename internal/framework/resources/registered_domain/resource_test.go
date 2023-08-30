@@ -179,6 +179,38 @@ func TestAccRegisteredDomainResource_ImportedWithDomainOnly(t *testing.T) {
 	})
 }
 
+func TestAccRegisteredDomainResource_WithContactChange(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_registered_domain.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheckRegisteredDomain(t) },
+		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
+		Steps: []resource.TestStep{
+			{
+				ResourceName:       resourceName,
+				Config:             testAccRegisteredDomainResourceConfig(domainName, 1234),
+				ImportStateId:      domainName,
+				ImportState:        true,
+				ImportStateVerify:  false,
+				ImportStatePersist: true,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
+					resource.TestCheckResourceAttr(resourceName, "contact_id", "1234"),
+					resource.TestCheckNoResourceAttr(resourceName, "domain_registration"),
+				),
+			},
+			{
+				Config: testAccRegisteredDomainResourceConfig(domainName, 5678),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "contact_id", "5678"),
+				),
+			},
+		},
+	})
+}
+
 func testAccPreCheckRegisteredDomain(t *testing.T) {
 	test_utils.TestAccPreCheck(t)
 	if os.Getenv("DNSIMPLE_CONTACT_ID") == "" {
