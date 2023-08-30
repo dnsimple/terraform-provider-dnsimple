@@ -130,7 +130,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 This can be due to a contact change that has not been reflected in your local config,
 if you have changed your local config due to a registered_domain_contact change.
 It may be that the contact change has not yet been completed.
-Until the change is compelted successfully you will continue to receive this warning.`, data.Name.ValueString(), data.ContactId.ValueInt64(), domain.RegistrantID),
+Until the change has completed successfully you will continue to receive this warning.`, data.Name.ValueString(), data.ContactId.ValueInt64(), domain.RegistrantID),
 				"update plan's resource contact_id to match remote state",
 			)
 		}
