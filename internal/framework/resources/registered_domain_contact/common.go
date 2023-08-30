@@ -62,7 +62,7 @@ func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainContac
 		if registrantChangeResponse.Data.State != consts.DomainStateRegistered {
 			tflog.Info(ctx, fmt.Sprintf("[RETRYING] Registrant change is not complete, current state: %s", registrantChangeResponse.Data.State))
 
-			return fmt.Errorf("registrant change is not complete, current state: %s. You can try to run terraform again to try and converge the registrant change", registrantChangeResponse.Data.State), false
+			return fmt.Errorf("Registrant change is not complete, current state: %s. You can try to run terraform again to try and converge the registrant change", registrantChangeResponse.Data.State), false
 		}
 
 		return nil, false
