@@ -60,10 +60,20 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
+	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", data.Name.ValueString()),
+			err.Error(),
+		)
+		return
+	}
+
 	if domainRegistrationResponse == nil {
-		diags = r.updateModelFromAPIResponse(ctx, data, nil, domainResponse.Data, dnssecResponse.Data)
+		diags = r.updateModelFromAPIResponse(ctx, data, nil, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
 	} else {
-		diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data)
+		diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
 	}
 
 	if diags != nil && diags.HasError() {

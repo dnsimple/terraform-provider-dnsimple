@@ -103,7 +103,35 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 	return diagnostics
 }
 
-func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain, dnssec *dnsimple.Dnssec) diag.Diagnostics {
+func (r *RegisteredDomainResource) setTransferLock(ctx context.Context, data *RegisteredDomainResourceModel) diag.Diagnostics {
+	diagnostics := diag.Diagnostics{}
+
+	tflog.Debug(ctx, fmt.Sprintf("setting transfer_lock_enabled to %t", data.TransferLockEnabled.ValueBool()))
+
+	if data.TransferLockEnabled.ValueBool() {
+		_, err := r.config.Client.Registrar.EnableDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
+
+		if err != nil {
+			diagnostics.AddError(
+				fmt.Sprintf("failed to enable DNSimple Domain transfer lock: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+				err.Error(),
+			)
+		}
+		return diagnostics
+	}
+
+	_, err := r.config.Client.Registrar.DisableDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
+	if err != nil {
+		diagnostics.AddError(
+			fmt.Sprintf("failed to disable DNSimple Domain transfer lock: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
+			err.Error(),
+		)
+	}
+
+	return diagnostics
+}
+
+func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Context, data *RegisteredDomainResourceModel, domainRegistration *dnsimple.DomainRegistration, domain *dnsimple.Domain, dnssec *dnsimple.Dnssec, transferLock *dnsimple.DomainTransferLock) diag.Diagnostics {
 	diags := diag.Diagnostics{}
 
 	if domainRegistration != nil {
@@ -149,6 +177,10 @@ Until the change has completed successfully you will continue to receive this wa
 		data.DNSSECEnabled = types.BoolValue(dnssec.Enabled)
 	}
 
+	if transferLock != nil {
+		data.TransferLockEnabled = types.BoolValue(transferLock.Enabled)
+	}
+
 	return diags
 }
 
@@ -181,6 +213,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx c
 	}
 
 	data.DNSSECEnabled = types.BoolValue(false)
+	data.TransferLockEnabled = types.BoolValue(false)
 
 	return nil
 }

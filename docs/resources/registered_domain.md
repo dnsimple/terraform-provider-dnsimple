@@ -31,6 +31,7 @@ resource "dnsimple_registered_domain" "appleseed_bio" {
 
   contact_id            = dnsimple_contact.alice_main.id
   auto_renew_enabled    = true
+  transfer_lock_enabled = true
   whois_privacy_enabled = true
   dnssec_enabled        = false
 
@@ -49,6 +50,7 @@ The following argument(s) are supported:
 * `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`)
 * `whois_privacy_enabled` - (Optional) Whether the domain should have WhoIs privacy enabled (default: `false`)
 * `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`)
+* `transfer_lock_enabled` - (Optional) Whether the domain transfer lock protection is enabled (default: `true`)
 * `premium_price` - (Optional) The premium price for the domain registration. This is only required if the domain is a premium domain. You can use our [Check domain API](https://developer.dnsimple.com/v2/registrar/#checkDomain) to check if a domain is premium. And [Retrieve domain prices API](https://developer.dnsimple.com/v2/registrar/#getDomainPrices) to retrieve the premium price for a domain.
 * `extended_attributes` - (Optional) A map of extended attributes to be set for the domain registration. To see if there are any required extended attributes for any TLD use our [Lists the TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes).
 * `timeouts` - (Optional) (see [below for nested schema](#nestedblock--timeouts))
