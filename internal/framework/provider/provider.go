@@ -17,7 +17,6 @@ import (
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/datasources"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources/registered_domain"
-	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/resources/registered_domain_contact"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 	"golang.org/x/oauth2"
 )
@@ -172,7 +171,6 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 		resources.NewContactResource,
 		resources.NewDomainDelegationResource,
 		resources.NewDomainResource,
-		registered_domain_contact.NewRegisteredDomainContactResource,
 		registered_domain.NewRegisteredDomainResource,
 		resources.NewDsRecordResource,
 		resources.NewEmailForwardResource,
@@ -186,7 +184,6 @@ func (p *DnsimpleProvider) DataSources(ctx context.Context) []func() datasource.
 	return []func() datasource.DataSource{
 		datasources.NewCertificateDataSource,
 		datasources.NewZoneDataSource,
-		datasources.NewRegistrantChangeCheckDataSource,
 	}
 }
 

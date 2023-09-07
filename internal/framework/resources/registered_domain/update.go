@@ -34,6 +34,14 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		return
 	}
 
+	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
+			"contact_id change not supported by the DNSimple API",
+		)
+		return
+	}
+
 	if !planData.ExtendedAttributes.Equal(stateData.ExtendedAttributes) {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
@@ -169,8 +177,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	} else {
 		diags = r.updateModelFromAPIResponse(ctx, planData, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
 	}
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
+	if diags != nil && diags.HasError() {
+		resp.Diagnostics.Append(diags...)
 		return
 	}
 
