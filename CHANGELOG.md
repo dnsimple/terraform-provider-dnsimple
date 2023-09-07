@@ -6,8 +6,6 @@
 
 FEATURES:
 
-- **New Resource:** `dnsimple_registered_domain_contact` (dnsimple/terraform-provider-dnsimple#142)
-- **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple#142)
 - **Updated Resource:** `dnsimple_registered_domain` now supports `transfer_lock_enabled` argument which you can use to manage the domain transfer lock state of your registered domains (dnsimple/terraform-provider-dnsimple#143)
 
 ## 1.1.2
