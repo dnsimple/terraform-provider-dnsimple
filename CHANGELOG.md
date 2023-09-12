@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.3.0 (Unreleased)
+
+FEATURES:
+
+- **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple)
+
 ## 1.2.0
 
 FEATURES:
