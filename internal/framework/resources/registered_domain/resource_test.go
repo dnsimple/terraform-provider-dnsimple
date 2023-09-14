@@ -11,6 +11,7 @@ import (
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/test_utils"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
@@ -106,6 +107,52 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 	})
 }
 
+func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testing.T) {
+	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
+	resourceName := "dnsimple_registered_domain.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheckRegistrantChange(t) },
+		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
+		CheckDestroy:             testAccCheckRegisteredDomainRegistrantChangeDestroy,
+		Steps: []resource.TestStep{
+			{
+				ResourceName:       resourceName,
+				Config:             testAccRegisteredDomainResourceConfig(domainName, 1234),
+				ImportStateId:      domainName,
+				ImportState:        true,
+				ImportStateVerify:  false,
+				ImportStatePersist: true,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
+					resource.TestCheckResourceAttr(resourceName, "contact_id", "1234"),
+					resource.TestCheckNoResourceAttr(resourceName, "domain_registration"),
+				),
+			},
+			{
+				Config: testAccRegisteredDomainResourceConfig_WithExtendedAttrs(domainName, contactID),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.id"),
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.state"),
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.registry_owner_change"),
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.domain_id"),
+					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", fmt.Sprintf("%d", contactID)),
+					resource.TestCheckResourceAttr(resourceName, "registrant_change.extended_attributes.x-eu-registrant-citizenship", "bg"),
+				),
+				// We expect the plan to be non-empty because we are creating a registrant change that will not be completed
+				// and we will attempt to converge it by setting the state to completed
+				ExpectNonEmptyPlan: true,
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
 func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 	// Get convert the contact id to int
 	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_CONTACT_ID"))
@@ -188,6 +235,16 @@ func testAccPreCheckRegisteredDomain(t *testing.T) {
 	}
 }
 
+func testAccPreCheckRegistrantChange(t *testing.T) {
+	test_utils.TestAccPreCheck(t)
+	if os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID") == "" {
+		t.Fatal("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID must be set for acceptance tests")
+	}
+	if os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN") == "" {
+		t.Fatal("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN must be set for acceptance tests")
+	}
+}
+
 func testAccRegisteredDomainImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {
 	return func(s *terraform.State) (string, error) {
 		rs, ok := s.RootModule().Resources[resourceName]
@@ -218,6 +275,32 @@ func testAccCheckRegisteredDomainResourceDestroy(state *terraform.State) error {
 
 		if err == nil {
 			return fmt.Errorf("record still exists")
+		}
+	}
+	return nil
+}
+
+func testAccCheckRegisteredDomainRegistrantChangeDestroy(state *terraform.State) error {
+	for _, rs := range state.RootModule().Resources {
+		if rs.Type != "dnsimple_registered_domain_contact" {
+			continue
+		}
+
+		id, err := strconv.Atoi(rs.Primary.Attributes["id"])
+		if err != nil {
+			return err
+		}
+
+		if rs.Primary.Attributes["state"] == consts.RegistrantChangeStateCompleted ||
+			rs.Primary.Attributes["state"] == consts.RegistrantChangeStateCancelled ||
+			rs.Primary.Attributes["state"] == consts.RegistrantChangeStateCancelling {
+			continue
+		}
+
+		_, err = dnsimpleClient.Registrar.DeleteRegistrantChange(context.Background(), testAccAccount, id)
+
+		if err != nil {
+			return err
 		}
 	}
 	return nil

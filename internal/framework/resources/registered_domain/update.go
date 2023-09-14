@@ -35,19 +35,23 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
-			"contact_id change not supported by the DNSimple API",
-		)
-		return
+		if stateData.State.ValueString() != consts.DomainStateRegistered {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
+				"contact_id change not supported for domains that are not in registered state",
+			)
+			return
+		}
 	}
 
 	if !planData.ExtendedAttributes.Equal(stateData.ExtendedAttributes) {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
-			"extended_attributes change not supported by the DNSimple API",
-		)
-		return
+		if stateData.State.ValueString() != consts.DomainStateRegistered {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
+				"extended_attributes change not supported for domains that are not in registered state",
+			)
+			return
+		}
 	}
 
 	domainRegistration, diags := getDomainRegistration(ctx, stateData)
@@ -103,6 +107,91 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				err.Error(),
 			)
 			return
+		}
+	}
+
+	registrantChange, diags := getRegistrantChange(ctx, planData)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
+	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
+		if !registrantChange.Id.IsNull() {
+			convergenceState, err := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
+			if convergenceState == RegistrantChangeFailed {
+				// Response is already populated with the error we can safely return
+				return
+			}
+
+			if convergenceState == RegistrantChangeConvergenceTimeout {
+				// We attempted to converge on the registrant change, but the registrant change was not ready
+				// user needs to run terraform again to try and converge the registrant change
+
+				// Update the data with the current registrant change
+				registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+				if diags.HasError() {
+					resp.Diagnostics.Append(diags...)
+					return
+				}
+				planData.RegistrantChange = registrantChangeObject
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
+
+				// Exit with warning to prevent the state from being tainted
+				resp.Diagnostics.AddWarning(
+					"failed to converge on registrant change",
+					err.Error(),
+				)
+				return
+			}
+
+		} else {
+			// Create a new registrant change and handle any errors
+			createRegistrantChange(ctx, planData, r, resp)
+		}
+	} else if !registrantChange.Id.IsNull() {
+		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
+				err.Error(),
+			)
+			return
+		}
+
+		if registrantChangeResponse.Data.State != consts.RegistrantChangeStateCompleted {
+			convergenceState, err := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
+			if convergenceState == RegistrantChangeFailed {
+				// Response is already populated with the error we can safely return
+				return
+			}
+
+			if convergenceState == RegistrantChangeConvergenceTimeout {
+				// We attempted to converge on the registrant change, but the registrant change was not ready
+				// user needs to run terraform again to try and converge the registrant change
+
+				// Update the data with the current registrant change
+				registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+				if diags.HasError() {
+					resp.Diagnostics.Append(diags...)
+					return
+				}
+				planData.RegistrantChange = registrantChangeObject
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
+
+				// Exit with warning to prevent the state from being tainted
+				resp.Diagnostics.AddError(
+					"failed to converge on registrant change",
+					err.Error(),
+				)
+				return
+			}
 		}
 	}
 

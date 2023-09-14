@@ -8,4 +8,11 @@ const (
 	DomainStateFailed     = "failed"
 	DomainStateCancelling = "cancelling"
 	DomainStateCancelled  = "cancelled"
+
+	// Domain Registrant Change (Contact change) states
+	RegistrantChangeStateNew        = "new"
+	RegistrantChangeStatePending    = "pending"
+	RegistrantChangeStateCompleted  = "completed"
+	RegistrantChangeStateCancelling = "cancelling"
+	RegistrantChangeStateCancelled  = "cancelled"
 )

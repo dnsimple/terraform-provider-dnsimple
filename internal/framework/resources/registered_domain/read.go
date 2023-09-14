@@ -40,6 +40,32 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		}
 	}
 
+	registrantChange, diags := getRegistrantChange(ctx, data)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
+	if !registrantChange.Id.IsNull() {
+		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
+				err.Error(),
+			)
+			return
+		}
+
+		registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+		if diags.HasError() {
+			resp.Diagnostics.Append(diags...)
+			return
+		}
+		data.RegistrantChange = registrantChangeObject
+	}
+
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 
 	if err != nil {

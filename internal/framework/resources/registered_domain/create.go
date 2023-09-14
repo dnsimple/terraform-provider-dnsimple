@@ -8,7 +8,9 @@ import (
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
@@ -159,6 +161,8 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		resp.Diagnostics.Append(diags...)
 		return
 	}
+
+	data.RegistrantChange = types.ObjectNull(common.RegistrantChangeAttrType)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
