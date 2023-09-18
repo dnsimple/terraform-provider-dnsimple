@@ -66,13 +66,13 @@ jobs:
         include:
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.bio'
-            registrant_change_domain: '6xjh9macv560eydj0frnloi0v1sgz1i1wcxsytjqt9pmo4y8vq21n2h8sqm4zu.eu'
+            registrant_change_domain: '64328qg94qzrwp0m3x4idel2n1iu6r597nn3oam4i71ks833liu9usvmlzjf2a.com'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
-            registrant_change_domain: '6e640p3gc3yoh1szlntwhxvkk23f8jo8q7a64kuoghepq0q77iyg0nyqnc7nap.eu'
+            registrant_change_domain: '66nn40d7p65gq79a3lifs6lpyublzuiwst6jdbynqdudtybi70dl7h3m7oskzk.com'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
-            registrant_change_domain: '56gz94oqngp5xb82a04ugewpbv80hqj72kc8p3o3gd550esemiv2bzhjhoihs8.eu'
+            registrant_change_domain: '6cw7pgxbsxbqczbe54w2isp7x8hr4yyj2te0knd2syha9n2jvhiwcmyiztbprr.com'
           - terraform: '1.4.*'
             domain: 'dnsimple-1-4-terraform.bio'
             registrant_change_domain: '3177iktacmv2bg05lkvgsmpoysq5i1vniu6glxl6kq4picv5lvlj2blexwi6bw.eu'
@@ -98,6 +98,13 @@ jobs:
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: 10854
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10
+      - run: make sweep
+        env:
+          DNSIMPLE_SANDBOX: true
+          DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
+          DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
+          DNSIMPLE_DOMAIN: ${{ matrix.domain }}
+          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
 
 
   slack-workflow-status:
