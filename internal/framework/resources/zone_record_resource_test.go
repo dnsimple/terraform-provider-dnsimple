@@ -247,6 +247,7 @@ resource "dnsimple_zone_record" "test" {
 	value = "192.168.0.10"
 	type = "A"
 	ttl = 2800
+	regions = ["IAD", "SYD"]
 }`, domainName)
 }
 
