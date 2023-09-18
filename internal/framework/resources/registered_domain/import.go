@@ -56,5 +56,6 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), domainResponse.Data.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), domainResponse.Data.Name)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("contact_id"), domainResponse.Data.RegistrantID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("registrant_change"), types.ObjectNull(common.RegistrantChangeAttrType))...)
 }

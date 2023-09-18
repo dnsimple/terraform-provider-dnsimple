@@ -110,7 +110,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	registrantChange, diags := getRegistrantChange(ctx, planData)
+	registrantChange, diags := getRegistrantChange(ctx, stateData)
 	if diags.HasError() {
 		resp.Diagnostics.Append(diags...)
 		return
@@ -152,7 +152,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 			// Create a new registrant change and handle any errors
 			createRegistrantChange(ctx, planData, r, resp)
 		}
-	} else if !registrantChange.Id.IsNull() {
+	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
 
 		if err != nil {
@@ -182,17 +182,20 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				}
 				planData.RegistrantChange = registrantChangeObject
 
-				// Save data into Terraform state
-				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
-
 				// Exit with warning to prevent the state from being tainted
 				resp.Diagnostics.AddError(
 					"failed to converge on registrant change",
 					err.Error(),
 				)
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
 				return
 			}
 		}
+	} else {
+		// Use state data for registrant change if no changes are detected
+		planData.RegistrantChange = stateData.RegistrantChange
 	}
 
 	if planData.AutoRenewEnabled.ValueBool() != stateData.AutoRenewEnabled.ValueBool() {
