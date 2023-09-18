@@ -95,10 +95,11 @@ jobs:
           DNSIMPLE_DOMAIN: ${{ matrix.domain }}
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
           DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
-          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: 10854
+          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: 10169
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10
       - run: make sweep
+        if: always()
         env:
           DNSIMPLE_SANDBOX: true
           DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
