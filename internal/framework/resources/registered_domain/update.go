@@ -198,7 +198,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		planData.RegistrantChange = stateData.RegistrantChange
 	}
 
-	if planData.AutoRenewEnabled.ValueBool() != stateData.AutoRenewEnabled.ValueBool() {
+	if !(planData.AutoRenewEnabled.IsUnknown() || planData.AutoRenewEnabled.IsNull()) && planData.AutoRenewEnabled.ValueBool() != stateData.AutoRenewEnabled.ValueBool() {
 
 		diags := r.setAutoRenewal(ctx, planData)
 		if diags.HasError() {
@@ -207,7 +207,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.WhoisPrivacyEnabled.ValueBool() != stateData.WhoisPrivacyEnabled.ValueBool() {
+	if !(planData.WhoisPrivacyEnabled.IsUnknown() || planData.WhoisPrivacyEnabled.IsNull()) && planData.WhoisPrivacyEnabled.ValueBool() != stateData.WhoisPrivacyEnabled.ValueBool() {
 
 		diags := r.setWhoisPrivacy(ctx, planData)
 		if diags.HasError() {
@@ -216,7 +216,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.DNSSECEnabled.ValueBool() != stateData.DNSSECEnabled.ValueBool() {
+	if !(planData.DNSSECEnabled.IsUnknown() || planData.DNSSECEnabled.IsNull()) && planData.DNSSECEnabled.ValueBool() != stateData.DNSSECEnabled.ValueBool() {
 
 		diags := r.setDNSSEC(ctx, planData)
 		if diags.HasError() {
@@ -225,7 +225,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.TransferLockEnabled.ValueBool() != stateData.TransferLockEnabled.ValueBool() {
+	if !(planData.TransferLockEnabled.IsUnknown() || planData.TransferLockEnabled.IsNull()) && planData.TransferLockEnabled.ValueBool() != stateData.TransferLockEnabled.ValueBool() {
 
 		diags := r.setTransferLock(ctx, planData)
 		if diags.HasError() {
