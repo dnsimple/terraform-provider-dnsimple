@@ -46,7 +46,7 @@ resource "dnsimple_registered_domain" "appleseed_bio" {
 The following argument(s) are supported:
 
 * `name` - (Required) The domain name to be registered
-* `contact_id` - (Required) The ID of the contact to be used for the domain registration
+* `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change this may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
 * `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`)
 * `whois_privacy_enabled` - (Optional) Whether the domain should have WhoIs privacy enabled (default: `false`)
 * `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`)
