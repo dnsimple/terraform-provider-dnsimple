@@ -66,16 +66,20 @@ jobs:
         include:
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.bio'
-            registrant_change_domain: '64328qg94qzrwp0m3x4idel2n1iu6r597nn3oam4i71ks833liu9usvmlzjf2a.com'
+            registrant_contact_id: 10854
+            registrant_change_domain: 'peoa1hvrl5s7q7os1bqadhd29uar81nnc4m0oyaloxex9kapsn20u6nr8z6l5h.eu'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
-            registrant_change_domain: '66nn40d7p65gq79a3lifs6lpyublzuiwst6jdbynqdudtybi70dl7h3m7oskzk.com'
+            registrant_contact_id: 10854
+            registrant_change_domain: '9qy9lpesl2f2o5ya45zyujrggori1mh8sl6k2oz37usv48lhn3ziistg3u5kgv.eu'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
-            registrant_change_domain: '6cw7pgxbsxbqczbe54w2isp7x8hr4yyj2te0knd2syha9n2jvhiwcmyiztbprr.com'
+            registrant_contact_id: 10854
+            registrant_change_domain: 'lqyivkga231hkiqihu0k7bjic2ixd01xs5vex8rmn2iaw0l7gxvhcbicigpfm3.eu'
           - terraform: '1.4.*'
             domain: 'dnsimple-1-4-terraform.bio'
-            registrant_change_domain: '3177iktacmv2bg05lkvgsmpoysq5i1vniu6glxl6kq4picv5lvlj2blexwi6bw.eu'
+            registrant_contact_id: 10169
+            registrant_change_domain: 'z0u2w48bo5fzgdsh1g7zjpflbpt0tiyl6tmc75ltzzm6dbphghrgepbaxs6zrm.eu'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
@@ -95,7 +99,7 @@ jobs:
           DNSIMPLE_DOMAIN: ${{ matrix.domain }}
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
           DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
-          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: 10169
+          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10
       - run: make sweep
