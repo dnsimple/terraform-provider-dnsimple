@@ -6,7 +6,13 @@
 
 FEATURES:
 
-- **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple)
+- **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple#155)
+
+## 1.2.1
+
+ENHANCEMENTS:
+
+- **Updated Resource:** `dnsimple_zone_record` now supports the `regions` attribute which you can use to specify regional records (dnsimple/terraform-provider-dnsimple#156)
 
 ## 1.2.0
 

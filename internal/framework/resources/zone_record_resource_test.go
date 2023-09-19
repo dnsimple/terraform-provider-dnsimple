@@ -2,6 +2,7 @@ package resources_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -30,7 +31,21 @@ func TestAccZoneRecordResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "2800"),
+					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.10"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			{
+				Config: testAccZoneRecordResourceStandardWithRegionsConfig(domainName, []string{"IAD", "SYD"}),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "4000"),
+					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.11"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "regions.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "regions.0", "IAD"),
+					resource.TestCheckResourceAttr(resourceName, "regions.1", "SYD"),
 				),
 			},
 			{
@@ -248,6 +263,23 @@ resource "dnsimple_zone_record" "test" {
 	type = "A"
 	ttl = 2800
 }`, domainName)
+}
+
+func testAccZoneRecordResourceStandardWithRegionsConfig(domainName string, regions []string) string {
+	regionsRaw, err := json.Marshal(regions)
+	if err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = "terraform"
+	value = "192.168.0.11"
+	type = "A"
+	ttl = 4000
+	regions = %[2]s
+}`, domainName, regionsRaw)
 }
 
 func testAccZoneRecordResourceStandardWithDefaultsConfig(domainName string) string {
