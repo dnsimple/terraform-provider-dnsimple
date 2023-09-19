@@ -70,7 +70,7 @@ jobs:
             registrant_change_domain: 'peoa1hvrl5s7q7os1bqadhd29uar81nnc4m0oyaloxex9kapsn20u6nr8z6l5h.eu'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
-            registrant_contact_id: 10854
+            registrant_contact_id: 10169
             registrant_change_domain: '9qy9lpesl2f2o5ya45zyujrggori1mh8sl6k2oz37usv48lhn3ziistg3u5kgv.eu'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
