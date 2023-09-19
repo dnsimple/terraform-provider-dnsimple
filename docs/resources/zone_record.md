@@ -40,7 +40,7 @@ The following arguments are supported:
 * `type` - (Required) The type of the record
 * `ttl` - (Optional) The TTL of the record - defaults to 3600
 * `priority` - (Optional) The priority of the record - only useful for some record types
-* `regions` - (Optional) A list of regions to serve the record from.
+* `regions` - (Optional) A list of regions to serve the record from. You can find a list of supported values in our [developer documentation](https://developer.dnsimple.com/v2/zones/records/).
 
 
 ## Attributes Reference
