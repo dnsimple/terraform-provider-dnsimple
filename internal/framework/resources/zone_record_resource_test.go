@@ -43,7 +43,7 @@ func TestAccZoneRecordResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ttl", "4000"),
 					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.11"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
-					resource.TestCheckResourceAttr(resourceName, "#regions", "2"),
+					resource.TestCheckResourceAttr(resourceName, "regions.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "regions.0", "IAD"),
 					resource.TestCheckResourceAttr(resourceName, "regions.1", "SYD"),
 				),
