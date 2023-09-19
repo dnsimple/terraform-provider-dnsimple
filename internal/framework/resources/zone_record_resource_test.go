@@ -31,6 +31,7 @@ func TestAccZoneRecordResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "2800"),
+					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.10"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -39,7 +40,8 @@ func TestAccZoneRecordResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
-					resource.TestCheckResourceAttr(resourceName, "ttl", "2800"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "4000"),
+					resource.TestCheckResourceAttr(resourceName, "value", "192.168.0.11"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "#regions", "2"),
 					resource.TestCheckResourceAttr(resourceName, "regions.0", "IAD"),
@@ -273,9 +275,9 @@ resource "dnsimple_zone_record" "test" {
 	zone_name = %[1]q
 
 	name = "terraform"
-	value = "192.168.0.10"
+	value = "192.168.0.11"
 	type = "A"
-	ttl = 2800
+	ttl = 4000
 	regions = %[2]s
 }`, domainName, regionsRaw)
 }
