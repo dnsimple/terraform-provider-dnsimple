@@ -7,6 +7,12 @@
 FEATURES:
 
 - **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple#155)
+- **Updated Resource:** `dnsimple_registered_domain` now supports the change of `contact_id` which results in domain contact change at the registry (dnsimple/terraform-provider-dnsimple#155)
+
+NOTES:
+
+The `contact_id` attribute previously only supported configuring at resource creation. Now the attribute can be changed and it will result in registrant change being initiated at the registrar. In addition the `extended_attributes` attribute can now also be updated after a domain has been registered and the values in the extended attributes will be passed along the registrant change as some TLDs require extended attributes to be passed along the registrant change.
+The registrant change can happen asynchronously for certain contact changes and TLDs. The resource supports this by attempting to sync the state of the registrant change in a similar way to how domain registration works with the `dnsimple_registered_domain` resource.
 
 ## 1.2.1
 
