@@ -63,8 +63,17 @@ func cancelAllContactChanges(ctx context.Context, dnsimpleClient *dnsimple.Clien
 		return
 	}
 
+	// Get the domain ID
+	domainResponse, err := dnsimpleClient.Domains.GetDomain(ctx, account, domainName)
+	if err != nil {
+		panic(err)
+	}
+
 	listOptions := &dnsimple.RegistrantChangeListOptions{
-		DomainId: &domainName,
+		State: dnsimple.String(consts.RegistrantChangeStateNew),
+		ListOptions: dnsimple.ListOptions{
+			PerPage: dnsimple.Int(100),
+		},
 	}
 
 	contactChanges, err := dnsimpleClient.Registrar.ListRegistrantChange(ctx, account, listOptions)
@@ -77,10 +86,47 @@ func cancelAllContactChanges(ctx context.Context, dnsimpleClient *dnsimple.Clien
 			continue
 		}
 
+		if contactChange.DomainId != int(domainResponse.Data.ID) {
+			continue
+		}
+
 		fmt.Printf("Cancelling registrant change for %s id=%d state=%s\n", domainName, contactChange.Id, contactChange.State)
 		_, err := dnsimpleClient.Registrar.DeleteRegistrantChange(ctx, account, contactChange.Id)
 		if err != nil {
 			panic(err)
+		}
+	}
+
+	if contactChanges.Pagination.TotalPages > 1 {
+		for page := 2; page <= contactChanges.Pagination.TotalPages; page++ {
+			listOptions := &dnsimple.RegistrantChangeListOptions{
+				State: dnsimple.String(consts.RegistrantChangeStateNew),
+				ListOptions: dnsimple.ListOptions{
+					Page:    dnsimple.Int(page),
+					PerPage: dnsimple.Int(100),
+				},
+			}
+
+			contactChanges, err := dnsimpleClient.Registrar.ListRegistrantChange(ctx, account, listOptions)
+			if err != nil {
+				panic(err)
+			}
+
+			for _, contactChange := range contactChanges.Data {
+				if !contains(RegistrantChangeCancelStates, contactChange.State) {
+					continue
+				}
+
+				if contactChange.DomainId != int(domainResponse.Data.ID) {
+					continue
+				}
+
+				fmt.Printf("Cancelling registrant change for %s id=%d state=%s\n", domainName, contactChange.Id, contactChange.State)
+				_, err := dnsimpleClient.Registrar.DeleteRegistrantChange(ctx, account, contactChange.Id)
+				if err != nil {
+					panic(err)
+				}
+			}
 		}
 	}
 }
