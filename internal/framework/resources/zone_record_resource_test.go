@@ -2,6 +2,7 @@ package resources_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -263,6 +264,10 @@ resource "dnsimple_zone_record" "test" {
 }
 
 func testAccZoneRecordResourceStandardWithRegionsConfig(domainName string, regions []string) string {
+	regionsRaw, err := json.Marshal(regions)
+	if err != nil {
+		panic(err)
+	}
 	return fmt.Sprintf(`
 resource "dnsimple_zone_record" "test" {
 	zone_name = %[1]q
@@ -271,8 +276,8 @@ resource "dnsimple_zone_record" "test" {
 	value = "192.168.0.10"
 	type = "A"
 	ttl = 2800
-	regions = %[2]q
-}`, domainName, regions)
+	regions = %[2]s
+}`, domainName, regionsRaw)
 }
 
 func testAccZoneRecordResourceStandardWithDefaultsConfig(domainName string) string {
