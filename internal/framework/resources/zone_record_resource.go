@@ -44,6 +44,7 @@ type ZoneRecordResourceModel struct {
 	Name          types.String `tfsdk:"name"`
 	QualifiedName types.String `tfsdk:"qualified_name"`
 	Type          types.String `tfsdk:"type"`
+	Regions       types.List   `tfsdk:"regions"`
 	Value         types.String `tfsdk:"value"`
 	TTL           types.Int64  `tfsdk:"ttl"`
 	Priority      types.Int64  `tfsdk:"priority"`
@@ -80,6 +81,10 @@ func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			"regions": schema.ListAttribute{
+				Optional:    true,
+				ElementType: types.StringType,
 			},
 			"value": schema.StringAttribute{
 				Required: true,
@@ -125,6 +130,8 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	regions := make([]string, len(data.Regions.Elements()))
+	resp.Diagnostics.Append(data.Regions.ElementsAs(ctx, &regions, false)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -134,6 +141,7 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 		Name:    dnsimple.String(data.Name.ValueString()),
 		Type:    data.Type.ValueString(),
 		Content: data.Value.ValueString(),
+		Regions: regions,
 		TTL:     int(data.TTL.ValueInt64()),
 	}
 
@@ -248,6 +256,8 @@ func (r *ZoneRecordResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	regions := make([]string, len(data.Regions.Elements()))
+	resp.Diagnostics.Append(data.Regions.ElementsAs(ctx, &regions, false)...)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -257,6 +267,7 @@ func (r *ZoneRecordResource) Update(ctx context.Context, req resource.UpdateRequ
 		Name:    dnsimple.String(data.Name.ValueString()),
 		Type:    data.Type.ValueString(),
 		Content: data.Value.ValueString(),
+		Regions: regions,
 		TTL:     int(data.TTL.ValueInt64()),
 	}
 
