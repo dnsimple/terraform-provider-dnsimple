@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
@@ -119,7 +120,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
 		if !registrantChange.Id.IsNull() {
-			convergenceState, err := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
+			convergenceState, _ := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
 			if convergenceState == RegistrantChangeFailed {
 				// Response is already populated with the error we can safely return
 				return
@@ -130,6 +131,15 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				// user needs to run terraform again to try and converge the registrant change
 
 				// Update the data with the current registrant change
+				registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+				if err != nil {
+					resp.Diagnostics.AddError(
+						fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
+						err.Error(),
+					)
+					return
+				}
+
 				registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
 				if diags.HasError() {
 					resp.Diagnostics.Append(diags...)
@@ -138,7 +148,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				planData.RegistrantChange = registrantChangeObject
 
 				// Save data into Terraform state
-				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
+				resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("registrant_change"), registrantChangeObject)...)
 
 				// Exit with warning to prevent the state from being tainted
 				resp.Diagnostics.AddWarning(

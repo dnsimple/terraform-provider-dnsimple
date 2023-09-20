@@ -8,6 +8,7 @@ import (
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -328,7 +329,7 @@ func tryToConvergeRegistrantChange(ctx context.Context, data *RegisteredDomainRe
 			return nil, true
 		}
 
-		if registrantChangeResponse.Data.State != consts.DomainStateRegistered {
+		if registrantChangeResponse.Data.State != consts.RegistrantChangeStateCompleted {
 			tflog.Info(ctx, fmt.Sprintf("[RETRYING] Registrant change is not complete, current state: %s", registrantChangeResponse.Data.State))
 
 			return fmt.Errorf("registrant change is not complete, current state: %s. You can try to run terraform again to try and converge the registrant change", registrantChangeResponse.Data.State), false
@@ -410,7 +411,7 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 				data.RegistrantChange = registrantChangeObject
 
 				// Save data into Terraform state
-				resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+				resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("registrant_change"), registrantChangeObject)...)
 
 				// Exit with warning to prevent the state from being tainted
 				resp.Diagnostics.AddWarning(
