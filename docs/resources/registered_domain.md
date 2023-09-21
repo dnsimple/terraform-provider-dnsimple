@@ -46,13 +46,13 @@ resource "dnsimple_registered_domain" "appleseed_bio" {
 The following argument(s) are supported:
 
 * `name` - (Required) The domain name to be registered
-* `contact_id` - (Required) The ID of the contact to be used for the domain registration
+* `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change this may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
 * `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`)
 * `whois_privacy_enabled` - (Optional) Whether the domain should have WhoIs privacy enabled (default: `false`)
 * `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`)
 * `transfer_lock_enabled` - (Optional) Whether the domain transfer lock protection is enabled (default: `true`)
 * `premium_price` - (Optional) The premium price for the domain registration. This is only required if the domain is a premium domain. You can use our [Check domain API](https://developer.dnsimple.com/v2/registrar/#checkDomain) to check if a domain is premium. And [Retrieve domain prices API](https://developer.dnsimple.com/v2/registrar/#getDomainPrices) to retrieve the premium price for a domain.
-* `extended_attributes` - (Optional) A map of extended attributes to be set for the domain registration. To see if there are any required extended attributes for any TLD use our [Lists the TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes).
+* `extended_attributes` - (Optional) A map of extended attributes to be set for the domain registration. To see if there are any required extended attributes for any TLD use our [Lists the TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes). The values provided in the `extended_attributes` will also be sent when a registrant change is initiated as part of changing the `contact_id`.
 * `timeouts` - (Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 # Attributes Reference

@@ -66,12 +66,20 @@ jobs:
         include:
           - terraform: '1.0.*'
             domain: 'dnsimple-1-0-terraform.bio'
+            registrant_contact_id: 10854
+            registrant_change_domain: 'peoa1hvrl5s7q7os1bqadhd29uar81nnc4m0oyaloxex9kapsn20u6nr8z6l5h.eu'
           - terraform: '1.1.*'
             domain: 'dnsimple-1-1-terraform.bio'
+            registrant_contact_id: 10169
+            registrant_change_domain: '9qy9lpesl2f2o5ya45zyujrggori1mh8sl6k2oz37usv48lhn3ziistg3u5kgv.eu'
           - terraform: '1.2.*'
             domain: 'dnsimple-1-2-terraform.bio'
+            registrant_contact_id: 10854
+            registrant_change_domain: 'lqyivkga231hkiqihu0k7bjic2ixd01xs5vex8rmn2iaw0l7gxvhcbicigpfm3.eu'
           - terraform: '1.4.*'
             domain: 'dnsimple-1-4-terraform.bio'
+            registrant_contact_id: 10169
+            registrant_change_domain: 'z0u2w48bo5fzgdsh1g7zjpflbpt0tiyl6tmc75ltzzm6dbphghrgepbaxs6zrm.eu'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
@@ -90,8 +98,18 @@ jobs:
           DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
           DNSIMPLE_DOMAIN: ${{ matrix.domain }}
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
+          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
+          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
         run: go test -v -cover ./internal/... -timeout 15m
         timeout-minutes: 10
+      - run: make sweep
+        if: always()
+        env:
+          DNSIMPLE_SANDBOX: true
+          DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
+          DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
+          DNSIMPLE_DOMAIN: ${{ matrix.domain }}
+          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
 
 
   slack-workflow-status:

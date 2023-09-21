@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
@@ -35,19 +36,23 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
-			"contact_id change not supported by the DNSimple API",
-		)
-		return
+		if stateData.State.ValueString() != consts.DomainStateRegistered {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("contact_id change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
+				"contact_id change not supported for domains that are not in registered state",
+			)
+			return
+		}
 	}
 
 	if !planData.ExtendedAttributes.Equal(stateData.ExtendedAttributes) {
-		resp.Diagnostics.AddError(
-			fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
-			"extended_attributes change not supported by the DNSimple API",
-		)
-		return
+		if stateData.State.ValueString() != consts.DomainStateRegistered {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("extended_attributes change not supported: %s, %d", planData.Name.ValueString(), planData.Id.ValueInt64()),
+				"extended_attributes change not supported for domains that are not in registered state",
+			)
+			return
+		}
 	}
 
 	domainRegistration, diags := getDomainRegistration(ctx, stateData)
@@ -106,7 +111,104 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.AutoRenewEnabled.ValueBool() != stateData.AutoRenewEnabled.ValueBool() {
+	registrantChange, diags := getRegistrantChange(ctx, stateData)
+	if diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+		return
+	}
+
+	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
+	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
+		if !registrantChange.Id.IsNull() {
+			convergenceState, _ := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
+			if convergenceState == RegistrantChangeFailed {
+				// Response is already populated with the error we can safely return
+				return
+			}
+
+			if convergenceState == RegistrantChangeConvergenceTimeout {
+				// We attempted to converge on the registrant change, but the registrant change was not ready
+				// user needs to run terraform again to try and converge the registrant change
+
+				// Update the data with the current registrant change
+				registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+				if err != nil {
+					resp.Diagnostics.AddError(
+						fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
+						err.Error(),
+					)
+					return
+				}
+
+				registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+				if diags.HasError() {
+					resp.Diagnostics.Append(diags...)
+					return
+				}
+				planData.RegistrantChange = registrantChangeObject
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("registrant_change"), registrantChangeObject)...)
+
+				// Exit with warning to prevent the state from being tainted
+				resp.Diagnostics.AddWarning(
+					"failed to converge on registrant change",
+					err.Error(),
+				)
+				return
+			}
+
+		} else {
+			// Create a new registrant change and handle any errors
+			createRegistrantChange(ctx, planData, r, resp)
+		}
+	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
+		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
+				err.Error(),
+			)
+			return
+		}
+
+		if registrantChangeResponse.Data.State != consts.RegistrantChangeStateCompleted {
+			convergenceState, err := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
+			if convergenceState == RegistrantChangeFailed {
+				// Response is already populated with the error we can safely return
+				return
+			}
+
+			if convergenceState == RegistrantChangeConvergenceTimeout {
+				// We attempted to converge on the registrant change, but the registrant change was not ready
+				// user needs to run terraform again to try and converge the registrant change
+
+				// Update the data with the current registrant change
+				registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+				if diags.HasError() {
+					resp.Diagnostics.Append(diags...)
+					return
+				}
+				planData.RegistrantChange = registrantChangeObject
+
+				// Exit with warning to prevent the state from being tainted
+				resp.Diagnostics.AddError(
+					"failed to converge on registrant change",
+					err.Error(),
+				)
+
+				// Save data into Terraform state
+				resp.Diagnostics.Append(resp.State.Set(ctx, &planData)...)
+				return
+			}
+		}
+	} else {
+		// Use state data for registrant change if no changes are detected
+		planData.RegistrantChange = stateData.RegistrantChange
+	}
+
+	if !(planData.AutoRenewEnabled.IsUnknown() || planData.AutoRenewEnabled.IsNull()) && planData.AutoRenewEnabled.ValueBool() != stateData.AutoRenewEnabled.ValueBool() {
 
 		diags := r.setAutoRenewal(ctx, planData)
 		if diags.HasError() {
@@ -115,7 +217,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.WhoisPrivacyEnabled.ValueBool() != stateData.WhoisPrivacyEnabled.ValueBool() {
+	if !(planData.WhoisPrivacyEnabled.IsUnknown() || planData.WhoisPrivacyEnabled.IsNull()) && planData.WhoisPrivacyEnabled.ValueBool() != stateData.WhoisPrivacyEnabled.ValueBool() {
 
 		diags := r.setWhoisPrivacy(ctx, planData)
 		if diags.HasError() {
@@ -124,7 +226,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.DNSSECEnabled.ValueBool() != stateData.DNSSECEnabled.ValueBool() {
+	if !(planData.DNSSECEnabled.IsUnknown() || planData.DNSSECEnabled.IsNull()) && planData.DNSSECEnabled.ValueBool() != stateData.DNSSECEnabled.ValueBool() {
 
 		diags := r.setDNSSEC(ctx, planData)
 		if diags.HasError() {
@@ -133,7 +235,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	}
 
-	if planData.TransferLockEnabled.ValueBool() != stateData.TransferLockEnabled.ValueBool() {
+	if !(planData.TransferLockEnabled.IsUnknown() || planData.TransferLockEnabled.IsNull()) && planData.TransferLockEnabled.ValueBool() != stateData.TransferLockEnabled.ValueBool() {
 
 		diags := r.setTransferLock(ctx, planData)
 		if diags.HasError() {
