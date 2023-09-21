@@ -2,12 +2,16 @@
 
 ## main
 
-## 1.3.0 (Unreleased)
+## 1.3.0
 
 FEATURES:
 
 - **New Data Source:** `dnsimple_registrant_change_check` (dnsimple/terraform-provider-dnsimple#155)
 - **Updated Resource:** `dnsimple_registered_domain` now supports the change of `contact_id` which results in domain contact change at the registry (dnsimple/terraform-provider-dnsimple#155)
+
+BUG FIXES:
+
+- Boolean attributes in the `dnsimple_registered_domain` resource could get toggled to `false` when the resource was updated. This applied for `auto_renew_enabled`, `whois_privacy_enabled`, `dnssec_enabled` and `transfer_lock_enabled`. This would happen if the attribute was not explicitly set in the configuration. Please check and update your configuration to explicitly specify the state of the attributes if you think you might be affected by this issue. (dnsimple/terraform-provider-dnsimple#155)
 
 NOTES:
 
