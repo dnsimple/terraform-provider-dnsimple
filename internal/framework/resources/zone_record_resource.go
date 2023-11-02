@@ -39,16 +39,17 @@ type ZoneRecordResource struct {
 
 // ZoneRecordResourceModel describes the resource data model.
 type ZoneRecordResourceModel struct {
-	ZoneName      types.String `tfsdk:"zone_name"`
-	ZoneId        types.String `tfsdk:"zone_id"`
-	Name          types.String `tfsdk:"name"`
-	QualifiedName types.String `tfsdk:"qualified_name"`
-	Type          types.String `tfsdk:"type"`
-	Regions       types.List   `tfsdk:"regions"`
-	Value         types.String `tfsdk:"value"`
-	TTL           types.Int64  `tfsdk:"ttl"`
-	Priority      types.Int64  `tfsdk:"priority"`
-	Id            types.Int64  `tfsdk:"id"`
+	ZoneName        types.String `tfsdk:"zone_name"`
+	ZoneId          types.String `tfsdk:"zone_id"`
+	Name            types.String `tfsdk:"name"`
+	QualifiedName   types.String `tfsdk:"qualified_name"`
+	Type            types.String `tfsdk:"type"`
+	Regions         types.List   `tfsdk:"regions"`
+	Value           types.String `tfsdk:"value"`
+	ValueNormalized types.String `tfsdk:"value_normalized"`
+	TTL             types.Int64  `tfsdk:"ttl"`
+	Priority        types.Int64  `tfsdk:"priority"`
+	Id              types.Int64  `tfsdk:"id"`
 }
 
 func (r *ZoneRecordResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -88,6 +89,9 @@ func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"value": schema.StringAttribute{
 				Required: true,
+			},
+			"value_normalized": schema.StringAttribute{
+				Computed: true,
 			},
 			"ttl": schema.Int64Attribute{
 				Optional: true,
@@ -245,6 +249,12 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		record = *response.Data
 	}
 
+	if record.Content != data.ValueNormalized.ValueString() {
+		// If the record content has changed, we need to update the record in the remote
+		tflog.Debug(ctx, "DNSimple Zone Record content changed")
+		data.Value = types.StringValue(record.Content)
+	}
+
 	r.updateModelFromAPIResponse(&record, data)
 
 	// Save updated data into Terraform state
@@ -353,7 +363,7 @@ func (r *ZoneRecordResource) updateModelFromAPIResponse(record *dnsimple.ZoneRec
 	data.ZoneId = types.StringValue(record.ZoneID)
 	data.Name = types.StringValue(record.Name)
 	data.Type = types.StringValue(record.Type)
-	data.Value = types.StringValue(record.Content)
+	data.ValueNormalized = types.StringValue(record.Content)
 	data.TTL = types.Int64Value(int64(record.TTL))
 	data.Priority = types.Int64Value(int64(record.Priority))
 
