@@ -93,6 +93,54 @@ func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 	})
 }
 
+func TestAccZoneRecordResourceWithTXT(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourceTXTConfig(domainName, "test value for TXT record"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "value", "test value for TXT record"),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
+func TestAccZoneRecordResourceWithNormalizedTXT(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourceTXTConfig(domainName, "\"test value for TXT record\""),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "value", "\"test value for TXT record\""),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
 func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
 	resourceName := "dnsimple_zone_record.test"
@@ -239,6 +287,17 @@ func testAccCheckZoneRecordExists(n string, record *dnsimple.ZoneRecord) resourc
 
 		return nil
 	}
+}
+
+func testAccZoneRecordResourceTXTConfig(domainName string, value string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = "terraform"
+	value = %[2]q
+	type = "TXT"
+}`, domainName, value)
 }
 
 func testAccZoneRecordResourcePriorityConfig(domainName string) string {

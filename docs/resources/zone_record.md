@@ -48,6 +48,7 @@ The following arguments are supported:
 * `id` - The record ID
 * `zone_id` - The zone ID of the record
 * `qualified_name` - The FQDN of the record
+* `value_normalized` - The normalized value of the record
 
 ## Import
 
