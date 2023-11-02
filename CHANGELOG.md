@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.3.1
+
+BUG FIXES:
+
+- As part of increasing our RFC compliance for TXT records we may normalize user-provided content and as a result unless the user provides a normalized version of the record value we will incorrectly write the normalized value to the state resulting in mismatch between the configuration and the written state. (dnsimple/terraform-provider-dnsimple#167)
+
 ## 1.3.0
 
 FEATURES:
