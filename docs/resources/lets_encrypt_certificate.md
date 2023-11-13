@@ -22,7 +22,7 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 The following argument(s) are supported:
 
 * `domain_id` - (Required) The domain to be issued the certificate for
-* `name` - (Required) The certificate name
+* `name` - (Required) The certificate name; use `""` for the root domain. Wildcard names are supported.
 * `alternate_names` - (Optional) The certificate alternate names
 * `auto_renew` - (Required) True if the certificate should auto-renew
 * `signature_algorithm` - (Optional) The signature algorithm to use for the certificate
