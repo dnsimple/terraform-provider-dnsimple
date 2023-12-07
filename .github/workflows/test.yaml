@@ -27,7 +27,7 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v4
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version-file: .go-version
         cache: true
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version-file: .go-version
           cache: true
@@ -82,7 +82,7 @@ jobs:
             registrant_change_domain: 'z0u2w48bo5fzgdsh1g7zjpflbpt0tiyl6tmc75ltzzm6dbphghrgepbaxs6zrm.eu'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version-file: .go-version
           cache: true
