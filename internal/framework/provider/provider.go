@@ -176,6 +176,7 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 		resources.NewEmailForwardResource,
 		resources.NewLetsEncryptCertificateResource,
 		resources.NewZoneRecordResource,
+		resources.NewZoneResource,
 	}
 }
 
