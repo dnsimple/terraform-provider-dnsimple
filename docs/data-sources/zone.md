@@ -6,6 +6,8 @@ page_title: "DNSimple: dnsimple_zone"
 
 Get information about a DNSimple zone.
 
+!> Data source is getting deprecated in favor of [`dnsimple\_zone`](../resources/zone.md) resource.
+
 # Example Usage
 
 Get zone:
