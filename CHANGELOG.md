@@ -2,6 +2,14 @@
 
 ## main
 
+FEATURES:
+
+- **New Resource:** `dnsimple_zone` (dnsimple/terraform-provider-dnsimple#184)
+
+NOTES:
+
+- The `dnsimple_zone` data source is now deprecated and will be removed in a future release. Please migrate to the `dnsimple_zone` resource.
+
 ## 1.3.1
 
 BUG FIXES:
