@@ -30,3 +30,11 @@ The following attributes are exported:
 * `root_certificate` - The Root Certificate of the issuing CA
 * `certificate_chain` - A list of certificates that make up the chain
 * `private_key` - The corresponding Private Key for the SSL Certificate
+
+<a id="nestedblock--timeouts"></a>
+
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `read` (String) - The timeout for the read operation e.g. `5m`
