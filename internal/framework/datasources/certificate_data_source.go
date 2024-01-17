@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -25,13 +28,14 @@ type CertificateDataSource struct {
 
 // CertificateDataSourceModel describes the data source data model.
 type CertificateDataSourceModel struct {
-	Id                types.String `tfsdk:"id"`
-	CertificateId     types.Int64  `tfsdk:"certificate_id"`
-	Domain            types.String `tfsdk:"domain"`
-	ServerCertificate types.String `tfsdk:"server_certificate"`
-	RootCertificate   types.String `tfsdk:"root_certificate"`
-	CertificateChain  types.List   `tfsdk:"certificate_chain"`
-	PrivateKey        types.String `tfsdk:"private_key"`
+	Id                types.String   `tfsdk:"id"`
+	CertificateId     types.Int64    `tfsdk:"certificate_id"`
+	Domain            types.String   `tfsdk:"domain"`
+	ServerCertificate types.String   `tfsdk:"server_certificate"`
+	RootCertificate   types.String   `tfsdk:"root_certificate"`
+	CertificateChain  types.List     `tfsdk:"certificate_chain"`
+	PrivateKey        types.String   `tfsdk:"private_key"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
 }
 
 func (d *CertificateDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -71,6 +75,9 @@ func (d *CertificateDataSource) Schema(ctx context.Context, req datasource.Schem
 				Computed:            true,
 			},
 		},
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.Block(ctx),
+		},
 	}
 }
 
@@ -104,37 +111,53 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	response, err := d.config.Client.Certificates.DownloadCertificate(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
+	readTimeout, diags := data.Timeouts.Read(ctx, 10*time.Minute)
+
+	resp.Diagnostics.Append(diags...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := utils.RetryWithTimeout(ctx, func() (error, bool) {
+
+		response, err := d.config.Client.Certificates.DownloadCertificate(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
+
+		if err != nil {
+			tflog.Info(ctx, "[RETRYING] Failed to download certificate")
+			return err, false
+		}
+
+		data.ServerCertificate = types.StringValue(response.Data.ServerCertificate)
+		data.RootCertificate = types.StringValue(response.Data.RootCertificate)
+		chain, diag := types.ListValueFrom(ctx, types.StringType, response.Data.IntermediateCertificates)
+		if err != nil {
+			resp.Diagnostics.Append(diag...)
+			return err, false
+		}
+		data.CertificateChain = chain
+
+		response, err = d.config.Client.Certificates.GetCertificatePrivateKey(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
+
+		if err != nil {
+			tflog.Info(ctx, "[RETRYING] Failed to download private key.")
+			return err, false
+		}
+
+		data.PrivateKey = types.StringValue(response.Data.PrivateKey)
+		data.Id = types.StringValue(time.Now().UTC().String())
+
+		tflog.Info(ctx, "[RETRYING] Certificate has not yet been issued.")
+		return nil, false
+	}, readTimeout, 60*time.Second)
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"failed to download DNSimple Certificate",
+			"failed to download certificate",
 			err.Error(),
 		)
 		return
 	}
-
-	data.ServerCertificate = types.StringValue(response.Data.ServerCertificate)
-	data.RootCertificate = types.StringValue(response.Data.RootCertificate)
-	chain, diag := types.ListValueFrom(ctx, types.StringType, response.Data.IntermediateCertificates)
-	if err != nil {
-		resp.Diagnostics.Append(diag...)
-		return
-	}
-	data.CertificateChain = chain
-
-	response, err = d.config.Client.Certificates.GetCertificatePrivateKey(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
-
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"failed to download DNSimple Certificate private key",
-			err.Error(),
-		)
-		return
-	}
-
-	data.PrivateKey = types.StringValue(response.Data.PrivateKey)
-	data.Id = types.StringValue(time.Now().UTC().String())
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
