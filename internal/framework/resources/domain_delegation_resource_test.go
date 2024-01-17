@@ -32,6 +32,18 @@ func TestAccDomainDelegationResource(t *testing.T) {
 				),
 			},
 			{
+				Config:             testAccDomainDelegationResourceConfigReversed(domainId),
+				ExpectNonEmptyPlan: false,
+				PlanOnly:           true,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttr(resourceName, "domain", domainId),
+					resource.TestCheckResourceAttr(resourceName, "name_servers.#", "2"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns-998.awsdns-60.net"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns-1556.awsdns-02.co.uk"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportStateIdFunc: testAccDomainDelegationImportStateIDFunc(resourceName),
 				ImportState:       true,
@@ -67,5 +79,13 @@ func testAccDomainDelegationResourceConfig(domainId string) string {
 resource "dnsimple_domain_delegation" "test" {
 	domain = %[1]q
 	name_servers = ["ns-998.awsdns-60.net", "ns-1556.awsdns-02.co.uk"]
+}`, domainId)
+}
+
+func testAccDomainDelegationResourceConfigReversed(domainId string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_domain_delegation" "test" {
+	domain = %[1]q
+	name_servers = ["ns-1556.awsdns-02.co.uk", "ns-998.awsdns-60.net"]
 }`, domainId)
 }
