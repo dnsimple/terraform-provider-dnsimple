@@ -38,6 +38,7 @@ func (d *ZoneDataSource) Schema(ctx context.Context, req datasource.SchemaReques
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "DNSimple zone data source",
+		DeprecationMessage:  "This data source is deprecated. Please use the dnsimple_zone resource instead.",
 
 		Attributes: map[string]schema.Attribute{
 			"id": common.IDInt64Attribute(),
