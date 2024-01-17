@@ -2,6 +2,8 @@
 
 ## main
 
+## 1.4.0
+
 FEATURES:
 
 - **New Resource:** `dnsimple_zone` (dnsimple/terraform-provider-dnsimple#184)
@@ -9,7 +11,7 @@ FEATURES:
 NOTES:
 
 - The `dnsimple_zone` data source is now deprecated and will be removed in a future release. Please migrate to the `dnsimple_zone` resource.
-
+- This Go module has been updated to Go 1.20.
 
 ## 1.3.1
 
