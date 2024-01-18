@@ -1,7 +1,15 @@
 package consts
 
 const (
-	BaseURLSandbox        = "https://api.sandbox.dnsimple.com"
+	BaseURLSandbox = "https://api.sandbox.dnsimple.com"
+
+	// Certificate states
+	CertificateStateCancelled = "cancelled"
+	CertificateStateFailed    = "failed"
+	CertificateStateIssued    = "issued"
+	CertificateStateRefunded  = "refunded"
+
+	// Domain states
 	DomainStateRegistered = "registered"
 	DomainStateHosted     = "hosted"
 	DomainStateNew        = "new"
