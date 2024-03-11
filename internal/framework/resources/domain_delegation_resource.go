@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -39,7 +38,7 @@ type DomainDelegationResource struct {
 type DomainDelegationResourceModel struct {
 	Id          types.String `tfsdk:"id"`
 	Domain      types.String `tfsdk:"domain"`
-	NameServers types.List   `tfsdk:"name_servers"`
+	NameServers types.Set    `tfsdk:"name_servers"`
 }
 
 func (r *DomainDelegationResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -58,12 +57,9 @@ func (r *DomainDelegationResource) Schema(_ context.Context, _ resource.SchemaRe
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"name_servers": schema.ListAttribute{
+			"name_servers": schema.SetAttribute{
 				Required:    true,
 				ElementType: types.StringType,
-				PlanModifiers: []planmodifier.List{
-					listplanmodifier.RequiresReplace(),
-				},
 			},
 		},
 	}
@@ -190,7 +186,7 @@ func (r *DomainDelegationResource) ImportState(ctx context.Context, req resource
 }
 
 func (r *DomainDelegationResource) updateModelFromAPIResponse(ctx context.Context, delegation *dnsimple.Delegation, data *DomainDelegationResourceModel) diag.Diagnostics {
-	nameServers, diag := types.ListValueFrom(ctx, types.StringType, delegation)
+	nameServers, diag := types.SetValueFrom(ctx, types.StringType, delegation)
 	data.NameServers = nameServers
 	return diag
 }
