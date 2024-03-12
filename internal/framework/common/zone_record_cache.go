@@ -2,9 +2,12 @@ package common
 
 import (
 	"context"
+	"sync"
 
 	"github.com/dnsimple/dnsimple-go/dnsimple"
 )
+
+var zoneRecordCacheMutex = &sync.RWMutex{}
 
 type ZoneRecordCache map[string][]dnsimple.ZoneRecord
 
@@ -13,11 +16,17 @@ func NewZoneRecordCache() ZoneRecordCache {
 }
 
 func (c ZoneRecordCache) Get(zoneName string) ([]dnsimple.ZoneRecord, bool) {
+	zoneRecordCacheMutex.RLock()
+	defer zoneRecordCacheMutex.RUnlock()
+
 	records, ok := c[zoneName]
 	return records, ok
 }
 
 func (c ZoneRecordCache) Set(zoneName string, records []dnsimple.ZoneRecord) {
+	zoneRecordCacheMutex.Lock()
+	defer zoneRecordCacheMutex.Unlock()
+
 	c[zoneName] = records
 }
 

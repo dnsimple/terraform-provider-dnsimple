@@ -212,7 +212,7 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			}
 		}
 
-		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.Name.ValueString(), data.Type.ValueString(), data.Value.ValueString())
+		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.Name.ValueString(), data.Type.ValueString(), data.ValueNormalized.ValueString())
 		if !ok {
 			resp.Diagnostics.AddError(
 				"record not found",
