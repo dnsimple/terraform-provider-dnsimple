@@ -2,6 +2,12 @@
 
 ## main
 
+BUG FIXES:
+
+- Corrects the method by which the prefetch configuration flag is loaded from the environment. (#206)
+- Introduces concurrent read/write locking for the cache to prevent panics during simultaneous map writes. (#206)
+- Adjusts the logic for searching zone records in the cache, utilizing the normalized content value rather than the initially configured value. (#206)
+
 NOTES:
 
 - This release is no longer compatible with Terraform versions < 1.3. This is due to the new protocol changes in the underlying terraform framework. If you are using Terraform 1.3 or later, you should be unaffected by this change.
