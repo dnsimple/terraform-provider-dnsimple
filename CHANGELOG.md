@@ -2,6 +2,10 @@
 
 ## main
 
+NOTES:
+
+- This release is no longer compatible with Terraform versions < 1.3. This is due to the new protocol changes in the underlying terraform framework. If you are using Terraform 1.3 or later, you should be unaffected by this change.
+
 ## 1.4.0
 
 FEATURES:
