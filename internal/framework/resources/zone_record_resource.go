@@ -371,6 +371,11 @@ func (r *ZoneRecordResource) updateModelFromAPIResponse(record *dnsimple.ZoneRec
 	data.TTL = types.Int64Value(int64(record.TTL))
 	data.Priority = types.Int64Value(int64(record.Priority))
 
+	if data.Name.IsNull() || data.Name.IsUnknown() {
+		// This can happen during a resource import, where the name is not in the state
+		data.Name = types.StringValue(record.Name)
+	}
+
 	if record.Name == "" {
 		data.QualifiedName = data.ZoneName
 	} else {
