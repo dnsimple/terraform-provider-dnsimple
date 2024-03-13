@@ -42,6 +42,7 @@ type ZoneRecordResourceModel struct {
 	ZoneName        types.String `tfsdk:"zone_name"`
 	ZoneId          types.String `tfsdk:"zone_id"`
 	Name            types.String `tfsdk:"name"`
+	NameNormalized  types.String `tfsdk:"name_normalized"`
 	QualifiedName   types.String `tfsdk:"qualified_name"`
 	Type            types.String `tfsdk:"type"`
 	Regions         types.List   `tfsdk:"regions"`
@@ -73,6 +74,9 @@ func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+			},
+			"name_normalized": schema.StringAttribute{
+				Computed: true,
 			},
 			"qualified_name": schema.StringAttribute{
 				Computed: true,
@@ -212,7 +216,7 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			}
 		}
 
-		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.Name.ValueString(), data.Type.ValueString(), data.ValueNormalized.ValueString())
+		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.NameNormalized.ValueString(), data.Type.ValueString(), data.ValueNormalized.ValueString())
 		if !ok {
 			resp.Diagnostics.AddError(
 				"record not found",
@@ -361,14 +365,14 @@ func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.Impor
 func (r *ZoneRecordResource) updateModelFromAPIResponse(record *dnsimple.ZoneRecord, data *ZoneRecordResourceModel) {
 	data.Id = types.Int64Value(record.ID)
 	data.ZoneId = types.StringValue(record.ZoneID)
-	data.Name = types.StringValue(record.Name)
+	data.NameNormalized = types.StringValue(record.Name)
 	data.Type = types.StringValue(record.Type)
 	data.ValueNormalized = types.StringValue(record.Content)
 	data.TTL = types.Int64Value(int64(record.TTL))
 	data.Priority = types.Int64Value(int64(record.Priority))
 
 	if record.Name == "" {
-		data.QualifiedName = data.Name
+		data.QualifiedName = data.ZoneName
 	} else {
 		data.QualifiedName = types.StringValue(fmt.Sprintf("%s.%s", record.Name, data.ZoneName.ValueString()))
 	}

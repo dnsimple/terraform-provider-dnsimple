@@ -4,6 +4,7 @@
 
 ENHANCEMENTS:
 
+- **Update Resource:** `dnsimple_zone_record` has been updated to handle cases where the `name` attribute is normalized by the API, resulting in bad state as config differs from state.
 - **Update Resource:** `dnsimple_domain_delegation` now has the trailing dot removed from the `name_servers` attribute entries. This is to align with the API and avoid perma diffs. (dnsimple/terraform-provider-dnsimple#203)
 
 BUG FIXES:
