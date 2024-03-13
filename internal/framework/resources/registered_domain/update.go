@@ -131,11 +131,11 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				// user needs to run terraform again to try and converge the registrant change
 
 				// Update the data with the current registrant change
-				registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
-				if err != nil {
+				registrantChangeResponse, registrantChangeError := r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+				if registrantChangeError != nil {
 					resp.Diagnostics.AddError(
 						fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
-						err.Error(),
+						registrantChangeError.Error(),
 					)
 					return
 				}
@@ -153,7 +153,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				// Exit with warning to prevent the state from being tainted
 				resp.Diagnostics.AddWarning(
 					"failed to converge on registrant change",
-					err.Error(),
+					"the registrant change is not ready, please run terraform apply again to try and converge the registrant change",
 				)
 				return
 			}
