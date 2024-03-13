@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/modifiers"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
@@ -60,6 +61,9 @@ func (r *DomainDelegationResource) Schema(_ context.Context, _ resource.SchemaRe
 			"name_servers": schema.SetAttribute{
 				Required:    true,
 				ElementType: types.StringType,
+				PlanModifiers: []planmodifier.Set{
+					modifiers.SetTrimSuffixValue(),
+				},
 			},
 		},
 	}

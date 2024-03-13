@@ -146,7 +146,10 @@ func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 	resourceName := "dnsimple_zone_record.test"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		PreCheck: func() {
+			test_utils.TestAccPreCheck(t)
+			t.Setenv("DNSIMPLE_PREFETCH", "1")
+		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
 		Steps: []resource.TestStep{
@@ -157,6 +160,32 @@ func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "priority", "10"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
+func TestAccZoneRecordResource_Prefetch_Normalized(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			test_utils.TestAccPreCheck(t)
+			t.Setenv("DNSIMPLE_PREFETCH", "1")
+		},
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourceNormalizedContentConfig(domainName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", "terraform."+domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 				),
 			},
@@ -177,7 +206,7 @@ func TestAccZoneRecordResource_Prefetch_ForEach(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			test_utils.TestAccPreCheck(t)
-			os.Setenv("PREFETCH", "1")
+			t.Setenv("DNSIMPLE_PREFETCH", "1")
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
@@ -309,6 +338,17 @@ resource "dnsimple_zone_record" "test" {
 	value = "mail.example.com"
 	type = "MX"
 	priority = 10
+}`, domainName)
+}
+
+func testAccZoneRecordResourceNormalizedContentConfig(domainName string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = "terraform"
+	value = "v=DMARC1; p=reject; pct=100; mailto:re+eeeee@dmarc.postmarkapp.com; aspf=r;"
+	type = "TXT"
 }`, domainName)
 }
 
