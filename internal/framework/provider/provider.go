@@ -132,11 +132,9 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 		sandbox = data.Sandbox.ValueBool()
 	}
 
-	if data.Prefetch.IsNull() {
+	if data.Prefetch.IsNull() || data.Prefetch.IsUnknown() {
 		prefetchValue := utils.GetDefaultFromEnv("DNSIMPLE_PREFETCH", "")
-		if prefetchValue == "" {
-			prefetch = false
-		}
+		prefetch = prefetchValue != ""
 	} else {
 		prefetch = data.Prefetch.ValueBool()
 	}
