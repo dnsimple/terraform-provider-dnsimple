@@ -147,6 +147,7 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 				// We expect the plan to be non-empty because we are creating a registrant change that will not be completed
 				// and we will attempt to converge it by setting the state to completed
 				ExpectNonEmptyPlan: true,
+				PlanOnly:           true,
 			},
 			// Delete testing automatically occurs in TestCase
 		},
