@@ -2,6 +2,10 @@
 
 ## main
 
+ENHANCEMENTS:
+
+- **Update Resource:** `dnsimple_domain_delegation` now has the trailing dot removed from the `name_servers` attribute entries. This is to align with the API and avoid perma diffs. (dnsimple/terraform-provider-dnsimple#203)
+
 BUG FIXES:
 
 - Corrects the method by which the prefetch configuration flag is loaded from the environment. (#206)
