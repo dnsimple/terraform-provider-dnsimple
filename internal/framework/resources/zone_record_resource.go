@@ -216,7 +216,14 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			}
 		}
 
-		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), data.NameNormalized.ValueString(), data.Type.ValueString(), data.ValueNormalized.ValueString())
+		var lookupName string
+		if data.NameNormalized.IsNull() || data.NameNormalized.IsUnknown() {
+			lookupName = data.Name.ValueString()
+		} else {
+			lookupName = data.NameNormalized.ValueString()
+		}
+
+		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), lookupName, data.Type.ValueString(), data.ValueNormalized.ValueString())
 		if !ok {
 			resp.Diagnostics.AddError(
 				"record not found",
