@@ -37,7 +37,9 @@ func main() {
 	for _, record := range records.Data {
 		if !record.SystemRecord {
 			_, err := dnsimpleClient.Zones.DeleteRecord(context.Background(), account, domainName, record.ID)
-			if err != nil {
+			if err != nil && strings.Contains(err.Error(), "404") {
+				// 404 is expected if the record was already deleted
+			} else if err != nil {
 				panic(err)
 			}
 		}

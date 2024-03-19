@@ -141,6 +141,31 @@ func TestAccZoneRecordResourceWithNormalizedTXT(t *testing.T) {
 	})
 }
 
+func TestAccZoneRecordResourceWithNormalizedName(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourceNormalizedNameConfig(domainName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "zone_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "name", "@"),
+					resource.TestCheckResourceAttr(resourceName, "name_normalized", ""),
+					resource.TestCheckResourceAttr(resourceName, "qualified_name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "ttl", "3600"),
+					resource.TestCheckResourceAttrSet(resourceName, "id"),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
 func TestAccZoneRecordResourceWithPrefetch(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_DOMAIN")
 	resourceName := "dnsimple_zone_record.test"
@@ -327,6 +352,17 @@ resource "dnsimple_zone_record" "test" {
 	value = %[2]q
 	type = "TXT"
 }`, domainName, value)
+}
+
+func testAccZoneRecordResourceNormalizedNameConfig(domainName string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = "@"
+	value = "terraform value"
+	type = "TXT"
+}`, domainName)
 }
 
 func testAccZoneRecordResourcePriorityConfig(domainName string) string {
