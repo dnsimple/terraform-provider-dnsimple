@@ -2,6 +2,8 @@
 
 ## main
 
+## 1.5.0
+
 ENHANCEMENTS:
 
 - **Update Resource:** `dnsimple_zone_record` has been updated to handle cases where the `name` attribute is normalized by the API, resulting in bad state as config differs from state.
@@ -16,6 +18,7 @@ BUG FIXES:
 NOTES:
 
 - This release is no longer compatible with Terraform versions < 1.3. This is due to the new protocol changes in the underlying terraform framework. If you are using Terraform 1.3 or later, you should be unaffected by this change.
+- We have updated the Go module to Go 1.21.
 
 ## 1.4.0
 
