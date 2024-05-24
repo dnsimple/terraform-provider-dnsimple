@@ -2,6 +2,10 @@
 
 ## main
 
+ENHANCEMENTS:
+
+- **Update Data Source:** `dnsimple_certificate` has been updated to have a stable ID. (dnsimple/terraform-provider-dnsimple#222)
+
 ## 1.5.0
 
 ENHANCEMENTS:
