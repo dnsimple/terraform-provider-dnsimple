@@ -149,7 +149,7 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 		data.ServerCertificate = types.StringValue(response.Data.ServerCertificate)
 		data.RootCertificate = types.StringValue(response.Data.RootCertificate)
 		chain, diag := types.ListValueFrom(ctx, types.StringType, response.Data.IntermediateCertificates)
-		if err != nil {
+		if diag.HasError() {
 			resp.Diagnostics.Append(diag...)
 			return
 		}
