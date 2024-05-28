@@ -2,7 +2,10 @@ package datasources
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
@@ -149,7 +152,7 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 		data.ServerCertificate = types.StringValue(response.Data.ServerCertificate)
 		data.RootCertificate = types.StringValue(response.Data.RootCertificate)
 		chain, diag := types.ListValueFrom(ctx, types.StringType, response.Data.IntermediateCertificates)
-		if err != nil {
+		if diag.HasError() {
 			resp.Diagnostics.Append(diag...)
 			return
 		}
@@ -166,7 +169,7 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 		}
 
 		data.PrivateKey = types.StringValue(response.Data.PrivateKey)
-		data.Id = types.StringValue(time.Now().UTC().String())
+		data.Id = types.StringValue(idFromCertificateChain(data.ServerCertificate.ValueString(), data.RootCertificate.ValueString(), response.Data.IntermediateCertificates))
 
 		// Save data into Terraform state
 		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -226,4 +229,19 @@ func tryToConvergeCertificate(ctx context.Context, data *CertificateDataSourceMo
 	}
 
 	return CertificateConverged, nil
+}
+
+// idFromCertificateChain generates a SHA1 hash from the certificate chain.
+func idFromCertificateChain(ServerCertificate, rootCertificate string, intermediateCertificateChain []string) string {
+	// Concatenate all certificates into a single string
+	certChain := ServerCertificate + rootCertificate + strings.Join(intermediateCertificateChain, "")
+
+	// Create a new SHA1 hash.
+	h := sha1.New()
+
+	// Write the certificate chain string to the hash.
+	h.Write([]byte(certChain))
+	hashedCertChain := hex.EncodeToString(h.Sum(nil))
+
+	return hashedCertChain
 }

@@ -28,6 +28,14 @@ func TestAccCertificateDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.dnsimple_certificate.test", "certificate_id", certificateId),
 				),
 			},
+			{
+				Config: testAccCertificateDataSourceConfig(domain, certificateId),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.dnsimple_certificate.test", "domain", domain),
+					resource.TestCheckResourceAttr("data.dnsimple_certificate.test", "certificate_id", certificateId),
+				),
+				ExpectNonEmptyPlan: false,
+			},
 		},
 	})
 }
