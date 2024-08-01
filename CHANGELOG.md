@@ -2,6 +2,12 @@
 
 ## main
 
+## 1.7.0
+
+NOTES:
+
+- Updates the Terraform Plugin Framework to latest version (v1.10.0). In addition to other dependency updates.
+
 ## 1.6.0
 
 ENHANCEMENTS:
