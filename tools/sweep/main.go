@@ -178,7 +178,10 @@ func cleanupDomains(ctx context.Context, dnsimpleClient *dnsimple.Client, accoun
 
 		fmt.Printf("Deleting domain %s\n", domain.Name)
 		_, err := dnsimpleClient.Domains.DeleteDomain(ctx, account, domain.Name)
-		if err != nil {
+		if err != nil && strings.Contains(err.Error(), "The domain cannot be deleted because it is either being registered or is transferring in") {
+			fmt.Printf("Skipping domain %s because it is being registered or is transferring in\n", domain.Name)
+			continue
+		} else if err != nil {
 			panic(err)
 		}
 	}
