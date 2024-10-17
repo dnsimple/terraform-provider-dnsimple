@@ -2,6 +2,13 @@
 
 ## main
 
+## 1.8.0
+
+NOTES:
+
+- Updates the Terraform Plugin Framework to latest version (v1.10.0). In addition to other dependency updates.
+- We have updated the Go module to Go 1.23.
+
 ## 1.7.0
 
 NOTES:
