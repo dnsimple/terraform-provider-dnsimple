@@ -6,9 +6,6 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tf6server"
-	"github.com/hashicorp/terraform-plugin-mux/tf6muxserver"
 
 	framework "github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/provider"
 )
@@ -33,26 +30,12 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-
-	providers := []func() tfprotov6.ProviderServer{
-		providerserver.NewProtocol6(framework.New(version)()),
+	serveOpts := providerserver.ServeOpts{
+		Address: "registry.terraform.io/dnsimple/dnsimple",
+		Debug:   debugMode,
 	}
 
-	muxServer, err := tf6muxserver.NewMuxServer(ctx, providers...)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var serveOpts []tf6server.ServeOpt
-	if debugMode {
-		serveOpts = append(serveOpts, tf6server.WithManagedDebug())
-	}
-
-	err = tf6server.Serve(
-		"registry.terraform.io/dnsimple/dnsimple",
-		muxServer.ProviderServer,
-		serveOpts...,
-	)
+	providerserver.Serve(ctx, framework.New(version), serveOpts)
 
 	if err != nil {
 		log.Fatal(err)
