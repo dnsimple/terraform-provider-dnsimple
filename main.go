@@ -35,8 +35,7 @@ func main() {
 		Debug:   debugMode,
 	}
 
-	providerserver.Serve(ctx, framework.New(version), serveOpts)
-
+	err := providerserver.Serve(ctx, framework.New(version), serveOpts)
 	if err != nil {
 		log.Fatal(err)
 	}
