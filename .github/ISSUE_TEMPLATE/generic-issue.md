@@ -1,9 +1,9 @@
 ---
 name: Generic Issue
 about: A new issue to be triaged.
-title: ""
+title: ''
 labels: triage
-assignees: ""
+assignees: ''
 
 ---
 
