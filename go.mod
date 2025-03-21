@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-dnsimple
 
 require (
-	github.com/dnsimple/dnsimple-go v1.7.0
+	github.com/dnsimple/dnsimple-go/v4 v4.0.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.12.0
 	github.com/hashicorp/terraform-plugin-framework-timeouts v0.4.1
@@ -9,8 +9,8 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-mux v0.16.0
 	github.com/hashicorp/terraform-plugin-testing v1.10.0
-	github.com/stretchr/testify v1.9.0
-	golang.org/x/oauth2 v0.23.0
+	github.com/stretchr/testify v1.10.0
+	golang.org/x/oauth2 v0.28.0
 )
 
 require (
@@ -65,7 +65,7 @@ require (
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
-	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
