@@ -27,8 +27,8 @@ func TestAccDomainDelegationResource(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "domain", domainId),
 					resource.TestCheckResourceAttr(resourceName, "name_servers.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns1.dnsmadeeasy.com"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsmadeeasy.com"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsimple-edge.net"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns4.dnsimple-edge.org"),
 				),
 			},
 			{
@@ -39,8 +39,8 @@ func TestAccDomainDelegationResource(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "domain", domainId),
 					resource.TestCheckResourceAttr(resourceName, "name_servers.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns1.dnsmadeeasy.com"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsmadeeasy.com"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsimple-edge.net"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns4.dnsimple-edge.org"),
 				),
 			},
 			{
@@ -51,8 +51,8 @@ func TestAccDomainDelegationResource(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
 					resource.TestCheckResourceAttr(resourceName, "domain", domainId),
 					resource.TestCheckResourceAttr(resourceName, "name_servers.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns1.dnsmadeeasy.com"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsmadeeasy.com"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns2.dnsimple-edge.net"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "name_servers.*", "ns4.dnsimple-edge.org"),
 				),
 			},
 			{
@@ -90,7 +90,7 @@ func testAccDomainDelegationResourceConfig(domainId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_domain_delegation" "test" {
 	domain = %[1]q
-	name_servers = ["ns1.dnsmadeeasy.com", "ns2.dnsmadeeasy.com"]
+	name_servers = ["ns2.dnsimple-edge.net", "ns4.dnsimple-edge.org"]
 }`, domainId)
 }
 
@@ -98,7 +98,7 @@ func testAccDomainDelegationResourceConfigReversed(domainId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_domain_delegation" "test" {
 	domain = %[1]q
-	name_servers = ["ns2.dnsmadeeasy.com", "ns1.dnsmadeeasy.com"]
+	name_servers = ["ns4.dnsimple-edge.org", "ns2.dnsimple-edge.net"]
 }`, domainId)
 }
 
@@ -106,6 +106,6 @@ func testAccDomainDelegationResourceConfigWithSuffix(domainId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_domain_delegation" "test" {
 	domain = %[1]q
-	name_servers = ["ns2.dnsmadeeasy.com.", "ns1.dnsmadeeasy.com"]
+	name_servers = ["ns4.dnsimple-edge.org.", "ns2.dnsimple-edge.net"]
 }`, domainId)
 }
