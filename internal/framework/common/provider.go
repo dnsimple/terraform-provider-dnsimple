@@ -1,7 +1,7 @@
 package common
 
 import (
-	"github.com/dnsimple/dnsimple-go/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v4/dnsimple"
 )
 
 type DnsimpleProviderConfig struct {
