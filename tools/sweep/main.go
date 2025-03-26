@@ -47,6 +47,7 @@ func main() {
 
 	cancelAllContactChanges(context.Background(), dnsimpleClient, account)
 	cleanupDomains(context.Background(), dnsimpleClient, account)
+	cleanupEmailForwards(context.Background(), dnsimpleClient, account)
 }
 
 var (
@@ -211,6 +212,31 @@ func cleanupDomains(ctx context.Context, dnsimpleClient *dnsimple.Client, accoun
 					panic(err)
 				}
 			}
+		}
+	}
+}
+
+func cleanupEmailForwards(ctx context.Context, dnsimpleClient *dnsimple.Client, account string) {
+	emailForwardDomain := os.Getenv("DNSIMPLE_DOMAIN")
+	if emailForwardDomain == "" {
+		fmt.Println("Skipping email forward cleanup as DNSIMPLE_DOMAIN is not set")
+		return
+	}
+
+	listOptions := &dnsimple.ListOptions{
+		PerPage: dnsimple.Int(100),
+	}
+
+	emailForwards, err := dnsimpleClient.Domains.ListEmailForwards(ctx, account, emailForwardDomain, listOptions)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, emailForward := range emailForwards.Data {
+		fmt.Printf("Deleting email forward %s\n", emailForward.AliasName)
+		_, err := dnsimpleClient.Domains.DeleteEmailForward(ctx, account, emailForwardDomain, emailForward.ID)
+		if err != nil {
+			panic(err)
 		}
 	}
 }
