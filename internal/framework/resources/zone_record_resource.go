@@ -194,6 +194,8 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		data *ZoneRecordResourceModel
 
 		record dnsimple.ZoneRecord
+
+		skip_prefetch_cache bool = false
 	)
 
 	// Read Terraform prior state data into the model
@@ -203,7 +205,16 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	if r.config.Prefetch {
+	// Check if we should skip the cache prefetch
+	if value, diags := req.Private.GetKey(ctx, "skip_prefetch_cache"); diags.HasError() {
+		resp.Diagnostics.Append(diags...)
+	} else {
+		if string(value) == "true" {
+			skip_prefetch_cache = true
+		}
+	}
+
+	if r.config.Prefetch && !skip_prefetch_cache {
 		if _, ok := r.config.ZoneRecordCache.Get(data.ZoneName.ValueString()); !ok {
 			err := r.config.ZoneRecordCache.Hydrate(ctx, r.config.Client, r.config.AccountID, data.ZoneName.ValueString(), nil)
 
@@ -238,6 +249,10 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 
 		record = cacheRecord
 	} else {
+		tflog.Debug(ctx, "DNSimple Zone Record cache miss", map[string]interface{}{
+			"zone_name": data.ZoneName.ValueString(),
+		})
+
 		response, err := r.config.Client.Zones.GetRecord(ctx, r.config.AccountID, data.ZoneName.ValueString(), data.Id.ValueInt64())
 
 		if err != nil {
@@ -267,6 +282,11 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	r.updateModelFromAPIResponse(&record, data)
+
+	// Clear the private key to avoid reusing it in the next request after the import
+	if skip_prefetch_cache {
+		resp.Private.SetKey(ctx, "skip_prefetch_cache", nil)
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -364,6 +384,8 @@ func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.Impor
 		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse record ID (%s) as integer", recordID))
 		return
 	}
+
+	resp.Private.SetKey(ctx, "skip_prefetch_cache", []byte(`true`))
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("zone_name"), zoneName)...)
