@@ -153,7 +153,7 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 
 func (r *DomainDelegationResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *DomainDelegationResourceModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -172,6 +172,10 @@ func (r *DomainDelegationResource) Update(ctx context.Context, req resource.Upda
 		)
 		return
 	}
+
+	tflog.Debug(ctx, "domain delegation updated", map[string]interface{}{"data": response.Data})
+
+	data.Id = data.Domain
 
 	resp.Diagnostics.Append(r.updateModelFromAPIResponse(ctx, response.Data, data)...)
 
