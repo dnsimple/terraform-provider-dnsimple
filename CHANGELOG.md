@@ -2,6 +2,18 @@
 
 ## main
 
+## 1.9.0
+
+BUG FIXES:
+
+- Upgrade `dnsimple-go` to v4.0.0 which ships a fix for (#428) (dnsimple/terraform-provider-dnsimple#264)
+- Use plan data instead of state in domain delegation updates fixing (#256) (dnsimple/terraform-provider-dnsimple#266)
+- Skip prefetch cache on `dnsimple_zone_record` resource import fixing (#238) (dnsimple/terraform-provider-dnsimple#267)
+
+NOTES:
+
+- We have updated the Go module to Go 1.24.
+
 ## 1.8.0
 
 NOTES:
