@@ -187,7 +187,6 @@ func (r *ContactResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	response, err := r.config.Client.Contacts.CreateContact(ctx, r.config.AccountID, contactAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -219,7 +218,6 @@ func (r *ContactResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	response, err := r.config.Client.Contacts.GetContact(ctx, r.config.AccountID, data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Contact: %d", data.Id.ValueInt64()),
@@ -269,7 +267,6 @@ func (r *ContactResource) Update(ctx context.Context, req resource.UpdateRequest
 		data.Id.ValueInt64(),
 		contactAttributes,
 	)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -304,7 +301,6 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple Contact: %s, %s", data.Label, data.Id))
 
 	_, err := r.config.Client.Contacts.DeleteContact(ctx, r.config.AccountID, data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to delete DNSimple Contact: %d", data.Id.ValueInt64()),

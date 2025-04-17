@@ -105,7 +105,6 @@ func (r *DomainDelegationResource) Create(ctx context.Context, req resource.Crea
 	tflog.Debug(ctx, "creating domain delegation", map[string]interface{}{"name servers": nameServers})
 
 	_, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString(), &nameServers)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {

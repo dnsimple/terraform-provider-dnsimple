@@ -65,7 +65,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	var err error
 	if !domainRegistration.Id.IsNull() {
 		registerDomainResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, configData.Name.ValueString(), strconv.Itoa(int(domainRegistration.Id.ValueInt64())))
-
 		if err != nil {
 			var errorResponse *dnsimple.ErrorResponse
 			if errors.As(err, &errorResponse) {
@@ -101,7 +100,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 		domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, planData.Name.ValueString(), domainRegistrationId)
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", planData.Name.ValueString(), domainRegistration.Id.ValueInt64()),
@@ -164,7 +162,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		}
 	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
@@ -245,7 +242,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, planData.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain: %s", planData.Name.ValueString()),
@@ -255,7 +251,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, planData.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", planData.Name.ValueString()),
@@ -265,7 +260,6 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, planData.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", planData.Name.ValueString()),

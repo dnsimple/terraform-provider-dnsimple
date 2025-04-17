@@ -112,7 +112,6 @@ func (r *ZoneResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	response, err := r.config.Client.Zones.GetZone(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -160,7 +159,6 @@ func (r *ZoneResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	response, err := r.config.Client.Zones.GetZone(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Zone: %s", data.Name.ValueString()),
@@ -227,7 +225,6 @@ func (r *ZoneResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 
 func (r *ZoneResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	response, err := r.config.Client.Zones.GetZone(ctx, r.config.AccountID, req.ID)
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to find DNSimple Zone ID: %s", req.ID),

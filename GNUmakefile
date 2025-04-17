@@ -33,11 +33,11 @@ sweep:
 
 .PHONY: fmt
 fmt:
-	gofmt -s -w .
+	gofumpt -l -w .
 
 .PHONY: fmtcheck
 fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
+	@test -z "$$(gofumpt -d -e . | tee /dev/stderr)"
 
 .PHONY: errcheck
 errcheck:

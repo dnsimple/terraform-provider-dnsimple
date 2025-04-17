@@ -117,7 +117,6 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 	tflog.Debug(ctx, "creating DNSimple EmailForward", map[string]interface{}{"attributes": domainAttributes})
 
 	response, err := r.config.Client.Domains.CreateEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), domainAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -151,7 +150,6 @@ func (r *EmailForwardResource) Read(ctx context.Context, req resource.ReadReques
 	}
 
 	response, err := r.config.Client.Domains.GetEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple EmailForward: %d", data.Id.ValueInt64()),
@@ -184,7 +182,6 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple EmailForward: %d", data.Id.ValueInt64()))
 
 	_, err := r.config.Client.Domains.DeleteEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to delete DNSimple EmailForward: %d", data.Id.ValueInt64()),

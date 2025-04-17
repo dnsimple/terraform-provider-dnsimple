@@ -51,7 +51,6 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	registerDomainResponse, err := r.config.Client.Registrar.RegisterDomain(ctx, r.config.AccountID, data.Name.ValueString(), &domainAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -127,7 +126,6 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
@@ -137,7 +135,6 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", data.Name.ValueString()),
@@ -147,7 +144,6 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 	}
 
 	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", data.Name.ValueString()),

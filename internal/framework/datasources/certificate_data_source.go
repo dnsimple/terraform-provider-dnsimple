@@ -123,7 +123,6 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 	}
 
 	convergenceState, err := tryToConvergeCertificate(ctx, data, &resp.Diagnostics, d, data.CertificateId.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"failed to get certificate state",
@@ -140,7 +139,6 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 	if convergenceState == CertificateConverged {
 
 		response, err := d.config.Client.Certificates.DownloadCertificate(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"failed to download DNSimple Certificate",
@@ -159,7 +157,6 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 		data.CertificateChain = chain
 
 		response, err = d.config.Client.Certificates.GetCertificatePrivateKey(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"failed to download DNSimple Certificate private key",
@@ -186,9 +183,7 @@ func tryToConvergeCertificate(ctx context.Context, data *CertificateDataSourceMo
 	}
 
 	err := utils.RetryWithTimeout(ctx, func() (error, bool) {
-
 		certificate, err := d.config.Client.Certificates.GetCertificate(ctx, d.config.AccountID, data.Domain.ValueString(), data.CertificateId.ValueInt64())
-
 		if err != nil {
 			return err, false
 		}

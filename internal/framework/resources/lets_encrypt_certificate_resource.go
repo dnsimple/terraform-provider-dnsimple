@@ -159,7 +159,6 @@ func (r *LetsEncryptCertificateResource) Create(ctx context.Context, req resourc
 	tflog.Debug(ctx, "creating DNSimple LetsEncryptCertificate", map[string]interface{}{"attributes": domainAttributes})
 
 	response, err := r.config.Client.Certificates.PurchaseLetsencryptCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), domainAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -211,7 +210,6 @@ func (r *LetsEncryptCertificateResource) Read(ctx context.Context, req resource.
 	}
 
 	response, err := r.config.Client.Certificates.GetCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple LetsEncryptCertificate: %d", data.Id.ValueInt64()),
