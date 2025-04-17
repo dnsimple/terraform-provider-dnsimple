@@ -118,7 +118,6 @@ func (r *DomainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	response, err := r.config.Client.Domains.CreateDomain(ctx, r.config.AccountID, domainAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -150,7 +149,6 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	response, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
@@ -182,7 +180,6 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple Domain: %s, %s", data.Name, data.Id))
 
 	_, err := r.config.Client.Domains.DeleteDomain(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to delete DNSimple Domain: %s", data.Name.ValueString()),
@@ -194,7 +191,6 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	response, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, req.ID)
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to find DNSimple Domain ID: %s", req.ID),

@@ -143,7 +143,6 @@ func (r *DsRecordResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	response, err := r.config.Client.Domains.CreateDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), dsAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -175,7 +174,6 @@ func (r *DsRecordResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	response, err := r.config.Client.Domains.GetDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple domain delegation signer record: %d", data.Id.ValueInt64()),
@@ -208,7 +206,6 @@ func (r *DsRecordResource) Delete(ctx context.Context, req resource.DeleteReques
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple domain delegation signer record: %s", data.Id))
 
 	_, err := r.config.Client.Domains.DeleteDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to delete DNSimple domain delegation signer record: %d", data.Id.ValueInt64()),

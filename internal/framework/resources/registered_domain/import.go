@@ -22,7 +22,6 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 		domainRegistrationID := parts[1]
 
 		domainRegistrationResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, domainName, domainRegistrationID)
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("failed to find DNSimple Domain Registration ID: %s", domainRegistrationID),
@@ -37,7 +36,6 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 	}
 
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, domainName)
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("unexpected error when trying to find DNSimple Domain ID: %s", domainName),

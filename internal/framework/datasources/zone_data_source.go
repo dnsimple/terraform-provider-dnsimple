@@ -89,7 +89,6 @@ func (d *ZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	}
 
 	response, err := d.config.Client.Zones.GetZone(ctx, d.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"failed to find DNSimple Zone",
