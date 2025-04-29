@@ -1,31 +1,5 @@
-*.dll
-*.exe
-.DS_Store
-example.tf
-terraform.tfplan
-terraform.tfstate
-bin/
-modules-dev/
-/pkg/
-website/.vagrant
-website/.bundle
-website/build
-website/node_modules
-.vagrant/
-*.backup
-./*.tfstate
-.terraform/
-*.log
-*.bak
-*~
-.*.swp
-.idea
-*.iml
-*.test
-
-vendor/
-
-website/vendor
+# Local setup
+.tool-versions
 
 # Examples
 example/**/.terraform*
