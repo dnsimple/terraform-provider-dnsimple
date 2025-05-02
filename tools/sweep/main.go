@@ -50,13 +50,11 @@ func main() {
 	cleanupEmailForwards(context.Background(), dnsimpleClient, account)
 }
 
-var (
-	// RegistrantChangeCancelStates is a list of states that can be cancelled
-	RegistrantChangeCancelStates = []string{
-		consts.RegistrantChangeStateNew,
-		consts.RegistrantChangeStatePending,
-	}
-)
+// RegistrantChangeCancelStates is a list of states that can be cancelled
+var RegistrantChangeCancelStates = []string{
+	consts.RegistrantChangeStateNew,
+	consts.RegistrantChangeStatePending,
+}
 
 func cancelAllContactChanges(ctx context.Context, dnsimpleClient *dnsimple.Client, account string) {
 	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
@@ -153,9 +151,7 @@ func cleanupDomains(ctx context.Context, dnsimpleClient *dnsimple.Client, accoun
 	}
 
 	domainsToKeep := os.Getenv("DNSIMPLE_DOMAINS_TO_KEEP")
-	var (
-		domainsToKeepList []string
-	)
+	var domainsToKeepList []string
 	if domainsToKeep != "" {
 		// Split the comma separated list of domains to keep
 		domainsToKeepList = strings.Split(domainsToKeep, ",")

@@ -158,7 +158,8 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	tflog.Debug(ctx, "DNSimple Zone Record recordAttributes", map[string]interface{}{
-		"attributes": recordAttributes})
+		"attributes": recordAttributes,
+	})
 
 	response, err := r.config.Client.Zones.CreateRecord(
 		ctx,
@@ -166,7 +167,6 @@ func (r *ZoneRecordResource) Create(ctx context.Context, req resource.CreateRequ
 		data.ZoneName.ValueString(),
 		recordAttributes,
 	)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -217,7 +217,6 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 	if r.config.Prefetch && !skip_prefetch_cache {
 		if _, ok := r.config.ZoneRecordCache.Get(data.ZoneName.ValueString()); !ok {
 			err := r.config.ZoneRecordCache.Hydrate(ctx, r.config.Client, r.config.AccountID, data.ZoneName.ValueString(), nil)
-
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"failed to hydrate zone record cache",
@@ -254,7 +253,6 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		})
 
 		response, err := r.config.Client.Zones.GetRecord(ctx, r.config.AccountID, data.ZoneName.ValueString(), data.Id.ValueInt64())
-
 		if err != nil {
 			var errorResponse *dnsimple.ErrorResponse
 			if errors.As(err, &errorResponse) {
@@ -325,7 +323,6 @@ func (r *ZoneRecordResource) Update(ctx context.Context, req resource.UpdateRequ
 		data.Id.ValueInt64(),
 		recordAttributes,
 	)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -360,7 +357,6 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 	tflog.Info(ctx, fmt.Sprintf("Deleting DNSimple Record: %s, %d", data.ZoneName, data.Id))
 
 	_, err := r.config.Client.Zones.DeleteRecord(ctx, r.config.AccountID, data.ZoneName.ValueString(), data.Id.ValueInt64())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to delete DNSimple Record: %s", data.Name.ValueString()),

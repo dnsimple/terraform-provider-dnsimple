@@ -8,8 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type setTrimSuffix struct {
-}
+type setTrimSuffix struct{}
 
 func SetTrimSuffixValue() planmodifier.Set {
 	return setTrimSuffix{}

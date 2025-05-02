@@ -10,8 +10,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 )
 
-type domainRegistrationState struct {
-}
+type domainRegistrationState struct{}
 
 // DomainRegistrationState return a object plan modifier that sets the specified value if the planned value is Null.
 func DomainRegistrationState() planmodifier.Object {
@@ -74,8 +73,7 @@ func (m domainRegistrationState) PlanModifyObject(ctx context.Context, req planm
 	resp.PlanValue = obj
 }
 
-type registrantChangeState struct {
-}
+type registrantChangeState struct{}
 
 // RegistrantChangeState return a object plan modifier that sets the specified value if the planned value is Null.
 func RegistrantChangeState() planmodifier.String {

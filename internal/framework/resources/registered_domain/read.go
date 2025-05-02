@@ -30,7 +30,6 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	if !domainRegistration.Id.IsNull() {
 		domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", data.Name.ValueString(), domainRegistration.Id.ValueInt64()),
@@ -49,7 +48,6 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
 	if !registrantChange.Id.IsNull() {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
-
 		if err != nil {
 			resp.Diagnostics.AddError(
 				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
@@ -67,7 +65,6 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
@@ -77,7 +74,6 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", data.Name.ValueString()),
@@ -87,7 +83,6 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	}
 
 	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
-
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", data.Name.ValueString()),
