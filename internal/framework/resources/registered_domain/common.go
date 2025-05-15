@@ -89,7 +89,6 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 
 	if data.DNSSECEnabled.ValueBool() {
 		_, err := r.config.Client.Domains.EnableDnssec(ctx, r.config.AccountID, data.Name.ValueString())
-
 		if err != nil {
 			diagnostics.AddError(
 				fmt.Sprintf("failed to enable DNSimple Domain DNSSEC: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
@@ -117,7 +116,6 @@ func (r *RegisteredDomainResource) setTransferLock(ctx context.Context, data *Re
 
 	if data.TransferLockEnabled.ValueBool() {
 		_, err := r.config.Client.Registrar.EnableDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
-
 		if err != nil {
 			diagnostics.AddError(
 				fmt.Sprintf("failed to enable DNSimple Domain transfer lock: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
@@ -264,7 +262,6 @@ func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainResour
 
 	err := utils.RetryWithTimeout(ctx, func() (error, bool) {
 		domainRegistration, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), registrationID)
-
 		if err != nil {
 			return err, false
 		}
@@ -316,7 +313,6 @@ func tryToConvergeRegistrantChange(ctx context.Context, data *RegisteredDomainRe
 
 	err := utils.RetryWithTimeout(ctx, func() (error, bool) {
 		registrantChangeResponse, err := r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, registrantChangeId)
-
 		if err != nil {
 			return err, false
 		}
@@ -368,7 +364,6 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 	}
 
 	registrantChangeResponse, err := r.config.Client.Registrar.CreateRegistrantChange(ctx, r.config.AccountID, &registrantChangeAttributes)
-
 	if err != nil {
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
@@ -422,7 +417,6 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 			}
 
 			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(data.Id.ValueInt64()))
-
 			if err != nil {
 				resp.Diagnostics.AddError(
 					fmt.Sprintf("failed to read DNSimple Registrant Change for: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),

@@ -26,7 +26,6 @@ func (v Duration) MarkdownDescription(ctx context.Context) string {
 // Validate runs the main validation logic of the validator, reading
 // configuration data out of `req` and updating `resp` with diagnostics.
 func (v Duration) ValidateString(ctx context.Context, req validator.StringRequest, resp *validator.StringResponse) {
-
 	var duration types.String
 	resp.Diagnostics.Append(tfsdk.ValueAs(ctx, req.ConfigValue, &duration)...)
 	if resp.Diagnostics.HasError() {

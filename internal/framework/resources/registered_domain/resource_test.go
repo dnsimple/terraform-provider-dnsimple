@@ -299,7 +299,6 @@ func testAccCheckRegisteredDomainRegistrantChangeDestroy(state *terraform.State)
 		}
 
 		_, err = dnsimpleClient.Registrar.DeleteRegistrantChange(context.Background(), testAccAccount, id)
-
 		if err != nil {
 			return err
 		}
