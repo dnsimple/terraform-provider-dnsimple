@@ -148,7 +148,7 @@ func cleanupDomains(ctx context.Context, dnsimpleClient *dnsimple.Client, accoun
 	cleanupEnabled := os.Getenv("DNSIMPLE_CLEANUP_DOMAINS")
 
 	if cleanupEnabled != "true" {
-		fmt.Println("Skipping domain cleanup as DNSIMPLE_CLEANUP_DOMAIN is not set")
+		fmt.Println("Skipping domain cleanup as DNSIMPLE_CLEANUP_DOMAINS is not set")
 		return
 	}
 
