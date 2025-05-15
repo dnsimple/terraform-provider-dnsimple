@@ -70,15 +70,15 @@ jobs:
         include:
           - terraform: '1.3.*'
             domain: 'dnsimple-3-0-terraform.bio'
-            registrant_contact_id: 10854
+            registrant_contact_id: 14323
             registrant_change_domain: 'dnsimple-tf-ci-1.eu'
           - terraform: '1.10.*'
             domain: 'dnsimple-3-1-terraform.bio'
-            registrant_contact_id: 10169
+            registrant_contact_id: 14323
             registrant_change_domain: 'dnsimple-tf-ci-2.eu'
           - terraform: '1.11.*'
             domain: 'dnsimple-3-2-terraform.bio'
-            registrant_contact_id: 10854
+            registrant_contact_id: 14323
             registrant_change_domain: 'dnsimple-tf-ci-3.eu'
     steps:
       - uses: actions/checkout@v4
