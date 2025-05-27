@@ -2,6 +2,8 @@
 
 ## main
 
+## 1.9.1
+
 ENHANCEMENTS:
 
 - Bump golang.org/x/net from 0.37.0 to 0.38.0 (#269)
