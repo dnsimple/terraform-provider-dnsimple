@@ -2,6 +2,24 @@
 
 ## main
 
+ENHANCEMENTS:
+
+- Bump golang.org/x/net from 0.37.0 to 0.38.0 (#269)
+- make: Update .PHONY
+
+NOTES: 
+
+- Delete CODEOWNERS
+- Remove unnecessary gitignore entries
+
+BUG FIXES:
+
+- ci:
+  - Fixes CI / Acceptance Tests (#274)
+  - ci: Switch to Gofumpt (#270)
+  - ci: Format YAML
+  - ci: Align dependabot config
+
 ## 1.9.0
 
 BUG FIXES:
