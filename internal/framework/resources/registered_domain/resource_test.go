@@ -160,7 +160,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".pw"
+	domainName := utils.RandomString(62) + ".net"
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
