@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-dnsimple
 
 require (
-	github.com/dnsimple/dnsimple-go/v4 v4.0.0
+	github.com/dnsimple/dnsimple-go/v5 v5.0.0
 	github.com/hashicorp/terraform-plugin-docs v0.21.0
 	github.com/hashicorp/terraform-plugin-framework v1.14.1
 	github.com/hashicorp/terraform-plugin-framework-timeouts v0.5.0

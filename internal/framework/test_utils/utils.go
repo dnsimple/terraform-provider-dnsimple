@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dnsimple/dnsimple-go/v4/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
