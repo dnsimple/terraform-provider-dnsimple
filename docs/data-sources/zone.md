@@ -4,9 +4,7 @@ page_title: "DNSimple: dnsimple_zone"
 
 # dnsimple\_zone
 
-Get information about a DNSimple zone.
-
-!> Data source is getting deprecated in favor of [`dnsimple\_zone`](../resources/zone.md) resource.
+Get information about a DNSimple zone. It is generally preferrable to use the `dnsimple_zone` resource but you may wish to only retrieve and link the zone information when the resource exists in multiple Terraform projects.
 
 # Example Usage
 

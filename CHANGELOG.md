@@ -2,6 +2,8 @@
 
 ## main
 
+- The `dnsimple_zone` data source is no longer deprecated and will not be removed in a future release.
+
 ## 1.9.1
 
 ENHANCEMENTS:
@@ -9,7 +11,7 @@ ENHANCEMENTS:
 - Bump golang.org/x/net from 0.37.0 to 0.38.0 (#269)
 - make: Update .PHONY
 
-NOTES: 
+NOTES:
 
 - Delete CODEOWNERS
 - Remove unnecessary gitignore entries
