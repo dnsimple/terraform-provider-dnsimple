@@ -2,6 +2,20 @@
 
 ## main
 
+## 1.10.0
+
+ENHANCEMENTS:
+
+- deps: Bump dnsimple-go to v5
+- deps: Bump github.com/hashicorp/terraform-plugin-docs to 0.22.0
+- deps: Bump github.com/hashicorp/terraform-plugin-testing to 1.13.2
+- deps: Bump github.com/hashicorp/terraform-plugin-go to 0.28.0
+- deps: Bump github.com/hashicorp/terraform-plugin-framework to 1.15.0
+- deps: Bump github.com/cloudflare/circl to 1.6.1
+- ci: Add terraform 1.12 to the test suite
+
+NOTES:
+
 - The `dnsimple_zone` data source is no longer deprecated and will not be removed in a future release.
 
 ## 1.9.1
