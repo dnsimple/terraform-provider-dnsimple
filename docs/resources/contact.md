@@ -32,20 +32,20 @@ resource "dnsimple_contact" "me" {
 
 The following argument(s) are supported:
 
-* `label` - (String) A descriptive label for the contact to help identify it.
-* `first_name` - (Required, String) The first name of the contact person.
-* `last_name` - (Required, String) The last name of the contact person.
-* `organization_name` - (String) The name of the organization or company associated with the contact.
-* `job_title` - (String) The job title or position of the contact person within the organization.
-* `address1` - (Required, String) The primary address line (street address, building number, etc.).
-* `address2` - (String) The secondary address line (apartment, suite, floor, etc.).
-* `city` - (Required, String) The city where the contact is located.
-* `state_province` - (Required, String) The state, province, or region where the contact is located.
-* `postal_code` - (Required, String) The postal code, ZIP code, or equivalent for the contact's location.
-* `country` - (Required, String) The two-letter ISO country code (e.g., "US", "CA", "IT") for the contact's location.
-* `phone` - (Required, String) The contact's phone number. Use international format with country code (e.g., "+1.4012345678" for US numbers).
-* `fax` - (String) The contact's fax number. Use international format with country code (e.g., "+1.8491234567" for US numbers).
-* `email` - (Required, String) The contact's email address.
+- `label` - (Optional) A descriptive label for the contact to help identify it.
+- `first_name` - (Required) The first name of the contact person.
+- `last_name` - (Required) The last name of the contact person.
+- `organization_name` - (Optional) The name of the organization or company associated with the contact.
+- `job_title` - (Optional) The job title or position of the contact person within the organization.
+- `address1` - (Required) The primary address line (street address, building number, etc.).
+- `address2` - (Optional) The secondary address line (apartment, suite, floor, etc.).
+- `city` - (Required) The city where the contact is located.
+- `state_province` - (Required) The state, province, or region where the contact is located.
+- `postal_code` - (Required) The postal code, ZIP code, or equivalent for the contact's location.
+- `country` - (Required) The two-letter ISO country code (e.g., "US", "CA", "IT") for the contact's location.
+- `phone` - (Required) The contact's phone number. Use international format with country code (e.g., "+1.4012345678" for US numbers).
+- `fax` - (Optional) The contact's fax number. Use international format with country code (e.g., "+1.8491234567" for US numbers).
+- `email` - (Required) The contact's email address.
 
 # Attributes Reference
 

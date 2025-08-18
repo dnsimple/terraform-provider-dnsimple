@@ -20,16 +20,16 @@ resource "dnsimple_email_forward" "foobar" {
 
 The following arguments are supported:
 
-* `domain` - (Required) The domain name to add the email forwarding rule to
-* `alias_name` - The name part (the part before the @) of the source email address on the domain
-* `destination_email` - (Required) The destination email address
+- `domain` - (Required) The domain name to add the email forwarding rule to
+- `alias_name` - The name part (the part before the @) of the source email address on the domain
+- `destination_email` - (Required) The destination email address
 
 ## Attributes Reference
 
 The following additional attributes are exported:
 
-* `id` - The email forward ID
-* `alias_email` - The source email address on the domain, in full form. This is a computed attribute.
+- `id` - The email forward ID
+- `alias_email` - The source email address on the domain, in full form. This is a computed attribute.
 
 ## Import
 

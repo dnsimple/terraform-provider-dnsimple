@@ -19,9 +19,9 @@ resource "dnsimple_domain" "foobar" {
 
 The following argument(s) are supported:
 
-* `name` - (Required) The domain name to be created
+- `name` - (Required) The domain name to be created
 
-# Attributes Reference
+## Attributes Reference
 
 - `id` - The ID of this resource.
 - `account_id` - The account ID for the domain.

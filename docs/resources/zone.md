@@ -21,9 +21,9 @@ resource "dnsimple_zone" "foobar" {
 
 The following argument(s) are supported:
 
-* `name` - (Required) The zone name
+- `name` - (Required) The zone name
 
-# Attributes Reference
+## Attributes Reference
 
 - `id` - The ID of this resource.
 - `account_id` - The account ID for the zone.

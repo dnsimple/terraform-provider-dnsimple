@@ -21,27 +21,25 @@ resource "dnsimple_lets_encrypt_certificate" "foobar" {
 
 The following argument(s) are supported:
 
-* `domain_id` - (Required) The domain to be issued the certificate for
-* `name` - (Required) The certificate name; use `""` for the root domain. Wildcard names are supported.
-* `alternate_names` - (Optional) The certificate alternate names
-* `auto_renew` - (Required) True if the certificate should auto-renew
-* `signature_algorithm` - (Optional) The signature algorithm to use for the certificate
-* `timeouts` - (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
+- `domain_id` - (Required) The domain to be issued the certificate for
+- `name` - (Required) The certificate name; use `""` for the root domain. Wildcard names are supported.
+- `alternate_names` - (Optional) The certificate alternate names
+- `auto_renew` - (Required) True if the certificate should auto-renew
+- `signature_algorithm` - (Optional) The signature algorithm to use for the certificate
+- `timeouts` - (Block, Optional) (see [below for nested schema](#nested-schema-for-timeouts))
 
 ## Attribute Reference
 
 The following additional attributes are exported:
 
-* `id` - The certificate ID
-* `years` - The years the certificate will last
-* `state` - The state of the certificate
-* `authority_identifier` - The identifying certification authority (CA)
-* `csr` - The certificate signing request
-* `expires_at` - The datetime the certificate will expire
-* `created_at` - The datetime the certificate was created
-* `updated_at` - The datetime the certificate was last updated
-
-<a id="nestedblock--timeouts"></a>
+- `id` - The certificate ID
+- `years` - The years the certificate will last
+- `state` - The state of the certificate
+- `authority_identifier` - The identifying certification authority (CA)
+- `csr` - The certificate signing request
+- `expires_at` - The datetime the certificate will expire
+- `created_at` - The datetime the certificate was created
+- `updated_at` - The datetime the certificate was last updated
 
 ### Nested Schema for `timeouts`
 

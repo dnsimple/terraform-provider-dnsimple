@@ -55,7 +55,6 @@ Removed dnsimple_record.demo
 Successfully removed 1 resource instance(s).
 ```
 
-
 Update the configuration files to use the new resource:
 
 ```hcl

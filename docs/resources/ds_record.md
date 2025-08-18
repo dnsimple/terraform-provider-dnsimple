@@ -10,11 +10,11 @@ Provides a DNSimple domain delegation signer record resource.
 
 ```hcl
 resource "dnsimple_ds_record" "foobar" {
-	domain = "${var.dnsimple.domain}"
-	algorithm = "8"
-	digest = "6CEEA0117A02480216EBF745A7B690F938860074E4AD11AF2AC573007205682B"
-	digest_type = "2"
-	key_tag = "12345"
+  domain = "${var.dnsimple.domain}"
+  algorithm = "8"
+  digest = "6CEEA0117A02480216EBF745A7B690F938860074E4AD11AF2AC573007205682B"
+  digest_type = "2"
+  key_tag = "12345"
 }
 ```
 
@@ -22,14 +22,14 @@ resource "dnsimple_ds_record" "foobar" {
 
 The following argument(s) are supported:
 
-* `domain` - (Required) The domain name or numeric ID to create the delegation signer record for.
-* `algorithm` - (Required) DNSSEC algorithm number as a string.
-* `digest` - (Optional) The hexidecimal representation of the digest of the corresponding DNSKEY record.
-* `digest_type` - (Optional) DNSSEC digest type number as a string.
-* `keytag` - (Optional) A keytag that references the corresponding DNSKEY record.
-* `public_key` - (Optional) A public key that references the corresponding DNSKEY record.
+- `domain` - (Required) The domain name or numeric ID to create the delegation signer record for.
+- `algorithm` - (Required) DNSSEC algorithm number as a string.
+- `digest` - (Optional) The hexidecimal representation of the digest of the corresponding DNSKEY record.
+- `digest_type` - (Optional) DNSSEC digest type number as a string.
+- `keytag` - (Optional) A keytag that references the corresponding DNSKEY record.
+- `public_key` - (Optional) A public key that references the corresponding DNSKEY record.
 
-# Attributes Reference
+## Attributes Reference
 
 - `id` - The ID of this resource.
 - `created_at` - The time the DS record was created at.
