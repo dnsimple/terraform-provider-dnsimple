@@ -33,10 +33,10 @@ The following argument(s) are supported:
 
 ## Import
 
-DNSimple domains can be imported using their numeric record ID.
+DNSimple domains can be imported using their domain name.
 
 ```bash
-terraform import dnsimple_domain.resource_name 5678
+terraform import dnsimple_domain.resource_name example.com
 ```
 
 The record ID can be found within [DNSimple Domains API](https://developer.dnsimple.com/v2/domains/#listDomains). Check out [Authentication](https://developer.dnsimple.com/v2/#authentication) in API Overview for available options.

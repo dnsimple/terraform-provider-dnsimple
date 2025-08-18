@@ -34,10 +34,10 @@ The following argument(s) are supported:
 
 ## Import
 
-DNSimple zones can be imported using their numeric record ID or the zone name.
+DNSimple zones can be imported using their the zone name.
 
 ```bash
-terraform import dnsimple_zone.resource_name foo.com
+terraform import dnsimple_zone.resource_name example.com
 ```
 
 The zone ID can be found within [DNSimple Zones API](https://developer.dnsimple.com/v2/zones/#getZone). Check out [Authentication](https://developer.dnsimple.com/v2/#authentication) in API Overview for available options.
