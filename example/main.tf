@@ -1,8 +1,10 @@
 terraform {
+  required_version = ">= 1.11"
+
   required_providers {
     dnsimple = {
       source  = "dnsimple/dnsimple"
-      version = "0.5.3-10-g35e3384"
+      version = ">= 1.9.0"
     }
   }
 }
@@ -12,6 +14,7 @@ provider "dnsimple" {
   account = var.dnsimple_account
   sandbox = true
 }
+
 
 variable "dnsimple_token" {
   description = "DNSimple API Token"
@@ -25,16 +28,10 @@ variable "dnsimple_account" {
 }
 
 
-variable "dnsimple_domain" {
-  description = "DNSimple Domain"
-  type        = string
-}
-
-# Create a record
-resource "dnsimple_zone_record" "test-txt" {
-  zone_name = var.dnsimple_domain
-  name      = "test-tf-txt"
+# Create a record.
+resource "dnsimple_zone_record" "record_1755513796" {
+  zone_name = "example.com"
+  name      = "tf"
   value     = "Hello Terraform!"
   type      = "TXT"
-  ttl       = 3600
 }
