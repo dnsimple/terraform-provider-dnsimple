@@ -23,7 +23,7 @@ resource "dnsimple_contact" "me" {
   postal_code = "90210"
   country = "US"
   phone = "+1401239523"
-  fax = "+1849491024"
+  fax = "+1.849491024"
   email = "apple@contoso.com"
 }
 ```
@@ -32,20 +32,20 @@ resource "dnsimple_contact" "me" {
 
 The following argument(s) are supported:
 
-* `label` - Label
-* `first_name` - (Required) First name
-* `last_name` - (Required) Last name
-* `organization_name` - Organization name
-* `job_title` - Job title
-* `address1` - (Required) Address line 1
-* `address2` - Address line 2
-* `city` - (Required) City
-* `state_province` - (Required) State province
-* `postal_code` - (Required) Postal code
-* `country` - (Required) Country
-* `phone` - (Required) Phone
-* `fax` - Fax
-* `email` - (Required) Email
+* `label` - (String) A descriptive label for the contact to help identify it.
+* `first_name` - (Required, String) The first name of the contact person.
+* `last_name` - (Required, String) The last name of the contact person.
+* `organization_name` - (String) The name of the organization or company associated with the contact.
+* `job_title` - (String) The job title or position of the contact person within the organization.
+* `address1` - (Required, String) The primary address line (street address, building number, etc.).
+* `address2` - (String) The secondary address line (apartment, suite, floor, etc.).
+* `city` - (Required, String) The city where the contact is located.
+* `state_province` - (Required, String) The state, province, or region where the contact is located.
+* `postal_code` - (Required, String) The postal code, ZIP code, or equivalent for the contact's location.
+* `country` - (Required, String) The two-letter ISO country code (e.g., "US", "CA", "IT") for the contact's location.
+* `phone` - (Required, String) The contact's phone number. Use international format with country code (e.g., "+1.4012345678" for US numbers).
+* `fax` - (String) The contact's fax number. Use international format with country code (e.g., "+1.8491234567" for US numbers).
+* `email` - (Required, String) The contact's email address.
 
 # Attributes Reference
 
@@ -80,8 +80,8 @@ curl -u 'EMAIL:PASSWORD' https://api.dnsimple.com/v2/1234/contacts?label_like=ex
       "job_title": "CEO",
       "organization_name": "Awesome Company",
       "email": "first@example.com",
-      "phone": "+18001234567",
-      "fax": "+18011234567",
+      "phone": "+1.8001234567",
+      "fax": "+1.8011234567",
       "address1": "Italian Street, 10",
       "address2": "",
       "city": "Roma",
@@ -100,7 +100,7 @@ curl -u 'EMAIL:PASSWORD' https://api.dnsimple.com/v2/1234/contacts?label_like=ex
       "job_title": "",
       "organization_name": "",
       "email": "second@example.com",
-      "phone": "+18881234567",
+      "phone": "+1.8881234567",
       "fax": "",
       "address1": "French Street",
       "address2": "c/o Someone",
