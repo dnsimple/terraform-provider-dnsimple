@@ -8,32 +8,55 @@ Provides a DNSimple registered domain resource.
 
 ## Example Usage
 
+The simplest example below requires a contact (existing or a new one to be created) and basic domain information.
+
 ```hcl
 resource "dnsimple_contact" "alice_main" {
-  label = "Alice Appleseed"
-  first_name = "Alice Main"
+  label = "Alice"
+  first_name = "Alice"
   last_name = "Appleseed"
   organization_name = "Contoso"
   job_title = "Manager"
   address1 = "Level 1, 2 Main St"
-  address2 = "Marsfield"
   city = "San Francisco"
   state_province = "California"
   postal_code = "90210"
   country = "US"
-  phone = "+1401239523"
-  fax = "+1849491024"
+  phone = "+1.401239523"
   email = "apple@contoso.com"
 }
 
-resource "dnsimple_registered_domain" "appleseed_bio" {
-  name = "appleseed.bio"
+resource "dnsimple_registered_domain" "example_com" {
+  name = "example.com"
+
+  contact_id = dnsimple_contact.alice_main.id
+}
+```
+
+#### Example with more settings
+
+```hcl
+resource "dnsimple_registered_domain" "example_com" {
+  name = "example.com"
 
   contact_id            = dnsimple_contact.alice_main.id
   auto_renew_enabled    = true
   transfer_lock_enabled = true
   whois_privacy_enabled = true
   dnssec_enabled        = false
+}
+```
+
+#### Example with extended attributes
+
+Some domain extensions require additional information during registration. You can check if a domain extension requires extended attributes using the [TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes).
+
+```hcl
+resource "dnsimple_registered_domain" "example_bio" {
+  name = "example.bio"
+
+  contact_id            = dnsimple_contact.alice_main.id
+  auto_renew_enabled    = true
 
   extended_attributes = {
     "bio_agree" = "I Agree"
@@ -41,19 +64,20 @@ resource "dnsimple_registered_domain" "appleseed_bio" {
 }
 ```
 
+
 ## Argument Reference
 
 The following argument(s) are supported:
 
-* `name` - (Required) The domain name to be registered.
-* `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change this may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
-* `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`).
-* `whois_privacy_enabled` - (Optional) Whether the domain should have WHOIS privacy enabled (default: `false`).
-* `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`).
-* `transfer_lock_enabled` - (Optional) Whether the domain transfer lock protection is enabled (default: `true`).
-* `premium_price` - (Optional) The premium price for the domain registration. This is only required if the domain is a premium domain. You can use our [Check domain API](https://developer.dnsimple.com/v2/registrar/#checkDomain) to check if a domain is premium and [Retrieve domain prices API](https://developer.dnsimple.com/v2/registrar/#getDomainPrices) to retrieve the premium price for a domain.
-* `extended_attributes` - (Optional) A map of extended attributes to be set for the domain registration. To see if there are any required extended attributes for any TLD use our [Lists the TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes). The values provided in the `extended_attributes` will also be sent when a registrant change is initiated as part of changing the `contact_id`.
-* `timeouts` - (Optional) (see [below for nested schema](#nested-schema-for-timeouts)).
+- `name` - (Required) The domain name to be registered.
+- `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change this may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
+- `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`).
+- `whois_privacy_enabled` - (Optional) Whether the domain should have WHOIS privacy enabled (default: `false`).
+- `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`).
+- `transfer_lock_enabled` - (Optional) Whether the domain transfer lock protection is enabled (default: `true`).
+- `premium_price` - (Optional) The premium price for the domain registration. This is only required if the domain is a premium domain. You can use our [Check domain API](https://developer.dnsimple.com/v2/registrar/#checkDomain) to check if a domain is premium and [Retrieve domain prices API](https://developer.dnsimple.com/v2/registrar/#getDomainPrices) to retrieve the premium price for a domain.
+- `extended_attributes` - (Optional) A map of extended attributes to be set for the domain registration. To see if there are any required extended attributes for any TLD use our [Lists the TLD Extended Attributes API](https://developer.dnsimple.com/v2/tlds/#getTldExtendedAttributes). The values provided in the `extended_attributes` will also be sent when a registrant change is initiated as part of changing the `contact_id`.
+- `timeouts` - (Optional) (see [below for nested schema](#nested-schema-for-timeouts)).
 
 ## Attributes Reference
 
