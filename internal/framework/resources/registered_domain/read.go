@@ -32,8 +32,8 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", data.Name.ValueString(), domainRegistration.Id.ValueInt64()),
-				err.Error(),
+				"failed to read DNSimple Domain Registration",
+				fmt.Sprintf("Unable to read domain registration for domain '%s' (registration ID: %d): %s", data.Name.ValueString(), domainRegistration.Id.ValueInt64(), err.Error()),
 			)
 			return
 		}
@@ -50,8 +50,8 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
-				err.Error(),
+				"failed to read DNSimple Registrant Change",
+				fmt.Sprintf("Unable to read registrant change with ID %d: %s", registrantChange.Id.ValueInt64(), err.Error()),
 			)
 			return
 		}
@@ -67,8 +67,8 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain",
+			fmt.Sprintf("Unable to read domain '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -76,8 +76,8 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain DNSSEC status",
+			fmt.Sprintf("Unable to read DNSSEC status for domain '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -85,8 +85,8 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain Transfer Lock status",
+			fmt.Sprintf("Unable to read transfer lock status for domain '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}

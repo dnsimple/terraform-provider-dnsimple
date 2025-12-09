@@ -175,8 +175,8 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	if token == "" {
 		resp.Diagnostics.AddError(
-			"must provide api token",
-			"must define a token for the dnsimple provider or set the DNSIMPLE_TOKEN environment variable",
+			"failed to configure DNSimple provider",
+			"API token is required. Set the token in the provider configuration or the DNSIMPLE_TOKEN environment variable",
 		)
 		return
 	}
@@ -189,8 +189,8 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	if account == "" {
 		resp.Diagnostics.AddError(
-			"must provide account",
-			"must define an account for the dnsimple provider or set the DNSIMPLE_ACCOUNT environment variable",
+			"failed to configure DNSimple provider",
+			"Account ID is required. Set the account in the provider configuration or the DNSIMPLE_ACCOUNT environment variable",
 		)
 		return
 	}

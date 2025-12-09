@@ -102,8 +102,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, planData.Name.ValueString(), domainRegistrationId)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to read DNSimple Domain Registration: %s, %d", planData.Name.ValueString(), domainRegistration.Id.ValueInt64()),
-				err.Error(),
+				"failed to read DNSimple Domain Registration",
+				fmt.Sprintf("Unable to read domain registration for domain '%s' (registration ID: %d): %s", planData.Name.ValueString(), domainRegistration.Id.ValueInt64(), err.Error()),
 			)
 			return
 		}
@@ -132,8 +132,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				registrantChangeResponse, registrantChangeError := r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
 				if registrantChangeError != nil {
 					resp.Diagnostics.AddError(
-						fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
-						registrantChangeError.Error(),
+						"failed to read DNSimple Registrant Change",
+						fmt.Sprintf("Unable to read registrant change with ID %d: %s", registrantChange.Id.ValueInt64(), registrantChangeError.Error()),
 					)
 					return
 				}
@@ -164,8 +164,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to read DNSimple Registrant Change Id: %d", registrantChange.Id.ValueInt64()),
-				err.Error(),
+				"failed to read DNSimple Registrant Change",
+				fmt.Sprintf("Unable to read registrant change with ID %d: %s", registrantChange.Id.ValueInt64(), err.Error()),
 			)
 			return
 		}
@@ -244,8 +244,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, planData.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain: %s", planData.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain",
+			fmt.Sprintf("Unable to read domain '%s': %s", planData.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -253,8 +253,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, planData.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain DNSSEC status: %s", planData.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain DNSSEC status",
+			fmt.Sprintf("Unable to read DNSSEC status for domain '%s': %s", planData.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -262,8 +262,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, planData.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain transfer lock status: %s", planData.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain Transfer Lock status",
+			fmt.Sprintf("Unable to read transfer lock status for domain '%s': %s", planData.Name.ValueString(), err.Error()),
 		)
 		return
 	}

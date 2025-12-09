@@ -75,7 +75,7 @@ func AttributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics 
 	diagnostics := diag.Diagnostics{}
 
 	diagnostics.AddError(
-		"API returned an error",
+		"DNSimple API returned an error",
 		err.Message,
 	)
 
@@ -84,7 +84,7 @@ func AttributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics 
 
 		diagnostics.AddAttributeError(
 			path.Root(terraformField),
-			fmt.Sprintf("API returned a Validation Error for: %s", terraformField),
+			fmt.Sprintf("DNSimple API validation error for field %s", terraformField),
 			strings.Join(errors, ", "),
 		)
 	}

@@ -94,7 +94,7 @@ func (r *DomainResource) Configure(ctx context.Context, req resource.ConfigureRe
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -151,8 +151,8 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 	response, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Domain: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain",
+			fmt.Sprintf("Unable to read domain '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -182,8 +182,8 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	_, err := r.config.Client.Domains.DeleteDomain(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to delete DNSimple Domain: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to delete DNSimple Domain",
+			fmt.Sprintf("Unable to delete domain '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -193,8 +193,8 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 	response, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to find DNSimple Domain ID: %s", req.ID),
-			err.Error(),
+			"failed to import DNSimple Domain",
+			fmt.Sprintf("Unable to find domain '%s': %s", req.ID, err.Error()),
 		)
 		return
 	}

@@ -37,8 +37,8 @@ func (r *RegisteredDomainResource) setAutoRenewal(ctx context.Context, data *Reg
 		_, err := r.config.Client.Registrar.EnableDomainAutoRenewal(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to enable DNSimple Domain Auto Renewal: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-				err.Error(),
+				"failed to enable DNSimple Domain Auto Renewal",
+				fmt.Sprintf("Unable to enable auto renewal for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 			)
 		}
 		return diagnostics
@@ -47,8 +47,8 @@ func (r *RegisteredDomainResource) setAutoRenewal(ctx context.Context, data *Reg
 	_, err := r.config.Client.Registrar.DisableDomainAutoRenewal(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		diagnostics.AddError(
-			fmt.Sprintf("failed to disable DNSimple Domain Auto Renewal: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-			err.Error(),
+			"failed to disable DNSimple Domain Auto Renewal",
+			fmt.Sprintf("Unable to disable auto renewal for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 	}
 
@@ -64,8 +64,8 @@ func (r *RegisteredDomainResource) setWhoisPrivacy(ctx context.Context, data *Re
 		_, err := r.config.Client.Registrar.EnableWhoisPrivacy(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to enable DNSimple Domain Whois Privacy: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-				err.Error(),
+				"failed to enable DNSimple Domain Whois Privacy",
+				fmt.Sprintf("Unable to enable whois privacy for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 			)
 		}
 		return diagnostics
@@ -74,8 +74,8 @@ func (r *RegisteredDomainResource) setWhoisPrivacy(ctx context.Context, data *Re
 	_, err := r.config.Client.Registrar.DisableWhoisPrivacy(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		diagnostics.AddError(
-			fmt.Sprintf("failed to disable DNSimple Domain Whois Privacy: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-			err.Error(),
+			"failed to disable DNSimple Domain Whois Privacy",
+			fmt.Sprintf("Unable to disable whois privacy for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 	}
 
@@ -91,8 +91,8 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 		_, err := r.config.Client.Domains.EnableDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to enable DNSimple Domain DNSSEC: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-				err.Error(),
+				"failed to enable DNSimple Domain DNSSEC",
+				fmt.Sprintf("Unable to enable DNSSEC for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 			)
 		}
 		return diagnostics
@@ -101,8 +101,8 @@ func (r *RegisteredDomainResource) setDNSSEC(ctx context.Context, data *Register
 	_, err := r.config.Client.Domains.DisableDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		diagnostics.AddError(
-			fmt.Sprintf("failed to disable DNSimple Domain DNSSEC: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-			err.Error(),
+			"failed to disable DNSimple Domain DNSSEC",
+			fmt.Sprintf("Unable to disable DNSSEC for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 	}
 
@@ -118,8 +118,8 @@ func (r *RegisteredDomainResource) setTransferLock(ctx context.Context, data *Re
 		_, err := r.config.Client.Registrar.EnableDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to enable DNSimple Domain transfer lock: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-				err.Error(),
+				"failed to enable DNSimple Domain Transfer Lock",
+				fmt.Sprintf("Unable to enable transfer lock for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 			)
 		}
 		return diagnostics
@@ -128,8 +128,8 @@ func (r *RegisteredDomainResource) setTransferLock(ctx context.Context, data *Re
 	_, err := r.config.Client.Registrar.DisableDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		diagnostics.AddError(
-			fmt.Sprintf("failed to disable DNSimple Domain transfer lock: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-			err.Error(),
+			"failed to disable DNSimple Domain Transfer Lock",
+			fmt.Sprintf("Unable to disable transfer lock for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 	}
 
@@ -268,16 +268,16 @@ func tryToConvergeRegistration(ctx context.Context, data *RegisteredDomainResour
 
 		if domainRegistration.Data.State == consts.DomainStateFailed {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
-				"domain registration failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+				"failed to register DNSimple Domain",
+				fmt.Sprintf("Domain registration failed for '%s'. Please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com", data.Name.ValueString()),
 			)
 			return nil, true
 		}
 
 		if domainRegistration.Data.State == consts.DomainStateCancelling || domainRegistration.Data.State == consts.DomainStateCancelled {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to register DNSimple Domain: %s", data.Name.ValueString()),
-				"domain registration was cancelled, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+				"failed to register DNSimple Domain",
+				fmt.Sprintf("Domain registration was cancelled for '%s'. Please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com", data.Name.ValueString()),
 			)
 			return nil, true
 		}
@@ -319,8 +319,8 @@ func tryToConvergeRegistrantChange(ctx context.Context, data *RegisteredDomainRe
 
 		if registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelled || registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelling {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to change registrant for DNSimple Domain: %s, registrant change id: %d", data.Name.ValueString(), registrantChangeId),
-				"Registrant change was cancelled, please investigate why this happened. You can refer to our support article https://support.dnsimple.com/articles/changing-domain-contact/ to get started and if you need assistance, please contact support at support@dnsimple.com.",
+				"failed to change registrant for DNSimple Domain",
+				fmt.Sprintf("Registrant change was cancelled for domain '%s' (registrant change ID: %d). Please investigate why this happened. You can refer to our support article https://support.dnsimple.com/articles/changing-domain-contact/ to get started and if you need assistance, please contact support at support@dnsimple.com", data.Name.ValueString(), registrantChangeId),
 			)
 			return nil, true
 		}
@@ -372,7 +372,7 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 		}
 
 		resp.Diagnostics.AddError(
-			"failed to create DNSimple registrant change",
+			"failed to create DNSimple Registrant Change",
 			err.Error(),
 		)
 		return
@@ -381,8 +381,8 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 	if registrantChangeResponse.Data.State != consts.RegistrantChangeStateCompleted {
 		if registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelled || registrantChangeResponse.Data.State == consts.RegistrantChangeStateCancelling {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to create DNSimple registrant change current state: %s", registrantChangeResponse.Data.State),
-				"",
+				"failed to create DNSimple Registrant Change",
+				fmt.Sprintf("Registrant change creation failed with state '%s'", registrantChangeResponse.Data.State),
 			)
 			return
 		}
@@ -419,8 +419,8 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(data.Id.ValueInt64()))
 			if err != nil {
 				resp.Diagnostics.AddError(
-					fmt.Sprintf("failed to read DNSimple Registrant Change for: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-					err.Error(),
+					"failed to read DNSimple Registrant Change",
+					fmt.Sprintf("Unable to read registrant change for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 				)
 				return
 			}
