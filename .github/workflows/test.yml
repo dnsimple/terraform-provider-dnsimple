@@ -27,10 +27,9 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v6
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version-file: .go-version
+          go-version-file: "go.mod"
           cache: true
       - name: Get dependencies
         run: go mod download
@@ -41,9 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
-          go-version-file: .go-version
+          go-version-file: "go.mod"
           cache: true
       - uses: hashicorp/setup-terraform@v3
         with:
@@ -91,7 +90,7 @@ jobs:
           terraform_wrapper: false
       - run: go mod download
       - env:
-          TF_ACC: '1'
+          TF_ACC: 1
           DNSIMPLE_SANDBOX: true
           DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
           DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
@@ -99,7 +98,7 @@ jobs:
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
           DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
-        run: go test -v -cover ./internal/... -timeout 15m
+        run: go test -v ./internal/... -timeout 15m
         timeout-minutes: 10
       - run: make sweep
         if: always()
