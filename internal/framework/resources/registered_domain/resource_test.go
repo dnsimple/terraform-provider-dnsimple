@@ -169,14 +169,14 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 		CheckDestroy:             testAccCheckRegisteredDomainResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, false, true, false, true),
+				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, false, true, true, true),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
 					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),

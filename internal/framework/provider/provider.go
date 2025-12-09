@@ -1,8 +1,12 @@
 package provider
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 
 	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -37,6 +41,62 @@ type DnsimpleProviderModel struct {
 	Sandbox        types.Bool   `tfsdk:"sandbox"`
 	Prefetch       types.Bool   `tfsdk:"prefetch"`
 	UserAgentExtra types.String `tfsdk:"user_agent"`
+}
+
+// debugTransport is an HTTP transport that logs requests and responses
+type debugTransport struct {
+	Base http.RoundTripper
+}
+
+func (t *debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Open debug file for appending
+	f, err := os.OpenFile("/tmp/dnsimple-debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		defer f.Close()
+
+		// Log request
+		fmt.Fprintf(f, "\n=== HTTP REQUEST ===\n")
+		fmt.Fprintf(f, "Method: %s\n", req.Method)
+		fmt.Fprintf(f, "URL: %s\n", req.URL.String())
+		fmt.Fprintf(f, "Headers: %v\n", req.Header)
+	}
+
+	// Perform the request
+	base := t.Base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	resp, respErr := base.RoundTrip(req)
+
+	if respErr != nil {
+		if f != nil {
+			fmt.Fprintf(f, "=== HTTP ERROR ===\n")
+			fmt.Fprintf(f, "Error: %v\n", respErr)
+		}
+		return resp, respErr
+	}
+
+	if f != nil {
+		// Log response
+		fmt.Fprintf(f, "=== HTTP RESPONSE ===\n")
+		fmt.Fprintf(f, "Status: %d %s\n", resp.StatusCode, resp.Status)
+		fmt.Fprintf(f, "Headers: %v\n", resp.Header)
+
+		// Read and log body
+		if resp.Body != nil {
+			bodyBytes, err := io.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(f, "Error reading response body: %v\n", err)
+			} else {
+				fmt.Fprintf(f, "Body: %s\n", string(bodyBytes))
+				// Restore the body for the actual client to read
+				resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			}
+		}
+		fmt.Fprintf(f, "=== END RESPONSE ===\n")
+	}
+
+	return resp, respErr
 }
 
 // Metadata returns information about the provider.
@@ -141,6 +201,9 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(ctx, ts)
+
+	// Add debug transport to log HTTP requests/responses
+	tc.Transport = &debugTransport{Base: tc.Transport}
 
 	client := dnsimple.NewClient(tc)
 
