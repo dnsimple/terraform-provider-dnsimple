@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 )
 
 var zoneRecordCacheMutex = &sync.RWMutex{}

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
