@@ -37,7 +37,7 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".com"
+	domainName := utils.RandomName("com", "base")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -75,7 +75,7 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".eu"
+	domainName := utils.RandomName("eu", "extattrs")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -160,7 +160,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".net"
+	domainName := utils.RandomName("com", "options")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{

@@ -3,12 +3,12 @@ package utils
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 )
@@ -20,16 +20,21 @@ func GetDefaultFromEnv(key, fallback string) string {
 	return fallback
 }
 
-const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
-
-func RandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = alphabet[rand.Intn(len(alphabet))]
+// RandomName generates a random domain name using a UUID v7 with an optional suffix.
+//
+// It returns a string in the format "uuid.extension" or "uuid-suffix.extension" if suffix is provided.
+// Falls back to UUID v4 if v7 generation fails.
+func RandomName(extension string, suffix string) string {
+	u, err := uuid.NewV7()
+	if err != nil {
+		// Fallback to v4 if v7 generation fails
+		u = uuid.New()
 	}
-	return string(b)
+	name := u.String()
+	if suffix != "" {
+		name = name + "-" + suffix
+	}
+	return name + "." + extension
 }
 
 func HasUnicodeChars(s string) bool {
