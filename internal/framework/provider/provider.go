@@ -149,6 +149,7 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 		userAgent = fmt.Sprintf("%s %s", userAgent, data.UserAgentExtra.ValueString())
 	}
 	client.SetUserAgent(userAgent)
+	client.Debug = true
 
 	if sandbox {
 		client.BaseURL = consts.BaseURLSandbox
