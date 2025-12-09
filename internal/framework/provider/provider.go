@@ -59,6 +59,18 @@ func (t *debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		fmt.Fprintf(f, "Method: %s\n", req.Method)
 		fmt.Fprintf(f, "URL: %s\n", req.URL.String())
 		fmt.Fprintf(f, "Headers: %v\n", req.Header)
+
+		// Log request body if present
+		if req.Body != nil {
+			bodyBytes, err := io.ReadAll(req.Body)
+			if err != nil {
+				fmt.Fprintf(f, "Error reading request body: %v\n", err)
+			} else {
+				fmt.Fprintf(f, "Request Body: %s\n", string(bodyBytes))
+				// Restore the body for the actual request
+				req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			}
+		}
 	}
 
 	// Perform the request
