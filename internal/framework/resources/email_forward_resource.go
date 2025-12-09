@@ -110,8 +110,8 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	domainAttributes := dnsimple.EmailForward{
-		From: data.AliasName.ValueString(),
-		To:   data.DestinationEmail.ValueString(),
+		AliasName:        data.AliasName.ValueString(),
+		DestinationEmail: data.DestinationEmail.ValueString(),
 	}
 
 	tflog.Debug(ctx, "creating DNSimple EmailForward", map[string]interface{}{"attributes": domainAttributes})
@@ -212,7 +212,12 @@ func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.Imp
 
 func (r *EmailForwardResource) updateModelFromAPIResponse(emailForward *dnsimple.EmailForward, data *EmailForwardResourceModel) {
 	data.Id = types.Int64Value(emailForward.ID)
-	data.AliasName = types.StringValue(strings.Split(emailForward.From, "@")[0])
-	data.AliasEmail = types.StringValue(emailForward.From)
-	data.DestinationEmail = types.StringValue(emailForward.To)
+	if emailForward.AliasEmail != "" {
+		data.AliasName = types.StringValue(strings.Split(emailForward.AliasEmail, "@")[0])
+		data.AliasEmail = types.StringValue(emailForward.AliasEmail)
+	} else if emailForward.AliasName != "" {
+		data.AliasName = types.StringValue(emailForward.AliasName)
+		data.AliasEmail = types.StringValue(emailForward.AliasName + "@" + data.Domain.ValueString())
+	}
+	data.DestinationEmail = types.StringValue(emailForward.DestinationEmail)
 }
