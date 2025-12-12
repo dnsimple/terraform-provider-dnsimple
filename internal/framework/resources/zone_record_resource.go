@@ -14,11 +14,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/common"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/modifiers"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/validators"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -83,6 +85,9 @@ func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 			"type": schema.StringAttribute{
 				Required: true,
+				Validators: []validator.String{
+					validators.RecordType{},
+				},
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
