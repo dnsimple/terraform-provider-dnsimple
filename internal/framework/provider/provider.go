@@ -36,21 +36,23 @@ type DnsimpleProvider struct {
 
 // DnsimpleProviderModel describes the provider data model.
 type DnsimpleProviderModel struct {
-	Token          types.String `tfsdk:"token"`
-	Account        types.String `tfsdk:"account"`
-	Sandbox        types.Bool   `tfsdk:"sandbox"`
-	Prefetch       types.Bool   `tfsdk:"prefetch"`
-	UserAgentExtra types.String `tfsdk:"user_agent"`
+	Token              types.String `tfsdk:"token"`
+	Account            types.String `tfsdk:"account"`
+	Sandbox            types.Bool   `tfsdk:"sandbox"`
+	Prefetch           types.Bool   `tfsdk:"prefetch"`
+	UserAgentExtra     types.String `tfsdk:"user_agent"`
+	DebugTransportFile types.String `tfsdk:"debug_transport_file"`
 }
 
 // debugTransport is an HTTP transport that logs requests and responses
 type debugTransport struct {
-	Base http.RoundTripper
+	Base     http.RoundTripper
+	FilePath string
 }
 
 func (t *debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Open debug file for appending
-	f, err := os.OpenFile("/tmp/dnsimple-debug.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(t.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err == nil {
 		defer f.Close()
 
@@ -143,6 +145,10 @@ func (p *DnsimpleProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Optional:    true,
 				Description: "Custom string to append to the user agent used for sending HTTP requests to the API.",
 			},
+			"debug_transport_file": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "File path to enable HTTP request/response debugging. When set, all HTTP requests and responses will be logged to this file.",
+			},
 		},
 		MarkdownDescription: "The DNSimple provider is used to interact with the various services that DNSimple offers. " +
 			"The provider needs to be configured with the proper credentials before it can be used.",
@@ -214,8 +220,13 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(ctx, ts)
 
-	// Add debug transport to log HTTP requests/responses
-	tc.Transport = &debugTransport{Base: tc.Transport}
+	// Add debug transport to log HTTP requests/responses if debug_transport_file is set
+	if !data.DebugTransportFile.IsNull() && !data.DebugTransportFile.IsUnknown() {
+		debugFile := data.DebugTransportFile.ValueString()
+		if debugFile != "" {
+			tc.Transport = &debugTransport{Base: tc.Transport, FilePath: debugFile}
+		}
+	}
 
 	client := dnsimple.NewClient(tc)
 
