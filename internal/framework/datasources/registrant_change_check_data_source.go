@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -103,8 +103,8 @@ func (d *RegistrantChangeCheckDataSource) Configure(ctx context.Context, req dat
 
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -131,7 +131,7 @@ func (d *RegistrantChangeCheckDataSource) Read(ctx context.Context, req datasour
 	response, err := d.config.Client.Registrar.CheckRegistrantChange(ctx, d.config.AccountID, &requestInput)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"failed to check registrant change",
+			"failed to check DNSimple Registrant Change",
 			err.Error(),
 		)
 		return

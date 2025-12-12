@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -124,7 +124,7 @@ func (r *ZoneRecordResource) Configure(ctx context.Context, req resource.Configu
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -236,8 +236,8 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 		cacheRecord, ok := r.config.ZoneRecordCache.Find(data.ZoneName.ValueString(), lookupName, data.Type.ValueString(), data.ValueNormalized.ValueString())
 		if !ok {
 			resp.Diagnostics.AddError(
-				"record not found",
-				fmt.Sprintf("failed to find DNSimple Zone Record in the zone cache: %s", data.QualifiedName.ValueString()),
+				"failed to read DNSimple Zone Record",
+				fmt.Sprintf("Zone record not found in cache for qualified name '%s'", data.QualifiedName.ValueString()),
 			)
 			return
 		}
@@ -264,8 +264,8 @@ func (r *ZoneRecordResource) Read(ctx context.Context, req resource.ReadRequest,
 			}
 
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("error reading DNSimple Zone Record ID: %d", data.Id.ValueInt64()),
-				err.Error(),
+				"failed to read DNSimple Zone Record",
+				fmt.Sprintf("Unable to read zone record with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 			)
 			return
 		}
@@ -359,8 +359,8 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 	_, err := r.config.Client.Zones.DeleteRecord(ctx, r.config.AccountID, data.ZoneName.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to delete DNSimple Record: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to delete DNSimple Zone Record",
+			fmt.Sprintf("Unable to delete zone record '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -369,7 +369,10 @@ func (r *ZoneRecordResource) Delete(ctx context.Context, req resource.DeleteRequ
 func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
-		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<zone-name>_<record-id>'", req.ID))
+		resp.Diagnostics.AddError(
+			"invalid import ID",
+			fmt.Sprintf("Invalid import ID format '%s'. Expected format: '<zone-name>_<record-id>'", req.ID),
+		)
 		return
 	}
 	zoneName := parts[0]
@@ -377,7 +380,10 @@ func (r *ZoneRecordResource) ImportState(ctx context.Context, req resource.Impor
 
 	id, err := strconv.ParseInt(recordID, 10, 64)
 	if err != nil {
-		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse record ID (%s) as integer", recordID))
+		resp.Diagnostics.AddError(
+			"invalid import ID",
+			fmt.Sprintf("Unable to parse record ID '%s' as integer. Expected a numeric ID", recordID),
+		)
 		return
 	}
 

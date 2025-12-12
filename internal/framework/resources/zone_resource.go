@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -92,7 +92,7 @@ func (r *ZoneResource) Configure(ctx context.Context, req resource.ConfigureRequ
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -120,7 +120,7 @@ func (r *ZoneResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"failed to retrieve DNSimple Zone",
+			"failed to read DNSimple Zone",
 			err.Error(),
 		)
 		return
@@ -161,8 +161,8 @@ func (r *ZoneResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	response, err := r.config.Client.Zones.GetZone(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Zone: %s", data.Name.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Zone",
+			fmt.Sprintf("Unable to read zone '%s': %s", data.Name.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -227,8 +227,8 @@ func (r *ZoneResource) ImportState(ctx context.Context, req resource.ImportState
 	response, err := r.config.Client.Zones.GetZone(ctx, r.config.AccountID, req.ID)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to find DNSimple Zone ID: %s", req.ID),
-			err.Error(),
+			"failed to import DNSimple Zone",
+			fmt.Sprintf("Unable to find zone '%s': %s", req.ID, err.Error()),
 		)
 		return
 	}
@@ -256,8 +256,8 @@ func (r *ZoneResource) setActiveState(ctx context.Context, data *ZoneResourceMod
 		zoneResponse, err := r.config.Client.Zones.ActivateZoneDns(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to activate DNSimple Zone: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-				err.Error(),
+				"failed to activate DNSimple Zone",
+				fmt.Sprintf("Unable to activate zone '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 			)
 		}
 		return zoneResponse.Data, diagnostics
@@ -266,8 +266,8 @@ func (r *ZoneResource) setActiveState(ctx context.Context, data *ZoneResourceMod
 	zoneResponse, err := r.config.Client.Zones.DeactivateZoneDns(ctx, r.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		diagnostics.AddError(
-			fmt.Sprintf("failed to deactivate DNSimple Zone: %s, %d", data.Name.ValueString(), data.Id.ValueInt64()),
-			err.Error(),
+			"failed to deactivate DNSimple Zone",
+			fmt.Sprintf("Unable to deactivate zone '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
 		)
 	}
 

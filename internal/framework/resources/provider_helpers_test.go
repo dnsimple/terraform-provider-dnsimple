@@ -1,7 +1,7 @@
 package resources_test
 
 import (
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/provider"

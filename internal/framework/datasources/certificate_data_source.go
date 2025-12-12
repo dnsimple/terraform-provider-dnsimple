@@ -102,8 +102,8 @@ func (d *CertificateDataSource) Configure(ctx context.Context, req datasource.Co
 
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -125,7 +125,7 @@ func (d *CertificateDataSource) Read(ctx context.Context, req datasource.ReadReq
 	convergenceState, err := tryToConvergeCertificate(ctx, data, &resp.Diagnostics, d, data.CertificateId.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"failed to get certificate state",
+			"failed to get DNSimple Certificate state",
 			err.Error(),
 		)
 		return
@@ -190,16 +190,16 @@ func tryToConvergeCertificate(ctx context.Context, data *CertificateDataSourceMo
 
 		if certificate.Data.State == consts.CertificateStateFailed {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to issue certificate: %s", data.Domain.ValueString()),
-				"certificate order failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+				"failed to issue DNSimple Certificate",
+				fmt.Sprintf("Certificate order failed for domain '%s'. Please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com", data.Domain.ValueString()),
 			)
 			return nil, true
 		}
 
 		if certificate.Data.State == consts.CertificateStateCancelled || certificate.Data.State == consts.CertificateStateRefunded {
 			diagnostics.AddError(
-				fmt.Sprintf("failed to issue certificate: %s", data.Domain.ValueString()),
-				"certificate order failed, please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com",
+				"failed to issue DNSimple Certificate",
+				fmt.Sprintf("Certificate order was cancelled or refunded for domain '%s'. Please investigate why this happened. If you need assistance, please contact support at support@dnsimple.com", data.Domain.ValueString()),
 			)
 			return nil, true
 		}

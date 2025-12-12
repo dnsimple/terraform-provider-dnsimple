@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -90,7 +90,7 @@ func (r *EmailForwardResource) Configure(ctx context.Context, req resource.Confi
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -110,8 +110,8 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 	}
 
 	domainAttributes := dnsimple.EmailForward{
-		From: data.AliasName.ValueString(),
-		To:   data.DestinationEmail.ValueString(),
+		AliasName:        data.AliasName.ValueString(),
+		DestinationEmail: data.DestinationEmail.ValueString(),
 	}
 
 	tflog.Debug(ctx, "creating DNSimple EmailForward", map[string]interface{}{"attributes": domainAttributes})
@@ -125,7 +125,7 @@ func (r *EmailForwardResource) Create(ctx context.Context, req resource.CreateRe
 		}
 
 		resp.Diagnostics.AddError(
-			"failed to create DNSimple EmailForward",
+			"failed to create DNSimple Email Forward",
 			err.Error(),
 		)
 		return
@@ -152,8 +152,8 @@ func (r *EmailForwardResource) Read(ctx context.Context, req resource.ReadReques
 	response, err := r.config.Client.Domains.GetEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple EmailForward: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to read DNSimple Email Forward",
+			fmt.Sprintf("Unable to read email forward with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -184,8 +184,8 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 	_, err := r.config.Client.Domains.DeleteEmailForward(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to delete DNSimple EmailForward: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to delete DNSimple Email Forward",
+			fmt.Sprintf("Unable to delete email forward with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -194,7 +194,10 @@ func (r *EmailForwardResource) Delete(ctx context.Context, req resource.DeleteRe
 func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
-		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<email-forward-id>'", req.ID))
+		resp.Diagnostics.AddError(
+			"invalid import ID",
+			fmt.Sprintf("Invalid import ID format '%s'. Expected format: '<domain-name>_<email-forward-id>'", req.ID),
+		)
 		return
 	}
 	domainName := parts[0]
@@ -202,7 +205,10 @@ func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.Imp
 
 	id, err := strconv.ParseInt(recordID, 10, 64)
 	if err != nil {
-		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse email forward ID (%s) as integer", recordID))
+		resp.Diagnostics.AddError(
+			"invalid import ID",
+			fmt.Sprintf("Unable to parse email forward ID '%s' as integer. Expected a numeric ID", recordID),
+		)
 		return
 	}
 
@@ -212,7 +218,12 @@ func (r *EmailForwardResource) ImportState(ctx context.Context, req resource.Imp
 
 func (r *EmailForwardResource) updateModelFromAPIResponse(emailForward *dnsimple.EmailForward, data *EmailForwardResourceModel) {
 	data.Id = types.Int64Value(emailForward.ID)
-	data.AliasName = types.StringValue(strings.Split(emailForward.From, "@")[0])
-	data.AliasEmail = types.StringValue(emailForward.From)
-	data.DestinationEmail = types.StringValue(emailForward.To)
+	if emailForward.AliasEmail != "" {
+		data.AliasName = types.StringValue(strings.Split(emailForward.AliasEmail, "@")[0])
+		data.AliasEmail = types.StringValue(emailForward.AliasEmail)
+	} else if emailForward.AliasName != "" {
+		data.AliasName = types.StringValue(emailForward.AliasName)
+		data.AliasEmail = types.StringValue(emailForward.AliasName + "@" + data.Domain.ValueString())
+	}
+	data.DestinationEmail = types.StringValue(emailForward.DestinationEmail)
 }

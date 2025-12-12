@@ -1,7 +1,8 @@
 module github.com/terraform-providers/terraform-provider-dnsimple
 
 require (
-	github.com/dnsimple/dnsimple-go/v5 v5.0.0
+	github.com/dnsimple/dnsimple-go/v7 v7.0.1
+	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
 	github.com/hashicorp/terraform-plugin-framework v1.16.1
 	github.com/hashicorp/terraform-plugin-framework-timeouts v0.7.0
@@ -30,7 +31,6 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/cli v1.1.7 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
@@ -89,6 +89,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.24.4
