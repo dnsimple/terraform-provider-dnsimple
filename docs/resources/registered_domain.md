@@ -67,10 +67,10 @@ resource "dnsimple_registered_domain" "example_bio" {
 
 ## Argument Reference
 
-The following argument(s) are supported:
+The following arguments are supported:
 
 - `name` - (Required) The domain name to be registered.
-- `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change this may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
+- `contact_id` - (Required) The ID of the contact to be used for the domain registration. The contact ID can be changed after the domain has been registered. The change will result in a new registrant change, which may result in a [60-day lock](https://support.dnsimple.com/articles/icann-60-day-lock-registrant-change/).
 - `auto_renew_enabled` - (Optional) Whether the domain should be set to auto-renew (default: `false`).
 - `whois_privacy_enabled` - (Optional) Whether the domain should have WHOIS privacy enabled (default: `false`).
 - `dnssec_enabled` - (Optional) Whether the domain should have DNSSEC enabled (default: `false`).
@@ -105,16 +105,16 @@ Attributes Reference:
 
 DNSimple registered domains can be imported using their domain name and **optionally** with domain registration ID.
 
-**Importing registered domain example.com**
+**Importing registered domain example.com:**
 
 ```bash
-terraform import dnsimple_registered_domain.resource_name example.com
+terraform import dnsimple_registered_domain.example example.com
 ```
 
-**Importing registered domain example.com with domain registration ID 1234**
+**Importing registered domain example.com with domain registration ID 1234:**
 
 ```bash
-terraform import dnsimple_registered_domain.resource_name example.com_1234
+terraform import dnsimple_registered_domain.example example.com_1234
 ```
 
 ~> **Note:** At present there is no way to retrieve the domain registration ID from the DNSimple API or UI. You will need to have noted the ID when you created the domain registration. Prefer using the domain name only when importing.
