@@ -5,6 +5,7 @@
 ENHANCEMENTS:
 
 - Add `debug_transport_file` provider setting to enable transport debug.
+- deps: Bump dnsimple-go to v7
 
 
 ## 1.10.0
