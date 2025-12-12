@@ -45,7 +45,7 @@ The following arguments are supported:
 - `zone_name` - (Required) The zone name to add the record to.
 - `name` - (Required) The name of the record. Use `""` for the root domain.
 - `value` - (Required) The value of the record.
-- `type` - (Required) The type of the record (e.g., `A`, `AAAA`, `CNAME`, `MX`, `TXT`).
+- `type` - (Required) The type of the record (e.g., `A`, `AAAA`, `CNAME`, `MX`, `TXT`). **The record type must be specified in UPPERCASE.**
 - `ttl` - (Optional) The TTL of the record. Defaults to `3600`.
 - `priority` - (Optional) The priority of the record. Only used for certain record types (e.g., `MX`, `SRV`).
 - `regions` - (Optional) A list of regions to serve the record from. You can find a list of supported values in our [developer documentation](https://developer.dnsimple.com/v2/zones/records/).
