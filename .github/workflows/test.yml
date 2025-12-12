@@ -80,7 +80,7 @@ jobs:
             registrant_change_domain: 'dnsimple-tf-ci-1.eu'
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: .go-version
           cache: true
