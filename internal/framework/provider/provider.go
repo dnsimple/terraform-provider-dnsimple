@@ -1,10 +1,14 @@
 package provider
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -32,11 +36,81 @@ type DnsimpleProvider struct {
 
 // DnsimpleProviderModel describes the provider data model.
 type DnsimpleProviderModel struct {
-	Token          types.String `tfsdk:"token"`
-	Account        types.String `tfsdk:"account"`
-	Sandbox        types.Bool   `tfsdk:"sandbox"`
-	Prefetch       types.Bool   `tfsdk:"prefetch"`
-	UserAgentExtra types.String `tfsdk:"user_agent"`
+	Token              types.String `tfsdk:"token"`
+	Account            types.String `tfsdk:"account"`
+	Sandbox            types.Bool   `tfsdk:"sandbox"`
+	Prefetch           types.Bool   `tfsdk:"prefetch"`
+	UserAgentExtra     types.String `tfsdk:"user_agent"`
+	DebugTransportFile types.String `tfsdk:"debug_transport_file"`
+}
+
+// debugTransport is an HTTP transport that logs requests and responses
+type debugTransport struct {
+	Base     http.RoundTripper
+	FilePath string
+}
+
+func (t *debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Open debug file for appending
+	f, err := os.OpenFile(t.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err == nil {
+		defer f.Close()
+
+		// Log request
+		fmt.Fprintf(f, "\n=== HTTP REQUEST ===\n")
+		fmt.Fprintf(f, "Method: %s\n", req.Method)
+		fmt.Fprintf(f, "URL: %s\n", req.URL.String())
+		fmt.Fprintf(f, "Headers: %v\n", req.Header)
+
+		// Log request body if present
+		if req.Body != nil {
+			bodyBytes, err := io.ReadAll(req.Body)
+			if err != nil {
+				fmt.Fprintf(f, "Error reading request body: %v\n", err)
+			} else {
+				fmt.Fprintf(f, "Request Body: %s\n", string(bodyBytes))
+				// Restore the body for the actual request
+				req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			}
+		}
+	}
+
+	// Perform the request
+	base := t.Base
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	resp, respErr := base.RoundTrip(req)
+
+	if respErr != nil {
+		if f != nil {
+			fmt.Fprintf(f, "=== HTTP ERROR ===\n")
+			fmt.Fprintf(f, "Error: %v\n", respErr)
+		}
+		return resp, respErr
+	}
+
+	if f != nil {
+		// Log response
+		fmt.Fprintf(f, "=== HTTP RESPONSE ===\n")
+		fmt.Fprintf(f, "Status: %d %s\n", resp.StatusCode, resp.Status)
+		fmt.Fprintf(f, "Headers: %v\n", resp.Header)
+
+		// Read and log body
+		if resp.Body != nil {
+			bodyBytes, err := io.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Fprintf(f, "Error reading response body: %v\n", err)
+			} else {
+				fmt.Fprintf(f, "Body: %s\n", string(bodyBytes))
+				// Restore the body for the actual client to read
+				resp.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+			}
+		}
+		fmt.Fprintf(f, "=== END RESPONSE ===\n")
+	}
+
+	return resp, respErr
 }
 
 // Metadata returns information about the provider.
@@ -71,6 +145,10 @@ func (p *DnsimpleProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Optional:    true,
 				Description: "Custom string to append to the user agent used for sending HTTP requests to the API.",
 			},
+			"debug_transport_file": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "File path to enable HTTP request/response debugging. When set, all HTTP requests and responses will be logged to this file.",
+			},
 		},
 		MarkdownDescription: "The DNSimple provider is used to interact with the various services that DNSimple offers. " +
 			"The provider needs to be configured with the proper credentials before it can be used.",
@@ -103,8 +181,8 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	if token == "" {
 		resp.Diagnostics.AddError(
-			"must provide api token",
-			"must define a token for the dnsimple provider or set the DNSIMPLE_TOKEN environment variable",
+			"failed to configure DNSimple provider",
+			"API token is required. Set the token in the provider configuration or the DNSIMPLE_TOKEN environment variable",
 		)
 		return
 	}
@@ -117,8 +195,8 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 
 	if account == "" {
 		resp.Diagnostics.AddError(
-			"must provide account",
-			"must define an account for the dnsimple provider or set the DNSIMPLE_ACCOUNT environment variable",
+			"failed to configure DNSimple provider",
+			"Account ID is required. Set the account in the provider configuration or the DNSIMPLE_ACCOUNT environment variable",
 		)
 		return
 	}
@@ -142,6 +220,14 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 	tc := oauth2.NewClient(ctx, ts)
 
+	// Add debug transport to log HTTP requests/responses if debug_transport_file is set
+	if !data.DebugTransportFile.IsNull() && !data.DebugTransportFile.IsUnknown() {
+		debugFile := data.DebugTransportFile.ValueString()
+		if debugFile != "" {
+			tc.Transport = &debugTransport{Base: tc.Transport, FilePath: debugFile}
+		}
+	}
+
 	client := dnsimple.NewClient(tc)
 
 	userAgent := fmt.Sprintf("terraform/%s terraform-provider-dnsimple/%s", req.TerraformVersion, p.version)
@@ -149,6 +235,7 @@ func (p *DnsimpleProvider) Configure(ctx context.Context, req provider.Configure
 		userAgent = fmt.Sprintf("%s %s", userAgent, data.UserAgentExtra.ValueString())
 	}
 	client.SetUserAgent(userAgent)
+	client.Debug = true
 
 	if sandbox {
 		client.BaseURL = consts.BaseURLSandbox

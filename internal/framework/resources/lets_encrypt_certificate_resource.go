@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
@@ -128,7 +128,7 @@ func (r *LetsEncryptCertificateResource) Configure(ctx context.Context, req reso
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -212,8 +212,8 @@ func (r *LetsEncryptCertificateResource) Read(ctx context.Context, req resource.
 	response, err := r.config.Client.Certificates.GetCertificate(ctx, r.config.AccountID, data.DomainId.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple LetsEncryptCertificate: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to read DNSimple Let's Encrypt Certificate",
+			fmt.Sprintf("Unable to read certificate with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}

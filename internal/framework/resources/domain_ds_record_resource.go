@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -115,7 +115,7 @@ func (r *DsRecordResource) Configure(ctx context.Context, req resource.Configure
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -151,7 +151,7 @@ func (r *DsRecordResource) Create(ctx context.Context, req resource.CreateReques
 		}
 
 		resp.Diagnostics.AddError(
-			"failed to create DNSimple domain delegation signer record",
+			"failed to create DNSimple DS Record",
 			err.Error(),
 		)
 		return
@@ -176,8 +176,8 @@ func (r *DsRecordResource) Read(ctx context.Context, req resource.ReadRequest, r
 	response, err := r.config.Client.Domains.GetDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple domain delegation signer record: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to read DNSimple DS Record",
+			fmt.Sprintf("Unable to read DS record with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -208,8 +208,8 @@ func (r *DsRecordResource) Delete(ctx context.Context, req resource.DeleteReques
 	_, err := r.config.Client.Domains.DeleteDelegationSignerRecord(ctx, r.config.AccountID, data.Domain.ValueString(), data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to delete DNSimple domain delegation signer record: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to delete DNSimple DS Record",
+			fmt.Sprintf("Unable to delete DS record with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 	}
 }
@@ -218,8 +218,8 @@ func (r *DsRecordResource) ImportState(ctx context.Context, req resource.ImportS
 	parts := strings.Split(req.ID, "_")
 	if len(parts) != 2 {
 		resp.Diagnostics.AddError(
-			"resource import invalid ID",
-			fmt.Sprintf("wrong format of import ID (%s), use: '<domain-name>_<delegation-signer-record-id>'", req.ID),
+			"invalid import ID",
+			fmt.Sprintf("Invalid import ID format '%s'. Expected format: '<domain-name>_<ds-record-id>'", req.ID),
 		)
 	}
 	domain := parts[0]
@@ -228,8 +228,8 @@ func (r *DsRecordResource) ImportState(ctx context.Context, req resource.ImportS
 	dsId, err := strconv.ParseInt(dsIdRaw, 10, 64)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"failed to import DNSimple domain delegation signer record",
-			fmt.Sprintf("invalid ID: %s", dsIdRaw),
+			"invalid import ID",
+			fmt.Sprintf("Unable to parse DS record ID '%s' as integer. Expected a numeric ID", dsIdRaw),
 		)
 		return
 	}

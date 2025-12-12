@@ -67,8 +67,8 @@ func (d *ZoneDataSource) Configure(ctx context.Context, req datasource.Configure
 
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -90,7 +90,7 @@ func (d *ZoneDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	response, err := d.config.Client.Zones.GetZone(ctx, d.config.AccountID, data.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"failed to find DNSimple Zone",
+			"failed to read DNSimple Zone",
 			err.Error(),
 		)
 		return

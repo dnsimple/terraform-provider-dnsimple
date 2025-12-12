@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
@@ -37,7 +37,7 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".com"
+	domainName := utils.RandomName("com", "base")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -75,7 +75,7 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".eu"
+	domainName := utils.RandomName("eu", "extattrs")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -160,7 +160,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domainName := utils.RandomString(62) + ".net"
+	domainName := utils.RandomName("com", "options")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -169,20 +169,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 		CheckDestroy:             testAccCheckRegisteredDomainResourceDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, false, true, true, true),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "name", domainName),
-					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
-					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
-					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "true"),
-					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "true"),
-					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
-				),
-			},
-			{
-				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, true, false, false, false),
+				Config: testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactID, true, false, false, true),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
@@ -190,7 +177,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "true"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
-					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "true"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -80,7 +80,7 @@ func (r *DomainDelegationResource) Configure(ctx context.Context, req resource.C
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -113,7 +113,7 @@ func (r *DomainDelegationResource) Create(ctx context.Context, req resource.Crea
 		}
 
 		resp.Diagnostics.AddError(
-			"failed to create domain delegation",
+			"failed to create DNSimple Domain Delegation",
 			err.Error(),
 		)
 		return
@@ -138,8 +138,8 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read domain delegation for domain %s", data.Domain.ValueString()),
-			err.Error(),
+			"failed to read DNSimple Domain Delegation",
+			fmt.Sprintf("Unable to read domain delegation for domain '%s': %s", data.Domain.ValueString(), err.Error()),
 		)
 		return
 	}
@@ -166,8 +166,8 @@ func (r *DomainDelegationResource) Update(ctx context.Context, req resource.Upda
 	response, err := r.config.Client.Registrar.ChangeDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString(), &nameServers)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to update domain delegation for domain %s", data.Domain.ValueString()),
-			err.Error(),
+			"failed to update DNSimple Domain Delegation",
+			fmt.Sprintf("Unable to update domain delegation for domain '%s': %s", data.Domain.ValueString(), err.Error()),
 		)
 		return
 	}

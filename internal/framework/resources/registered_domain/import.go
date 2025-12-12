@@ -24,8 +24,8 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 		domainRegistrationResponse, err := r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, domainName, domainRegistrationID)
 		if err != nil {
 			resp.Diagnostics.AddError(
-				fmt.Sprintf("failed to find DNSimple Domain Registration ID: %s", domainRegistrationID),
-				err.Error(),
+				"failed to import DNSimple Domain Registration",
+				fmt.Sprintf("Unable to find domain registration with ID '%s': %s", domainRegistrationID, err.Error()),
 			)
 			return
 		}
@@ -38,16 +38,16 @@ func (r *RegisteredDomainResource) ImportState(ctx context.Context, req resource
 	domainResponse, err := r.config.Client.Domains.GetDomain(ctx, r.config.AccountID, domainName)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("unexpected error when trying to find DNSimple Domain ID: %s", domainName),
-			err.Error(),
+			"failed to import DNSimple Domain",
+			fmt.Sprintf("Unable to find domain '%s': %s", domainName, err.Error()),
 		)
 		return
 	}
 
 	if domainResponse.Data.State != consts.DomainStateRegistered && !usingDomainAndRegistrationID {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("domain %s is not registered", domainName),
-			"domain must be registered before it can be imported",
+			"failed to import DNSimple Domain",
+			fmt.Sprintf("Domain '%s' is not registered. Domain must be registered before it can be imported", domainName),
 		)
 		return
 	}

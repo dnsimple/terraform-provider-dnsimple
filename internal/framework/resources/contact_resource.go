@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/dnsimple/dnsimple-go/v5/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -150,7 +150,7 @@ func (r *ContactResource) Configure(ctx context.Context, req resource.ConfigureR
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *provider.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *common.DnsimpleProviderConfig, got: %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -220,8 +220,8 @@ func (r *ContactResource) Read(ctx context.Context, req resource.ReadRequest, re
 	response, err := r.config.Client.Contacts.GetContact(ctx, r.config.AccountID, data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to read DNSimple Contact: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to read DNSimple Contact",
+			fmt.Sprintf("Unable to read contact with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -303,8 +303,8 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 	_, err := r.config.Client.Contacts.DeleteContact(ctx, r.config.AccountID, data.Id.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			fmt.Sprintf("failed to delete DNSimple Contact: %d", data.Id.ValueInt64()),
-			err.Error(),
+			"failed to delete DNSimple Contact",
+			fmt.Sprintf("Unable to delete contact with ID %d: %s", data.Id.ValueInt64(), err.Error()),
 		)
 		return
 	}
@@ -313,7 +313,10 @@ func (r *ContactResource) Delete(ctx context.Context, req resource.DeleteRequest
 func (r *ContactResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	id, err := strconv.ParseInt(req.ID, 10, 64)
 	if err != nil {
-		resp.Diagnostics.AddError("resource import invalid ID", fmt.Sprintf("failed to parse contact ID (%s) as integer", req.ID))
+		resp.Diagnostics.AddError(
+			"invalid import ID",
+			fmt.Sprintf("Unable to parse contact ID '%s' as integer. Expected a numeric ID", req.ID),
+		)
 		return
 	}
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), id)...)
