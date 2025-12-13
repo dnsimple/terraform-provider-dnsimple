@@ -12,7 +12,7 @@ This provider enables you to treat your DNS and domain infrastructure as code, m
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.0.3
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.12
 - DNSimple account with API access
 
 ## Installation
@@ -21,7 +21,7 @@ Add the DNSimple provider to your Terraform configuration:
 
 ```hcl
 terraform {
-  required_version = ">= 1.0.3"
+  required_version = ">= 1.12"
 
   required_providers {
     dnsimple = {
@@ -65,7 +65,7 @@ Configure the provider:
 
 ```hcl
 terraform {
-  required_version = ">= 1.0.3"
+  required_version = ">= 1.12"
 
   required_providers {
     dnsimple = {

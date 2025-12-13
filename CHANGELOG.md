@@ -2,6 +2,10 @@
 
 ## main
 
+BREAKING CHANGES:
+
+- provider: Minimum Terraform version is now 1.12. Previous versions are no longer supported.
+
 ENHANCEMENTS:
 
 - provider: Add `debug_transport_file` configuration option to enable transport debug logging

@@ -7,8 +7,7 @@ DNSimple Terraform Provider
 Requirements
 ------------
 
-- [Terraform](https://www.terraform.io/downloads.html) 1.0.3 or greater
-  - Old versions may be supported, but Terraform does not support automatically fetching protocol v6 providers from the registry prior to Terraform 1.0.3 as mentioned [here](https://github.com/dnsimple/terraform-provider-dnsimple/issues/96#issuecomment-1502775686).
+- [Terraform](https://www.terraform.io/downloads.html) 1.12 or greater
 - [Go](https://golang.org/doc/install) 1.18+ (to build the provider plugin)
 
 Building The Provider

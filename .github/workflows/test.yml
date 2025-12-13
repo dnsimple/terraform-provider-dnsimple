@@ -62,22 +62,22 @@ jobs:
       fail-fast: false
       matrix:
         terraform:
-          - '1.10.*'
-          - '1.11.*'
           - '1.12.*'
+          - '1.13.*'
+          - '1.14.*'
         include:
-          - terraform: '1.10.*'
-            domain: 'dnsimple-3-1-terraform.bio'
-            registrant_contact_id: 14323
-            registrant_change_domain: 'dnsimple-tf-ci-2.eu'
-          - terraform: '1.11.*'
-            domain: 'dnsimple-3-2-terraform.bio'
-            registrant_contact_id: 14323
-            registrant_change_domain: 'dnsimple-tf-ci-3.eu'
           - terraform: '1.12.*'
             domain: 'dnsimple-3-0-terraform.bio'
             registrant_contact_id: 14323
             registrant_change_domain: 'dnsimple-tf-ci-1.eu'
+          - terraform: '1.13.*'
+            domain: 'dnsimple-3-1-terraform.bio'
+            registrant_contact_id: 14323
+            registrant_change_domain: 'dnsimple-tf-ci-2.eu'
+          - terraform: '1.14.*'
+            domain: 'dnsimple-3-2-terraform.bio'
+            registrant_contact_id: 14323
+            registrant_change_domain: 'dnsimple-tf-ci-3.eu'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
