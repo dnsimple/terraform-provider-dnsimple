@@ -2,23 +2,68 @@
 page_title: Migrate from deprecated resources
 ---
 
-Learn how to migrate resources that have been deprecated or renamed in favour of a new resource.
+# Migrate from Deprecated Resources
 
-There can be cases where a resource is deprecated or renamed in a new version of the provider. In these cases, Terraform will not be able to find the resource and will fail to run. In order to migrate to the new resource, you will need to manipulating the state file and configuration files.
+Learn how to migrate resources that have been deprecated or renamed in favor of a new resource.
 
-~> **Note:** This guide only covers migrating resources that have a replacement resource. If a resource has been removed, you will need to manually remove the resource from the state file.
+## Overview
 
-The steps to migrate a resource are as follows:
+When a resource is deprecated or renamed in a new version of the provider, Terraform will not be able to find the resource and will fail to run. To migrate to the new resource, you will need to manipulate the state file and configuration files.
 
-1. Remove the resource from the state file
-2. Update the configuration files
-3. Import the resource into the state file
+-> **Note:** This guide only covers migrating resources that have a replacement resource. If a resource has been removed without a replacement, you will need to manually remove the resource from the state file using `terraform state rm`.
 
-### Example:
+## Migration Steps
 
-For the purpose of this guide, we will be using `dnsimple_record` as the old resource and `dnsimple_zone_record` as the new resource.
+The migration process consists of three main steps:
 
-Old resource configuration:
+1. **Obtain the resource ID** - Identify the unique identifier for the resource you're migrating
+2. **Remove the old resource from state** - Remove the deprecated resource from Terraform's state file
+3. **Update configuration and import** - Update your configuration files to use the new resource and import it into state
+
+## Example Migration
+
+For the purpose of this guide, we will demonstrate migrating from `dnsimple_record` (deprecated) to `dnsimple_zone_record` (current).
+
+### Step 1: Obtain the Resource ID
+
+Before starting the migration, you need to identify the resource ID. The resource ID can be found in several ways:
+
+- **From the Terraform state file** - Use `terraform console` to query the state
+- **From the DNSimple UI** - View the resource in the DNSimple web dashboard
+- **From the DNSimple API** - Query the API directly
+
+To retrieve the ID from the state file, you can use the following command:
+
+```shell
+echo dnsimple_record.demo.id | terraform console
+```
+
+-> **Note:** To list all the resources tracked in the state, you can use the `terraform state list` command.
+
+For `dnsimple_zone_record`, the import ID format is `<zone_name>_<record_id>`. You may need to construct this ID from separate values. Refer to each resource's documentation for the specific import ID format.
+
+### Step 2: Remove the Old Resource from State
+
+Remove the deprecated resource from Terraform's state file using the `terraform state rm` command:
+
+```shell
+terraform state rm dnsimple_record.demo
+```
+
+Expected output:
+
+```
+Removed dnsimple_record.demo
+Successfully removed 1 resource instance(s).
+```
+
+-> **Important:** This command only removes the resource from Terraform's state file. It does not delete the actual resource in DNSimple. The resource will continue to exist and function normally.
+
+### Step 3: Update Configuration and Import
+
+Update your configuration files to use the new resource. Note any differences in attribute names or required fields between the old and new resources.
+
+**Old resource configuration:**
 
 ```hcl
 locals {
@@ -27,35 +72,14 @@ locals {
 
 resource "dnsimple_record" "demo" {
   domain = local.vegan_pizza
-  name      = "demo"
-  value     = "2.3.4.5"
-  type      = "A"
-  ttl       = 3600
+  name   = "demo"
+  value  = "2.3.4.5"
+  type   = "A"
+  ttl    = 3600
 }
-
-...
 ```
 
-To prepare for the migration we will first want to ensure we have the resource ID. The resource ID can be found in the state or in the DNSimple UI. Refer to each resource's documentation for more information.
-
-To retrieve the ID from the state file you can use the following script that runs code in the `terraform console` and outputs the ID:
-
-```shell
-echo dnsimple_record.demo.id | terraform console
-```
-
--> **Note:** To list all the resources tracked in the state, you can use the `terraform state list` command.
-
-Now we need to remove the resource from the state file. To do this, we will need to use the `terraform state rm` command. The command will look something like this:
-
-```shell
-terraform state rm dnsimple_record.demo
-
-Removed dnsimple_record.demo
-Successfully removed 1 resource instance(s).
-```
-
-Update the configuration files to use the new resource:
+**New resource configuration:**
 
 ```hcl
 locals {
@@ -69,17 +93,19 @@ resource "dnsimple_zone_record" "demo" {
   type      = "A"
   ttl       = 3600
 }
-
-...
 ```
 
-Now we need to import the resource into the state. To do this, we will use the resource ID we previously obtained, and then we will use the [terraform import command](https://www.terraform.io/docs/import/index.html).
+Notice that `domain` has been changed to `zone_name` in the new resource.
 
-To import the resource, we will need to run the following command:
+Now import the resource into the state using the `terraform import` command with the resource ID you obtained earlier:
 
 ```shell
 terraform import dnsimple_zone_record.demo vegan.pizza_2879253
+```
 
+Expected output:
+
+```
 dnsimple_zone_record.demo: Importing from ID "vegan.pizza_2879253"...
 dnsimple_zone_record.demo: Import prepared!
   Prepared dnsimple_zone_record for import
@@ -91,16 +117,52 @@ The resources that were imported are shown above. These resources are now in
 your Terraform state and will henceforth be managed by Terraform.
 ```
 
--> **Note:** The resource ID for `dnsimple_zone_record` is in the [format](https://registry.terraform.io/providers/dnsimple/dnsimple/latest/docs/resources/zone_record#import) `<zone_name>_<record_id>`. For example, `vegan.pizza_2645561`.
+-> **Note:** The resource ID for `dnsimple_zone_record` is in the format `<zone_name>_<record_id>`. For example, `vegan.pizza_2645561`. Refer to the [resource documentation](https://registry.terraform.io/providers/dnsimple/dnsimple/latest/docs/resources/zone_record#import) for more details.
 
-Once the resource has been imported, you can run `terraform plan` and no changes should be reported.
+### Step 4: Verify the Migration
+
+After importing the resource, run `terraform plan` to verify that Terraform recognizes the resource and that no changes are needed:
+
+```shell
+terraform plan
+```
+
+Expected output:
 
 ```
-terraform plan
-dnsimple_record.www: Refreshing state... [id=2879254]
 dnsimple_zone_record.demo: Refreshing state... [id=2879253]
 
 No changes. Your infrastructure matches the configuration.
 
 Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
 ```
+
+If `terraform plan` shows differences, review the configuration to ensure all attributes match the imported resource. You may need to adjust attribute values or add missing attributes.
+
+## Troubleshooting
+
+### Import ID Format
+
+If the import fails, verify that you're using the correct import ID format for the resource. Each resource type has a specific format documented in its resource page. Common formats include:
+
+- `<zone_name>_<record_id>` for zone records
+- Domain names for domain resources
+- Numeric IDs for other resources
+
+### Configuration Mismatches
+
+If `terraform plan` shows changes after import, compare the imported resource attributes with your configuration. Common issues include:
+
+- Attribute name changes (e.g., `domain` → `zone_name`)
+- Default value differences
+- Missing optional attributes that were set in the original resource
+
+### Multiple Resources
+
+When migrating multiple resources, repeat the process for each resource. You can automate this with scripts, but be careful to verify each migration individually.
+
+## Additional Resources
+
+- [Terraform Import Documentation](https://www.terraform.io/docs/import/index.html) - Official Terraform import guide
+- [Terraform State Management](https://www.terraform.io/docs/state/index.html) - Understanding Terraform state
+- [DNSimple Provider Documentation](https://registry.terraform.io/providers/dnsimple/dnsimple/latest/docs) - Complete provider reference
