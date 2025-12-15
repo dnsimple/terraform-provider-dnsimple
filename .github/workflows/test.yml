@@ -62,22 +62,22 @@ jobs:
       fail-fast: false
       matrix:
         terraform:
-          - '1.12.*'
-          - '1.13.*'
-          - '1.14.*'
+          - "1.12.*"
+          - "1.13.*"
+          - "1.14.*"
         include:
-          - terraform: '1.12.*'
-            domain: 'dnsimple-3-0-terraform.bio'
+          - terraform: "1.12.*"
+            domain: "dnsimple-3-0-terraform.bio"
             registrant_contact_id: 14323
-            registrant_change_domain: 'dnsimple-tf-ci-1.eu'
-          - terraform: '1.13.*'
-            domain: 'dnsimple-3-1-terraform.bio'
+            registrant_change_domain: "dnsimple-tf-ci-1.eu"
+          - terraform: "1.13.*"
+            domain: "dnsimple-3-1-terraform.bio"
             registrant_contact_id: 14323
-            registrant_change_domain: 'dnsimple-tf-ci-2.eu'
-          - terraform: '1.14.*'
-            domain: 'dnsimple-3-2-terraform.bio'
+            registrant_change_domain: "dnsimple-tf-ci-2.eu"
+          - terraform: "1.14.*"
+            domain: "dnsimple-3-2-terraform.bio"
             registrant_contact_id: 14323
-            registrant_change_domain: 'dnsimple-tf-ci-3.eu'
+            registrant_change_domain: "dnsimple-tf-ci-3.eu"
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -100,11 +100,22 @@ jobs:
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
         run: go test -v ./internal/... -timeout 15m
         timeout-minutes: 10
+
+  cleanup:
+    name: Cleanup
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: "go.mod"
+          cache: true
       - run: make sweep
-        if: always()
         env:
           DNSIMPLE_SANDBOX: true
           DNSIMPLE_ACCOUNT: ${{ secrets.DNSIMPLE_ACCOUNT }}
           DNSIMPLE_TOKEN: ${{ secrets.DNSIMPLE_TOKEN }}
-          DNSIMPLE_DOMAIN: ${{ matrix.domain }}
-          DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
+          DNSIMPLE_CLEANUP_DOMAINS: true
+          DNSIMPLE_DOMAINS_TO_KEEP: "dnsimple-3-0-terraform.bio,dnsimple-3-1-terraform.bio,dnsimple-3-2-terraform.bio"
