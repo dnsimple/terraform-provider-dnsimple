@@ -26,8 +26,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+        uses: actions/checkout@v6.0.1
+      - uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
           cache: true
@@ -39,12 +39,12 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v6.0.1
+      - uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
           cache: true
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3.1.2
         with:
           terraform_wrapper: false
       - run: go generate ./...
@@ -79,12 +79,12 @@ jobs:
             registrant_contact_id: 14323
             registrant_change_domain: "dnsimple-tf-ci-3.eu"
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v6.0.1
+      - uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
           cache: true
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3.1.2
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
@@ -107,8 +107,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v6.0.1
+      - uses: actions/setup-go@v6.1.0
         with:
           go-version-file: "go.mod"
           cache: true
