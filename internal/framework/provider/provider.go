@@ -52,7 +52,7 @@ type debugTransport struct {
 
 func (t *debugTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// Open debug file for appending
-	f, err := os.OpenFile(t.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(t.FilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err == nil {
 		defer f.Close()
 
