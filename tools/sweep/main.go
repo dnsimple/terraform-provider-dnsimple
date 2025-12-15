@@ -23,28 +23,6 @@ func main() {
 	dnsimpleClient.UserAgent = "terraform-provider-dnsimple/test"
 	dnsimpleClient.BaseURL = consts.BaseURLSandbox
 
-	domainName := os.Getenv("DNSIMPLE_DOMAIN")
-	options := &dnsimple.ZoneRecordListOptions{
-		ListOptions: dnsimple.ListOptions{
-			PerPage: dnsimple.Int(100),
-		},
-	}
-	records, err := dnsimpleClient.Zones.ListRecords(context.Background(), account, domainName, options)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, record := range records.Data {
-		if !record.SystemRecord {
-			_, err := dnsimpleClient.Zones.DeleteRecord(context.Background(), account, domainName, record.ID)
-			if err != nil && strings.Contains(err.Error(), "404") {
-				// 404 is expected if the record was already deleted
-			} else if err != nil {
-				panic(err)
-			}
-		}
-	}
-
 	cancelContactChanges(context.Background(), dnsimpleClient, account)
 	cleanupDomains(context.Background(), dnsimpleClient, account)
 }
