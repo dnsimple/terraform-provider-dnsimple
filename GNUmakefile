@@ -21,7 +21,7 @@ install: build
 
 .PHONY: test
 test: fmtcheck
-	go test $(TEST) $(TESTARGS) -timeout=5m
+	go test $(TEST) $(TESTARGS)
 
 .PHONY: testacc
 testacc: fmtcheck

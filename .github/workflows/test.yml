@@ -98,7 +98,7 @@ jobs:
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
           DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
-        run: go test -v ./internal/... -timeout 15m
+        run: go test -v ./internal/... -timeout 10m
         timeout-minutes: 10
 
   cleanup:

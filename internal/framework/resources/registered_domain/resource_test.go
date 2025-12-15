@@ -32,12 +32,8 @@ func init() {
 }
 
 func TestAccRegisteredDomainResource(t *testing.T) {
-	// Get convert the contact id to int
-	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_CONTACT_ID"))
-	if err != nil {
-		t.Fatal(err)
-	}
 	domainName := utils.RandomName("com", "base")
+	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -69,13 +65,8 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 }
 
 func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
-	// var resourceID string
-	// Get convert the contact id to int
-	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_CONTACT_ID"))
-	if err != nil {
-		t.Fatal(err)
-	}
 	domainName := utils.RandomName("eu", "extattrs")
+	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -108,11 +99,8 @@ func TestAccRegisteredDomainResource_WithExtendedAttrs(t *testing.T) {
 }
 
 func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testing.T) {
-	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID"))
-	if err != nil {
-		t.Fatal(err)
-	}
 	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
+	contactID := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -122,7 +110,7 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 		Steps: []resource.TestStep{
 			{
 				ResourceName:       resourceName,
-				Config:             testAccRegisteredDomainResourceConfig(domainName, 1234),
+				Config:             testAccRegisteredDomainResourceConfig(domainName, "1234"),
 				ImportStateId:      domainName,
 				ImportState:        true,
 				ImportStateVerify:  false,
@@ -141,7 +129,7 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.state"),
 					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.registry_owner_change"),
 					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.domain_id"),
-					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", fmt.Sprintf("%d", contactID)),
+					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", contactID),
 					resource.TestCheckResourceAttr(resourceName, "registrant_change.extended_attributes.x-eu-registrant-citizenship", "bg"),
 				),
 				// We expect the plan to be non-empty because we are creating a registrant change that will not be completed
@@ -155,12 +143,8 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 }
 
 func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
-	// Get convert the contact id to int
-	contactID, err := strconv.Atoi(os.Getenv("DNSIMPLE_CONTACT_ID"))
-	if err != nil {
-		t.Fatal(err)
-	}
 	domainName := utils.RandomName("com", "options")
+	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -202,7 +186,7 @@ func TestAccRegisteredDomainResource_ImportedWithDomainOnly(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				ResourceName:      resourceName,
-				Config:            testAccRegisteredDomainResourceConfig(domainName, 1234),
+				Config:            testAccRegisteredDomainResourceConfig(domainName, "1234"),
 				ImportStateId:     domainName,
 				ImportState:       true,
 				ImportStateVerify: false,
@@ -293,32 +277,32 @@ func testAccCheckRegisteredDomainRegistrantChangeDestroy(state *terraform.State)
 	return nil
 }
 
-func testAccRegisteredDomainResourceConfig(domainName string, contactId int) string {
+func testAccRegisteredDomainResourceConfig(domainName, contactId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_registered_domain" "test" {
 	name = %[1]q
 
-	contact_id = %[2]d
+	contact_id = %[2]q
 }`, domainName, contactId)
 }
 
-func testAccRegisteredDomainResourceConfig_WithExtendedAttrs(domainName string, contactId int) string {
+func testAccRegisteredDomainResourceConfig_WithExtendedAttrs(domainName, contactId string) string {
 	return fmt.Sprintf(`
 resource "dnsimple_registered_domain" "test" {
 	name = %[1]q
 
-	contact_id = %[2]d
+	contact_id = %[2]q
 	extended_attributes = {
 		"x-eu-registrant-citizenship" = "bg"
 	}
 }`, domainName, contactId)
 }
 
-func testAccRegisteredDomainResourceConfig_WithOptions(domainName string, contactId int, withAutoRenew, withWhoisPrivacy, withDNSSEC bool, withTransferLock bool) string {
+func testAccRegisteredDomainResourceConfig_WithOptions(domainName, contactId string, withAutoRenew, withWhoisPrivacy, withDNSSEC bool, withTransferLock bool) string {
 	return fmt.Sprintf(`
 resource "dnsimple_registered_domain" "test" {
 	name = %[1]q
-	contact_id = %[2]d
+	contact_id = %[2]q
 
 	auto_renew_enabled = %[3]t
 	whois_privacy_enabled = %[4]t

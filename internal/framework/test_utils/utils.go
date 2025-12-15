@@ -36,16 +36,16 @@ func TestAccPreCheck(t *testing.T) {
 }
 
 func LoadDNSimpleTestClient() (*dnsimple.Client, string) {
-	if os.Getenv("TF_ACC") != "" {
-		token := os.Getenv("DNSIMPLE_TOKEN")
-		account := os.Getenv("DNSIMPLE_ACCOUNT")
-
-		dnsimpleClient := dnsimple.NewClient(dnsimple.StaticTokenHTTPClient(context.Background(), token))
-		dnsimpleClient.UserAgent = "terraform-provider-dnsimple/test"
-		dnsimpleClient.BaseURL = consts.BaseURLSandbox
-
-		return dnsimpleClient, account
+	if os.Getenv("TF_ACC") != "1" {
+		return nil, ""
 	}
 
-	return nil, ""
+	token := os.Getenv("DNSIMPLE_TOKEN")
+	account := os.Getenv("DNSIMPLE_ACCOUNT")
+
+	dnsimpleClient := dnsimple.NewClient(dnsimple.StaticTokenHTTPClient(context.Background(), token))
+	dnsimpleClient.UserAgent = "terraform-provider-dnsimple/test"
+	dnsimpleClient.BaseURL = consts.BaseURLSandbox
+
+	return dnsimpleClient, account
 }
