@@ -1,61 +1,160 @@
-DNSimple Terraform Provider
-===========================
+# Terraform Provider for DNSimple
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Terraform_Logo.svg/512px-Terraform_Logo.svg.png" width="300px">
+[![Terraform Registry](https://img.shields.io/badge/terraform-registry-623CE4?logo=terraform)](https://registry.terraform.io/providers/dnsimple/dnsimple)
+[![License](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](LICENSE)
 
+The Terraform DNSimple provider allows you to manage DNSimple resources using Terraform.
 
-Requirements
-------------
+## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) 1.12 or greater
-- [Go](https://golang.org/doc/install) 1.18+ (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.12
+- [Go](https://golang.org/doc/install) >= 1.18 (to build the provider from source)
 
-Building The Provider
----------------------
+## Installation
 
-Clone repository to: `$GOPATH/src/github.com/dnsimple/terraform-provider-dnsimple`
+The provider is available on the [Terraform Registry](https://registry.terraform.io/providers/dnsimple/dnsimple). Add the following to your Terraform configuration:
 
-```sh
-$ mkdir -p $GOPATH/src/github.com/dnsimple; cd $GOPATH/src/github.com/dnsimple
-$ git clone https://github.com/dnsimple/terraform-provider-dnsimple.git
+```hcl
+terraform {
+  required_providers {
+    dnsimple = {
+      source  = "dnsimple/dnsimple"
+      version = "~> 1.0"
+    }
+  }
+}
+
+provider "dnsimple" {
+  token   = var.dnsimple_token
+  account = var.dnsimple_account
+  sandbox = true  # Set to false for production
+}
 ```
 
-Enter the provider directory and build the provider
+Then run:
 
-```sh
-$ cd $GOPATH/src/github.com/dnsimple/terraform-provider-dnsimple
-$ make build
+```shell
+terraform init
 ```
 
-Using the provider
-----------------------
+## Documentation
 
-See the [DNSimple Provider documentation](https://www.terraform.io/docs/providers/dnsimple/index.html) to get started using the DNSimple provider.
+Full documentation is available on the [Terraform Registry](https://registry.terraform.io/providers/dnsimple/dnsimple/latest/docs).
 
-Developing the Provider
----------------------------
+## Quick Start
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.18+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
+After installing the provider, configure it with your DNSimple credentials:
 
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
+```hcl
+provider "dnsimple" {
+  token   = "your-api-token"
+  account = "your-account-id"
+  sandbox = true
+}
 
-```sh
-$ make build
-...
-$ $GOPATH/bin/terraform-provider-dnsimple
-...
+resource "dnsimple_zone" "example" {
+  name = "example.com"
+}
+
+resource "dnsimple_zone_record" "www" {
+  zone_id = dnsimple_zone.example.id
+  name    = "www"
+  type    = "A"
+  value   = "1.2.3.4"
+}
 ```
 
-In order to test the provider, you can simply run `make test`.
+## Development
 
-```sh
-$ make test
+### Getting Started
+
+1. Clone the repository:
+
+   ```shell
+   git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
+   cd terraform-provider-dnsimple
+   ```
+
+2. Build the provider:
+
+   ```shell
+   make build
+   ```
+
+   This will build the provider and place the binary in `$GOPATH/bin`.
+
+### Testing
+
+Run the unit tests:
+
+```shell
+make test
 ```
 
-In order to run the full suite of Acceptance tests, run `make testacc`.
+Run the acceptance tests (requires DNSimple API credentials):
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
-
-```sh
-$ make testacc
+```shell
+DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="your-token" DNSIMPLE_DOMAIN=example.com DNSIMPLE_SANDBOX=true make testacc
 ```
+
+**Note:** Acceptance tests create real resources and may incur costs.
+
+#### Testing Let's Encrypt Resources
+
+The sandbox environment does not support certificate operations. To test `dnsimple_lets_encrypt_certificate` resources, run tests in production:
+
+```shell
+DNSIMPLE_SANDBOX=false DNSIMPLE_CERTIFICATE_NAME=www DNSIMPLE_CERTIFICATE_ID=123 make testacc
+```
+
+### Sideloading the Provider
+
+To use a locally built version of the provider:
+
+1. Install the provider:
+
+   ```shell
+   make install
+   ```
+
+2. Create a symlink to the Terraform plugins directory:
+
+   ```shell
+   # Replace darwin_arm64 with your architecture
+   mkdir -p ~/.terraform.d/plugins/terraform.local/dnsimple/dnsimple/0.1.0/darwin_arm64
+   ln -s "$GOBIN/terraform-provider-dnsimple" ~/.terraform.d/plugins/terraform.local/dnsimple/dnsimple/0.1.0/darwin_arm64/
+   ```
+
+3. Configure Terraform to use the local provider:
+
+   ```hcl
+   terraform {
+    required_providers {
+      dnsimple = {
+        source  = "terraform.local/dnsimple/dnsimple"
+        version = "0.1.0"
+      }
+    }
+   }
+   ```
+
+4. Test with the example configuration:
+
+   ```shell
+   cd example
+   terraform init && terraform apply
+   ```
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0. See [LICENSE](LICENSE) for details.
+
+## Resources
+
+- [Terraform Registry](https://registry.terraform.io/providers/dnsimple/dnsimple)
+- [DNSimple API Documentation](https://developer.dnsimple.com/)
+- [DNSimple Support](https://support.dnsimple.com/)

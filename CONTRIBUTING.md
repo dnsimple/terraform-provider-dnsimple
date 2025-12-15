@@ -1,74 +1,78 @@
 # Contributing to DNSimple/terraform-provider
 
-## Getting started
+## Contributing Workflow
 
-#### 1. Clone the repository
+1. **Create a new branch**
 
-Clone the repository and move into it:
+   Create a feature branch from `main` for your changes:
 
-```shell
-git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
-cd terraform-provider-dnsimple
-```
+   ```shell
+   git checkout -b feature/your-feature-name
+   ```
 
-#### 2. Build and test
+2. **Make the changes**
 
-If you wish to work on the provider, you'll first need Go installed on your machine (version 1.18+ is required). You'll also need to correctly setup a GOPATH, as well as adding $GOPATH/bin to your $PATH.
+   Implement your changes, following the code style guidelines below.
 
-To compile the provider, run make build. This will build the provider and put the provider binary in the $GOPATH/bin directory.
+3. **Validate tests and linters**
 
-```shell
-$ make build
-...
-$ $GOPATH/bin/terraform-provider-dnsimple
-...
-```
+   Before submitting your PR, ensure all checks pass:
 
+   ```shell
+   make fmtcheck    # Check code formatting
+   make errcheck    # Check for unchecked errors
+   make test        # Run unit tests
+   ```
+
+   If formatting issues are found, you can auto-fix them:
+
+   ```shell
+   make fmt         # Format code with gofumpt
+   ```
+
+   If you've modified any generated code, ensure code generation is up to date:
+
+   ```shell
+   go generate ./...
+   ```
+
+4. **Create the PR**
+
+   Push your branch and create a pull request against `main`. Include a clear description of your changes and reference any related issues.
+
+5. **Follow up**
+
+   - Respond to any review feedback promptly
+   - Make requested changes and push updates to your branch
+   - Ensure CI checks pass (tests, formatting, and static analysis)
+
+## Code Style and Static Analysis
+
+We use several tools to maintain code quality and consistency:
+
+### Code Formatting
+
+We use [`gofumpt`](https://github.com/mvdan/gofumpt) for code formatting, which is a stricter version of `gofmt`.
+
+- **Check formatting**: Run `make fmtcheck` to verify your code is properly formatted
+- **Auto-format**: Run `make fmt` to automatically format your code
+
+The build and test targets automatically run `fmtcheck` to ensure all code is properly formatted.
+
+### Error Checking
+
+We use [`errcheck`](https://github.com/kisielk/errcheck) to ensure all errors are properly handled.
+
+- **Check for unchecked errors**: Run `make errcheck`
+
+This helps prevent bugs by ensuring all function return values, especially errors, are properly handled.
 
 ## Testing
+
+Submit unit tests for your changes. You can test your changes on your machine by [running the test suite](README.md#testing):
 
 ```shell
 make test
 ```
 
-You can also run the integration tests like:
-
-```shell
-DNSIMPLE_ACCOUNT=12345 DNSIMPLE_TOKEN="adf23cf" DNSIMPLE_DOMAIN=example.com DNSIMPLE_SANDBOX=true make testacc
-```
-
-### Testing the let's encrypt resource and the certificate data-source
-
-Our sandbox environment does not allow purchasing or issue certificates. For that reason, if you want to test the
-`resource_dnsimple_lets_encrypt_certificate` you will have to run the tests in production
-(setting `DNSIMPLE_SANDBOX=false` in the shell).
-
-You will have to set the following env variables in your shell:
-   - `DNSIMPLE_CERTIFICATE_NAME` the name for which to request the certificate i.e. **www**
-   - `DNSIMPLE_CERTIFICATE_ID` the certificate ID used in the datasource test
-
-## Sideload the plugin
-
-Sideload the plugin
-
-```shell
-make install
-# Replace `darwin_arm64` with your arch. GOBIN should be where the Go built binary is installed to.
-ln -s "$GOBIN/terraform-provider-dnsimple" "$HOME/.terraform.d/plugins/terraform.local/dnsimple/dnsimple/0.1.0/darwin_arm64/."
-```
-
-Use this as the provider configuration:
-
-```tf
-dnsimple = {
-  source  = "terraform.local/dnsimple/dnsimple"
-  version = "0.1.0"
-}
-```
-
-You can use the `./example/simple.tf` config to test the provider.
-
-```shell
-cd example
-terraform init && terraform apply --auto-approve
-```
+When you submit a PR, tests will also be run on the continuous integration environment [via GitHub Actions](https://github.com/dnsimple/terraform-provider-dnsimple/actions).
