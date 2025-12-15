@@ -23,31 +23,8 @@ func main() {
 	dnsimpleClient.UserAgent = "terraform-provider-dnsimple/test"
 	dnsimpleClient.BaseURL = consts.BaseURLSandbox
 
-	domainName := os.Getenv("DNSIMPLE_DOMAIN")
-	options := &dnsimple.ZoneRecordListOptions{
-		ListOptions: dnsimple.ListOptions{
-			PerPage: dnsimple.Int(100),
-		},
-	}
-	records, err := dnsimpleClient.Zones.ListRecords(context.Background(), account, domainName, options)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, record := range records.Data {
-		if !record.SystemRecord {
-			_, err := dnsimpleClient.Zones.DeleteRecord(context.Background(), account, domainName, record.ID)
-			if err != nil && strings.Contains(err.Error(), "404") {
-				// 404 is expected if the record was already deleted
-			} else if err != nil {
-				panic(err)
-			}
-		}
-	}
-
-	cancelAllContactChanges(context.Background(), dnsimpleClient, account)
+	cancelContactChanges(context.Background(), dnsimpleClient, account)
 	cleanupDomains(context.Background(), dnsimpleClient, account)
-	cleanupEmailForwards(context.Background(), dnsimpleClient, account)
 }
 
 // RegistrantChangeCancelStates is a list of states that can be cancelled
@@ -56,7 +33,7 @@ var RegistrantChangeCancelStates = []string{
 	consts.RegistrantChangeStatePending,
 }
 
-func cancelAllContactChanges(ctx context.Context, dnsimpleClient *dnsimple.Client, account string) {
+func cancelContactChanges(ctx context.Context, dnsimpleClient *dnsimple.Client, account string) {
 	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
 
 	if domainName == "" {
@@ -208,31 +185,6 @@ func cleanupDomains(ctx context.Context, dnsimpleClient *dnsimple.Client, accoun
 					panic(err)
 				}
 			}
-		}
-	}
-}
-
-func cleanupEmailForwards(ctx context.Context, dnsimpleClient *dnsimple.Client, account string) {
-	emailForwardDomain := os.Getenv("DNSIMPLE_DOMAIN")
-	if emailForwardDomain == "" {
-		fmt.Println("Skipping email forward cleanup as DNSIMPLE_DOMAIN is not set")
-		return
-	}
-
-	listOptions := &dnsimple.ListOptions{
-		PerPage: dnsimple.Int(100),
-	}
-
-	emailForwards, err := dnsimpleClient.Domains.ListEmailForwards(ctx, account, emailForwardDomain, listOptions)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, emailForward := range emailForwards.Data {
-		fmt.Printf("Deleting email forward %s\n", emailForward.AliasName)
-		_, err := dnsimpleClient.Domains.DeleteEmailForward(ctx, account, emailForwardDomain, emailForward.ID)
-		if err != nil {
-			panic(err)
 		}
 	}
 }
