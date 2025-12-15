@@ -68,20 +68,20 @@ resource "dnsimple_zone_record" "www" {
 
 ### Getting Started
 
-1. Clone the repository:
+Clone the repository:
 
-   ```shell
-   git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
-   cd terraform-provider-dnsimple
-   ```
+ ```shell
+ git clone git@github.com:dnsimple/terraform-provider-dnsimple.git
+ cd terraform-provider-dnsimple
+ ```
 
-2. Build the provider:
+Build the provider:
 
-   ```shell
-   make build
-   ```
+ ```shell
+ make build
+ ```
 
-   This will build the provider and place the binary in `$GOPATH/bin`.
+ This will build the provider and place the binary in `$GOPATH/bin`.
 
 ### Testing
 
