@@ -1,6 +1,6 @@
 # Changelog
 
-## main
+## 2.0.0
 
 BREAKING CHANGES:
 
