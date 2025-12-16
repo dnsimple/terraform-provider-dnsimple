@@ -9,6 +9,7 @@ BREAKING CHANGES:
 ENHANCEMENTS:
 
 - provider: Add `debug_transport_file` configuration option to enable transport debug logging
+- resource/`dnsimple_zone_record`: Validate format of record type (#317)
 - deps: Bump dnsimple-go to v7
 
 
