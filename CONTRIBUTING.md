@@ -46,6 +46,10 @@
    - Make requested changes and push updates to your branch
    - Ensure CI checks pass (tests, formatting, and static analysis)
 
+## Changelog
+
+We loosely follow the [Common Changelog](https://common-changelog.org/) format for changelog entries.
+
 ## Code Style and Static Analysis
 
 We use several tools to maintain code quality and consistency:
