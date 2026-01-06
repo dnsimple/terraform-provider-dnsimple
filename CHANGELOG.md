@@ -1,5 +1,11 @@
 # Changelog
 
+## unreleased
+
+BUG FIXES:
+
+- resource/`dnsimple_ds_record`: Fix attribute name from `keytag` to `key_tag` to match documentation and Terraform naming conventions (#321)
+
 ## 2.0.0 - 2025-12-15
 
 BREAKING CHANGES:
