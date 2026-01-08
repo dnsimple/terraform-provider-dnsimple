@@ -42,7 +42,7 @@ type DsRecordResourceModel struct {
 	Algorithm  types.String `tfsdk:"algorithm"`
 	Digest     types.String `tfsdk:"digest"`
 	DigestType types.String `tfsdk:"digest_type"`
-	Keytag     types.String `tfsdk:"keytag"`
+	Keytag     types.String `tfsdk:"key_tag"`
 	PublicKey  types.String `tfsdk:"public_key"`
 	CreatedAt  types.String `tfsdk:"created_at"`
 	UpdatedAt  types.String `tfsdk:"updated_at"`
@@ -82,7 +82,7 @@ func (r *DsRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
-			"keytag": schema.StringAttribute{
+			"key_tag": schema.StringAttribute{
 				Optional: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
