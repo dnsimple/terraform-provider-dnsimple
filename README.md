@@ -5,6 +5,12 @@
 
 The Terraform DNSimple provider allows you to manage DNSimple resources using Terraform.
 
+## Resources
+
+- [Terraform Registry](https://registry.terraform.io/providers/dnsimple/dnsimple)
+- [DNSimple API Documentation](https://developer.dnsimple.com/)
+- [DNSimple Support](https://support.dnsimple.com/)
+
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.12
@@ -152,9 +158,3 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## License
 
 This project is licensed under the Mozilla Public License 2.0. See [LICENSE](LICENSE) for details.
-
-## Resources
-
-- [Terraform Registry](https://registry.terraform.io/providers/dnsimple/dnsimple)
-- [DNSimple API Documentation](https://developer.dnsimple.com/)
-- [DNSimple Support](https://support.dnsimple.com/)
