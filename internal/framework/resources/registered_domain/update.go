@@ -117,7 +117,7 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		if !registrantChange.Id.IsNull() {
+		if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 			convergenceState, _ := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
 			if convergenceState == RegistrantChangeFailed {
 				// Response is already populated with the error we can safely return
@@ -155,11 +155,9 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				)
 				return
 			}
-
-		} else {
-			// Create a new registrant change and handle any errors
-			createRegistrantChange(ctx, planData, r, resp)
 		}
+		// Create a new registrant change (either no previous change exists or previous one is already completed)
+		createRegistrantChange(ctx, planData, r, resp)
 	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
 		if err != nil {
