@@ -156,7 +156,8 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				return
 			}
 		}
-		// Create a new registrant change (either no previous change exists or previous one is already completed)
+		// Pending registrant change has been converged or no pending change exists.
+		// Always create a new registrant change when contact_id differs.
 		createRegistrantChange(ctx, planData, r, resp)
 	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
