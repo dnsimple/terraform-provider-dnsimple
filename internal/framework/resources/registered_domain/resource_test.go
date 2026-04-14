@@ -142,6 +142,51 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 	})
 }
 
+func TestAccRegisteredDomainResource_RepeatedRegistrantChange(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
+	contactID := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID")
+	contactID2 := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2")
+	resourceName := "dnsimple_registered_domain.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheckRepeatedRegistrantChange(t) },
+		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
+		CheckDestroy:             testAccCheckRegisteredDomainRegistrantChangeDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Import the existing domain
+				ResourceName:       resourceName,
+				Config:             testAccRegisteredDomainResourceConfig(domainName, "1234"),
+				ImportStateId:      domainName,
+				ImportState:        true,
+				ImportStateVerify:  false,
+				ImportStatePersist: true,
+			},
+			{
+				// First contact_id change
+				Config: testAccRegisteredDomainResourceConfig(domainName, contactID),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.id"),
+					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", contactID),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Second contact_id change - previously failed with:
+				// "unexpected unknown property value for registrantChange"
+				Config: testAccRegisteredDomainResourceConfig(domainName, contactID2),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.id"),
+					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", contactID2),
+				),
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
 func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 	domainName := utils.RandomName("com", "options")
 	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
@@ -214,6 +259,13 @@ func testAccPreCheckRegistrantChange(t *testing.T) {
 	}
 	if os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN") == "" {
 		t.Fatal("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN must be set for acceptance tests")
+	}
+}
+
+func testAccPreCheckRepeatedRegistrantChange(t *testing.T) {
+	testAccPreCheckRegistrantChange(t)
+	if os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2") == "" {
+		t.Fatal("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2 must be set for acceptance tests")
 	}
 }
 

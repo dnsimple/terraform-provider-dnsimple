@@ -5,8 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -150,16 +148,10 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 					"contact_id": schema.Int64Attribute{
 						MarkdownDescription: "DNSimple contact ID for which the registrant change is being performed",
 						Computed:            true,
-						PlanModifiers: []planmodifier.Int64{
-							int64planmodifier.RequiresReplace(),
-						},
 					},
 					"domain_id": schema.StringAttribute{
 						MarkdownDescription: "DNSimple domain ID for which the registrant change is being performed",
 						Computed:            true,
-						PlanModifiers: []planmodifier.String{
-							stringplanmodifier.RequiresReplace(),
-						},
 					},
 					"state": schema.StringAttribute{
 						MarkdownDescription: "State of the registrant change",
@@ -173,9 +165,6 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 						MarkdownDescription: "Extended attributes for the registrant change",
 						ElementType:         types.StringType,
 						Computed:            true,
-						PlanModifiers: []planmodifier.Map{
-							mapplanmodifier.RequiresReplaceIfConfigured(),
-						},
 					},
 					"registry_owner_change": schema.BoolAttribute{
 						MarkdownDescription: "True if the registrant change will result in a registry owner change",
@@ -185,6 +174,9 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 						MarkdownDescription: "Date when the registrant change lock was lifted for the domain",
 						Computed:            true,
 					},
+				},
+				PlanModifiers: []planmodifier.Object{
+					objectplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"timeouts": schema.SingleNestedAttribute{
