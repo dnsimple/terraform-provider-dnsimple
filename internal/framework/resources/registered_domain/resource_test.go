@@ -50,6 +50,7 @@ func TestAccRegisteredDomainResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "auto_renew_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "whois_privacy_enabled", "false"),
 					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "trustee", "false"),
 					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
 				),
 			},
@@ -172,6 +173,36 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			// Delete testing automatically occurs in TestCase
+		},
+	})
+}
+
+func TestAccRegisteredDomainResource_WithTrustee(t *testing.T) {
+	domainName := utils.RandomName("com.br", "trustee")
+	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
+	resourceName := "dnsimple_registered_domain.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheckRegisteredDomain(t) },
+		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
+		CheckDestroy:             testAccCheckRegisteredDomainResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccRegisteredDomainResourceConfig_WithTrustee(domainName, contactID),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "state", "registered"),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
+					resource.TestCheckResourceAttr(resourceName, "trustee", "true"),
+					resource.TestCheckResourceAttrSet(resourceName, "expires_at"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportStateIdFunc: testAccRegisteredDomainImportStateIDFunc(resourceName),
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -309,4 +340,14 @@ resource "dnsimple_registered_domain" "test" {
 	dnssec_enabled = %[5]t
 	transfer_lock_enabled = %[6]t
 }`, domainName, contactId, withAutoRenew, withWhoisPrivacy, withDNSSEC, withTransferLock)
+}
+
+func testAccRegisteredDomainResourceConfig_WithTrustee(domainName, contactId string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_registered_domain" "test" {
+	name = %[1]q
+	contact_id = %[2]q
+
+	trustee = true
+}`, domainName, contactId)
 }

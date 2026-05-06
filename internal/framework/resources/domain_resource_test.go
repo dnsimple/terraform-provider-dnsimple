@@ -27,6 +27,7 @@ func TestAccDomainResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "hosted"),
+					resource.TestCheckResourceAttr(resourceName, "trustee", "false"),
 				),
 			},
 			{
