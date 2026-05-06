@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 

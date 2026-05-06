@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 )
 
