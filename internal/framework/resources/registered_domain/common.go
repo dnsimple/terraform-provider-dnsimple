@@ -156,6 +156,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponse(ctx context.Contex
 		data.AccountId = types.Int64Value(domain.AccountID)
 		data.ExpiresAt = types.StringValue(domain.ExpiresAt)
 		data.Name = types.StringValue(domain.Name)
+		data.Trustee = types.BoolValue(domain.Trustee)
 	}
 
 	if dnssec != nil {
@@ -187,6 +188,10 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx c
 
 		if data.WhoisPrivacyEnabled.IsNull() {
 			data.WhoisPrivacyEnabled = types.BoolValue(domain.PrivateWhois)
+		}
+
+		if data.Trustee.IsNull() {
+			data.Trustee = types.BoolValue(domain.Trustee)
 		}
 
 		data.State = types.StringValue(domain.State)

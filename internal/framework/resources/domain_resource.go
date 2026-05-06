@@ -42,6 +42,7 @@ type DomainResourceModel struct {
 	State        types.String `tfsdk:"state"`
 	AutoRenew    types.Bool   `tfsdk:"auto_renew"`
 	PrivateWhois types.Bool   `tfsdk:"private_whois"`
+	Trustee      types.Bool   `tfsdk:"trustee"`
 	Id           types.Int64  `tfsdk:"id"`
 }
 
@@ -76,6 +77,9 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Computed: true,
 			},
 			"private_whois": schema.BoolAttribute{
+				Computed: true,
+			},
+			"trustee": schema.BoolAttribute{
 				Computed: true,
 			},
 			"id": common.IDInt64Attribute(),
@@ -212,4 +216,5 @@ func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, dat
 	data.State = types.StringValue(domain.State)
 	data.AutoRenew = types.BoolValue(domain.AutoRenew)
 	data.PrivateWhois = types.BoolValue(domain.PrivateWhois)
+	data.Trustee = types.BoolValue(domain.Trustee)
 }
