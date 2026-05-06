@@ -178,7 +178,7 @@ func TestAccRegisteredDomainResource_WithOptions(t *testing.T) {
 }
 
 func TestAccRegisteredDomainResource_WithTrustee(t *testing.T) {
-	domainName := utils.RandomName("com.br", "trustee")
+	domainName := utils.RandomName("eu", "trustee")
 	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
