@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dnsimple/dnsimple-go/v7/dnsimple"
+	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"

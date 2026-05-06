@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -141,8 +142,15 @@ func TestAccDomainDsRecordResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Updates are a no-op
-			// Delete testing automatically occurs in TestCase
+			// Wait for the DNSSEC workflow to complete before the automatic
+			// destroy step runs, otherwise the DS record may not be in a
+			// deletable state and the destroy will fail with a 400 error.
+			{
+				PreConfig: func() {
+					time.Sleep(30 * time.Second)
+				},
+				Config: testAccDomainDsRecordResourceConfig(domainName, dsData),
+			},
 		},
 	})
 }
