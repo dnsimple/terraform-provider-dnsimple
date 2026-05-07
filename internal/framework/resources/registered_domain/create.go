@@ -36,6 +36,11 @@ func (r *RegisteredDomainResource) Create(ctx context.Context, req resource.Crea
 		domainAttributes.EnableWhoisPrivacy = data.WhoisPrivacyEnabled.ValueBool()
 	}
 
+	if !data.Trustee.IsNull() {
+		trustee := data.Trustee.ValueBool()
+		domainAttributes.Trustee = &trustee
+	}
+
 	if !data.PremiumPrice.IsNull() {
 		domainAttributes.PremiumPrice = data.PremiumPrice.ValueString()
 	}
