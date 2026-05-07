@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0 - 2026-05-07
+
+FEATURES:
+
+- resource/`dnsimple_registered_domain`: Add `trustee` attribute to enable a trustee during domain registration (#350)
+- resource/`dnsimple_domain`: Add computed `trustee` attribute (#350)
+
+ENHANCEMENTS:
+
+- deps: Bump dnsimple-go to v9 (#349)
+- deps: Bump terraform-plugin-framework to v1.19.0 (#339)
+
 ## 2.0.1 - 2026-01-08
 
 BUG FIXES:
