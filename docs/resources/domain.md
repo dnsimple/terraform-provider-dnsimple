@@ -26,6 +26,7 @@ The following arguments are supported:
 - `account_id` - The account ID for the domain.
 - `auto_renew` - Whether the domain is set to auto-renew.
 - `private_whois` - Whether the domain has WhoIs privacy enabled.
+- `trustee` - Whether the domain has a [trustee](https://support.dnsimple.com/articles/what-is-domain-trustee/) enabled.
 - `registrant_id` - The ID of the registrant (contact) for the domain.
 - `state` - The state of the domain.
 - `unicode_name` - The domain name in Unicode format.
