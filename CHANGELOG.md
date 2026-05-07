@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1 - 2026-05-07
+
+ENHANCEMENTS:
+
+- docs: Add `trustee` attribute documentation for `dnsimple_registered_domain` and `dnsimple_domain` resources
+
 ## 2.1.0 - 2026-05-07
 
 FEATURES:
