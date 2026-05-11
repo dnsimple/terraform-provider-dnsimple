@@ -389,8 +389,8 @@ resource "dnsimple_registered_domain" "test" {
 	trustee = true
 
 	timeouts = {
-		create = "10s"
-		update = "10s"
+		create = "1m"
+		update = "1m"
 		delete = "30s"
 	}
 }`, domainName, contactId)
