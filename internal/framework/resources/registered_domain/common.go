@@ -182,15 +182,15 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx c
 	if domain != nil {
 		data.Id = types.Int64Value(domain.ID)
 
-		if data.AutoRenewEnabled.IsNull() {
+		if data.AutoRenewEnabled.IsNull() || data.AutoRenewEnabled.IsUnknown() {
 			data.AutoRenewEnabled = types.BoolValue(domain.AutoRenew)
 		}
 
-		if data.WhoisPrivacyEnabled.IsNull() {
+		if data.WhoisPrivacyEnabled.IsNull() || data.WhoisPrivacyEnabled.IsUnknown() {
 			data.WhoisPrivacyEnabled = types.BoolValue(domain.PrivateWhois)
 		}
 
-		if data.Trustee.IsNull() {
+		if data.Trustee.IsNull() || data.Trustee.IsUnknown() {
 			data.Trustee = types.BoolValue(domain.Trustee)
 		}
 
@@ -203,6 +203,7 @@ func (r *RegisteredDomainResource) updateModelFromAPIResponsePartialCreate(ctx c
 
 	data.DNSSECEnabled = types.BoolValue(false)
 	data.TransferLockEnabled = types.BoolValue(false)
+	data.RegistrantChange = types.ObjectNull(common.RegistrantChangeAttrType)
 
 	return nil
 }
