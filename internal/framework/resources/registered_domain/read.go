@@ -7,6 +7,7 @@ import (
 
 	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
 )
 
 func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -73,28 +74,35 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
-	dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"failed to read DNSimple Domain DNSSEC status",
-			fmt.Sprintf("Unable to read DNSSEC status for domain '%s': %s", data.Name.ValueString(), err.Error()),
-		)
-		return
-	}
+	var dnssec *dnsimple.Dnssec
+	var transferLock *dnsimple.DomainTransferLock
 
-	transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"failed to read DNSimple Domain Transfer Lock status",
-			fmt.Sprintf("Unable to read transfer lock status for domain '%s': %s", data.Name.ValueString(), err.Error()),
-		)
-		return
+	if domainResponse.Data.State == consts.DomainStateRegistered {
+		dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"failed to read DNSimple Domain DNSSEC status",
+				fmt.Sprintf("Unable to read DNSSEC status for domain '%s': %s", data.Name.ValueString(), err.Error()),
+			)
+			return
+		}
+		dnssec = dnssecResponse.Data
+
+		transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"failed to read DNSimple Domain Transfer Lock status",
+				fmt.Sprintf("Unable to read transfer lock status for domain '%s': %s", data.Name.ValueString(), err.Error()),
+			)
+			return
+		}
+		transferLock = transferLockResponse.Data
 	}
 
 	if domainRegistrationResponse == nil {
-		diags = r.updateModelFromAPIResponse(ctx, data, nil, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
+		diags = r.updateModelFromAPIResponse(ctx, data, nil, domainResponse.Data, dnssec, transferLock)
 	} else {
-		diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssecResponse.Data, transferLockResponse.Data)
+		diags = r.updateModelFromAPIResponse(ctx, data, domainRegistrationResponse.Data, domainResponse.Data, dnssec, transferLock)
 	}
 
 	if diags != nil && diags.HasError() {
