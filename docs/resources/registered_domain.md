@@ -66,6 +66,14 @@ resource "dnsimple_registered_domain" "example_bio" {
 ```
 
 
+## Slow domain registrations
+
+Some TLDs have registration processes that can take hours or days to complete. When this happens, the provider will save the domain in a partial state and display the following message:
+
+> domain registration is not complete, current state: registering. You can try to run terraform again to try and converge the domain registration
+
+This is expected behavior. You can re-run `terraform apply` to check if the registration has completed. The provider will automatically attempt to converge the domain registration on each apply until the registration is complete.
+
 ## Argument Reference
 
 The following arguments are supported:

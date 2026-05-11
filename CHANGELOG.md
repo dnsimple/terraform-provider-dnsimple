@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2 - 2026-05-12
+
+BUG FIXES:
+
+- resource/`dnsimple_registered_domain`: Fix unknown values after apply for domain registrations that take a long time to complete (#354)
+
 ## 2.1.1 - 2026-05-07
 
 ENHANCEMENTS:
