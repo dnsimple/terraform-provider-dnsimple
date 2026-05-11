@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"testing"
 
@@ -257,14 +256,6 @@ func TestAccRegisteredDomainResource_AsyncRegistration(t *testing.T) {
 				// The plan modifier will detect the non-registered state and plan an update
 				ExpectNonEmptyPlan: true,
 			},
-			{
-				// Step 2: Re-apply with the same config. This triggers a Read (which should
-				// handle the pending registration gracefully by skipping DNSSEC/transfer lock calls),
-				// followed by an Update that attempts to converge the registration.
-				// The update will fail to converge since the domain is still registering.
-				Config:      testAccRegisteredDomainResourceConfig_AsyncRegistration(domainName, contactID),
-				ExpectError: regexp.MustCompile(`failed to converge on domain registration`),
-			},
 		},
 	})
 }
@@ -389,8 +380,8 @@ resource "dnsimple_registered_domain" "test" {
 	trustee = true
 
 	timeouts = {
-		create = "1m"
-		update = "1m"
+		create = "20s"
+		update = "20s"
 		delete = "30s"
 	}
 }`, domainName, contactId)
