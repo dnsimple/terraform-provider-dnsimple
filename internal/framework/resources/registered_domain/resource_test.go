@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -231,6 +232,43 @@ func TestAccRegisteredDomainResource_ImportedWithDomainOnly(t *testing.T) {
 	})
 }
 
+func TestAccRegisteredDomainResource_AsyncRegistration(t *testing.T) {
+	domainName := utils.RandomName("com.br", "")[:8] + ".com.br"
+	contactID := os.Getenv("DNSIMPLE_CONTACT_ID")
+	resourceName := "dnsimple_registered_domain.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheckRegisteredDomain(t) },
+		ProtoV6ProviderFactories: test_utils.TestAccProtoV6ProviderFactories(),
+		CheckDestroy:             testAccCheckRegisteredDomainResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				// Step 1: Register a .com.br domain with trustee, which is asynchronous.
+				// The registration will not complete within the timeout, so the provider
+				// should save partial state with a warning and no errors.
+				Config: testAccRegisteredDomainResourceConfig_AsyncRegistration(domainName, contactID),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttrSet(resourceName, "domain_registration.id"),
+					resource.TestCheckResourceAttr(resourceName, "trustee", "true"),
+					resource.TestCheckResourceAttr(resourceName, "dnssec_enabled", "false"),
+					resource.TestCheckResourceAttr(resourceName, "transfer_lock_enabled", "false"),
+				),
+				// The plan modifier will detect the non-registered state and plan an update
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				// Step 2: Re-apply with the same config. This triggers a Read (which should
+				// handle the pending registration gracefully by skipping DNSSEC/transfer lock calls),
+				// followed by an Update that attempts to converge the registration.
+				// The update will fail to converge since the domain is still registering.
+				Config:      testAccRegisteredDomainResourceConfig_AsyncRegistration(domainName, contactID),
+				ExpectError: regexp.MustCompile(`failed to converge on domain registration`),
+			},
+		},
+	})
+}
+
 func testAccPreCheckRegisteredDomain(t *testing.T) {
 	test_utils.TestAccPreCheck(t)
 	if os.Getenv("DNSIMPLE_CONTACT_ID") == "" {
@@ -340,6 +378,22 @@ resource "dnsimple_registered_domain" "test" {
 	dnssec_enabled = %[5]t
 	transfer_lock_enabled = %[6]t
 }`, domainName, contactId, withAutoRenew, withWhoisPrivacy, withDNSSEC, withTransferLock)
+}
+
+func testAccRegisteredDomainResourceConfig_AsyncRegistration(domainName, contactId string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_registered_domain" "test" {
+	name = %[1]q
+	contact_id = %[2]q
+
+	trustee = true
+
+	timeouts = {
+		create = "20s"
+		update = "30s"
+		delete = "30s"
+	}
+}`, domainName, contactId)
 }
 
 func testAccRegisteredDomainResourceConfig_WithTrustee(domainName, contactId string) string {
