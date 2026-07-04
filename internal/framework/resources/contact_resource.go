@@ -337,7 +337,13 @@ func (r *ContactResource) updateModelFromAPIResponse(contact *dnsimple.Contact, 
 	data.PostalCode = types.StringValue(contact.PostalCode)
 	data.Country = types.StringValue(contact.Country)
 	data.PhoneNormalized = types.StringValue(contact.Phone)
+	if data.Phone.IsNull() || data.Phone.IsUnknown() || data.Phone.ValueString() == "" {
+		data.Phone = types.StringValue(contact.Phone)
+	}
 	data.FaxNormalized = types.StringValue(contact.Fax)
+	if data.Fax.IsNull() || data.Fax.IsUnknown() || data.Fax.ValueString() == "" {
+		data.Fax = types.StringValue(contact.Fax)
+	}
 	data.Email = types.StringValue(contact.Email)
 	data.CreatedAt = types.StringValue(contact.CreatedAt)
 	data.UpdatedAt = types.StringValue(contact.UpdatedAt)
