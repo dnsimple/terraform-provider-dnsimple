@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -35,15 +36,16 @@ type DomainResource struct {
 
 // DomainResourceModel describes the resource data model.
 type DomainResourceModel struct {
-	Name         types.String `tfsdk:"name"`
-	AccountId    types.Int64  `tfsdk:"account_id"`
-	RegistrantId types.Int64  `tfsdk:"registrant_id"`
-	UnicodeName  types.String `tfsdk:"unicode_name"`
-	State        types.String `tfsdk:"state"`
-	AutoRenew    types.Bool   `tfsdk:"auto_renew"`
-	PrivateWhois types.Bool   `tfsdk:"private_whois"`
-	Trustee      types.Bool   `tfsdk:"trustee"`
-	Id           types.Int64  `tfsdk:"id"`
+	Name          types.String `tfsdk:"name"`
+	PreventDelete types.Bool   `tfsdk:"prevent_delete"`
+	AccountId     types.Int64  `tfsdk:"account_id"`
+	RegistrantId  types.Int64  `tfsdk:"registrant_id"`
+	UnicodeName   types.String `tfsdk:"unicode_name"`
+	State         types.String `tfsdk:"state"`
+	AutoRenew     types.Bool   `tfsdk:"auto_renew"`
+	PrivateWhois  types.Bool   `tfsdk:"private_whois"`
+	Trustee       types.Bool   `tfsdk:"trustee"`
+	Id            types.Int64  `tfsdk:"id"`
 }
 
 func (r *DomainResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -60,6 +62,16 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			/*
+			 * Domain deletion is extremely dangerous and thus this attribute defaults
+			 * to true as a safeguard. Users who wish to directly manage (and potentially
+			 * delete) their domains must explicitly disable this flag.
+			 */
+			"prevent_delete": schema.BoolAttribute{
+				Optional: true,
+				Default:  booldefault.StaticBool(true),
+				Computed: true,
 			},
 			"account_id": schema.Int64Attribute{
 				Computed: true,
@@ -168,7 +180,26 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// No-op
+	var preventDeleteFlag types.Bool
+
+	/*
+	 * Save updated data into Terraform state.
+	 *
+	 * Since the single argument that can be updated is `prevent_delete` and that
+	 * value is only meant to be stored in the state and acted on when a domain might
+	 * be deleted, we only need to ensure it is stored when changed.
+	 */
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("prevent_delete"), &preventDeleteFlag)...)
+
+	if preventDeleteFlag.ValueBool() == false {
+		resp.Diagnostics.AddAttributeWarning(
+			path.Root("prevent_delete"),
+			"disabling domain deletion protection endangers domain registration.",
+			"Domain registration is lost when deleting domain resources. Only disable deletion protection if you fully understand the consequences of doing so.",
+		)
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), preventDeleteFlag)...)
 }
 
 func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -178,6 +209,18 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if data.PreventDelete.ValueBool() {
+		resp.Diagnostics.AddError(
+			"failed to delete DNSimple Domain",
+			"Domain deletion protection enabled.",
+		)
+		resp.Diagnostics.AddWarning(
+			"domain registration is lost when deleting domain resources.",
+			fmt.Sprintf("Disabling deletion protection and destroying this resource will DELETE YOUR DOMAIN REGISTRATION with DNSimple for the domain %s.", data.Name),
+		)
 		return
 	}
 
@@ -205,6 +248,7 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), types.BoolValue(true))...)
 }
 
 func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
