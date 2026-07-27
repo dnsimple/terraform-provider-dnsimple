@@ -137,6 +137,12 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 
 	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString())
 	if err != nil {
+		if utils.IsDomainNotRegisteredOrExpiredError(err) {
+			tflog.Warn(ctx, "removing domain delegation from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Domain.ValueString()})
+			resp.State.RemoveResource(ctx)
+			return
+		}
+
 		resp.Diagnostics.AddError(
 			"failed to read DNSimple Domain Delegation",
 			fmt.Sprintf("Unable to read domain delegation for domain '%s': %s", data.Domain.ValueString(), err.Error()),

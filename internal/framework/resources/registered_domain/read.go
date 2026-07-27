@@ -7,7 +7,9 @@ import (
 
 	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/consts"
+	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
 func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
@@ -32,6 +34,12 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		domainRegistrationId := strconv.Itoa(int(domainRegistration.Id.ValueInt64()))
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
 		if err != nil {
+			if utils.IsDomainNotRegisteredOrExpiredError(err) {
+				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
+				resp.State.RemoveResource(ctx)
+				return
+			}
+
 			resp.Diagnostics.AddError(
 				"failed to read DNSimple Domain Registration",
 				fmt.Sprintf("Unable to read domain registration for domain '%s' (registration ID: %d): %s", data.Name.ValueString(), domainRegistration.Id.ValueInt64(), err.Error()),
@@ -80,6 +88,12 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 	if domainResponse.Data.State == consts.DomainStateRegistered {
 		dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
+			if utils.IsDomainNotRegisteredOrExpiredError(err) {
+				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
+				resp.State.RemoveResource(ctx)
+				return
+			}
+
 			resp.Diagnostics.AddError(
 				"failed to read DNSimple Domain DNSSEC status",
 				fmt.Sprintf("Unable to read DNSSEC status for domain '%s': %s", data.Name.ValueString(), err.Error()),
@@ -90,6 +104,12 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 
 		transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
+			if utils.IsDomainNotRegisteredOrExpiredError(err) {
+				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
+				resp.State.RemoveResource(ctx)
+				return
+			}
+
 			resp.Diagnostics.AddError(
 				"failed to read DNSimple Domain Transfer Lock status",
 				fmt.Sprintf("Unable to read transfer lock status for domain '%s': %s", data.Name.ValueString(), err.Error()),

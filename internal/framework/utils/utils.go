@@ -2,7 +2,9 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -90,6 +92,25 @@ func AttributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics 
 	}
 
 	return diagnostics
+}
+
+// IsDomainNotRegisteredOrExpiredError returns true if err is a DNSimple API
+// error indicating that a registrar-level operation was rejected because the
+// domain is no longer registered at the registry (e.g. it lapsed and moved
+// past its renewal/redemption grace period). The DNSimple API surfaces this
+// as an HTTP 400 rather than a 404, so it cannot be treated as a generic
+// not-found response.
+func IsDomainNotRegisteredOrExpiredError(err error) bool {
+	var errorResponse *dnsimple.ErrorResponse
+	if !errors.As(err, &errorResponse) {
+		return false
+	}
+
+	if errorResponse.HTTPResponse == nil || errorResponse.HTTPResponse.StatusCode != http.StatusBadRequest {
+		return false
+	}
+
+	return strings.Contains(strings.ToLower(errorResponse.Message), "not registered or expired")
 }
 
 func TranslateFieldFromAPIToTerraform(field string) string {
