@@ -19,6 +19,7 @@ resource "dnsimple_domain" "example" {
 The following arguments are supported:
 
 - `name` - (Required) The domain name to be created.
+- `prevent_delete` - Flag to prevent [accidental registration deletion of the domain](https://support.dnsimple.com/articles/recovering-deleted-domain/) (default `true`).
 
 ## Attributes Reference
 
