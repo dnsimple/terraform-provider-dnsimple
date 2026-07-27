@@ -1,7 +1,7 @@
 module github.com/terraform-providers/terraform-provider-dnsimple
 
 require (
-	github.com/dnsimple/dnsimple-go/v9 v9.0.0
+	github.com/dnsimple/dnsimple-go/v9 v9.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
 	github.com/hashicorp/terraform-plugin-framework v1.19.0
