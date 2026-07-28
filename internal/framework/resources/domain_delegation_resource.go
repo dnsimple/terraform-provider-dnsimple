@@ -138,8 +138,17 @@ func (r *DomainDelegationResource) Read(ctx context.Context, req resource.ReadRe
 	response, err := r.config.Client.Registrar.GetDomainDelegation(ctx, r.config.AccountID, data.Domain.ValueString())
 	if err != nil {
 		if utils.IsDomainNotRegisteredOrExpiredError(err) {
-			tflog.Warn(ctx, "removing domain delegation from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Domain.ValueString()})
-			resp.State.RemoveResource(ctx)
+			// Report without failing the refresh, and leave prior state untouched.
+			// Dropping the resource would only discard the record of the managed name
+			// servers and still leave the practitioner with an apply that cannot
+			// succeed while the domain stays unregistered.
+			tflog.Warn(ctx, "registrar call rejected because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Domain.ValueString()})
+
+			resp.Diagnostics.AddWarning(
+				fmt.Sprintf("could not refresh the delegation for %s because the domain is no longer registered", data.Domain.ValueString()),
+				fmt.Sprintf("The DNSimple API reports that '%s' is not registered or has expired, so its delegation could not be refreshed. Terraform state has been left as-is rather than dropping the resource. Renew or restore the domain to resume managing its delegation, or remove the resource from your configuration and state if you no longer want it managed. Any plan produced while the domain stays lapsed is unlikely to apply cleanly.", data.Domain.ValueString()),
+			)
+
 			return
 		}
 
