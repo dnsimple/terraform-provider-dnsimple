@@ -64,14 +64,16 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				},
 			},
 			/*
-			 * Domain deletion is extremely dangerous and thus this attribute defaults
-			 * to true as a safeguard. Users who wish to directly manage (and potentially
-			 * delete) their domains must explicitly disable this flag.
+			 * Deleting a domain removes its registration, which is not recoverable in
+			 * the usual sense. This flag lets practitioners opt into a guard against
+			 * that. It defaults to false so the resource destroys like any other
+			 * Terraform resource unless protection is asked for explicitly.
 			 */
 			"prevent_delete": schema.BoolAttribute{
-				Optional: true,
-				Default:  booldefault.StaticBool(true),
-				Computed: true,
+				MarkdownDescription: "Whether to block `terraform destroy` from deleting the domain registration. Defaults to `false`. When set to `true`, destroying this resource fails until it is set back to `false` and applied.",
+				Optional:            true,
+				Default:             booldefault.StaticBool(false),
+				Computed:            true,
 			},
 			"account_id": schema.Int64Attribute{
 				Computed: true,
@@ -189,9 +191,19 @@ func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest,
 	 * value is only meant to be stored in the state and acted on when a domain might
 	 * be deleted, we only need to ensure it is stored when changed.
 	 */
-	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("prevent_delete"), &preventDeleteFlag)...)
+	var priorPreventDeleteFlag types.Bool
 
-	if preventDeleteFlag.ValueBool() == false {
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("prevent_delete"), &preventDeleteFlag)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("prevent_delete"), &priorPreventDeleteFlag)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Only warn on an actual true -> false transition. Warning on any planned false
+	// would also fire for state written before this attribute existed, where the plan is
+	// null -> false and no protection was ever in place to lose.
+	if priorPreventDeleteFlag.ValueBool() && !preventDeleteFlag.ValueBool() {
 		resp.Diagnostics.AddAttributeWarning(
 			path.Root("prevent_delete"),
 			"disabling domain deletion protection endangers domain registration.",
@@ -212,6 +224,8 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	// ValueBool() reports false for a null or unknown value, which matches the schema
+	// default, so state written before this attribute existed destroys as it always did.
 	if data.PreventDelete.ValueBool() {
 		resp.Diagnostics.AddError(
 			"failed to delete DNSimple Domain",
@@ -219,7 +233,7 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		)
 		resp.Diagnostics.AddWarning(
 			"domain registration is lost when deleting domain resources.",
-			fmt.Sprintf("Disabling deletion protection and destroying this resource will DELETE YOUR DOMAIN REGISTRATION with DNSimple for the domain %s.", data.Name),
+			fmt.Sprintf("Disabling deletion protection and destroying this resource will DELETE YOUR DOMAIN REGISTRATION with DNSimple for the domain %s. Note this also blocks the destroy half of a replacement, so changing 'name' fails until protection is disabled.", data.Name.ValueString()),
 		)
 		return
 	}
@@ -248,10 +262,18 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), types.BoolValue(true))...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), types.BoolValue(false))...)
 }
 
 func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
+	// prevent_delete is stored only in state and has no API counterpart, so state
+	// written before it existed carries no value for it. Settle it to the schema default
+	// on refresh, otherwise every previously managed domain shows a null -> false diff
+	// on the first plan after upgrading.
+	if data.PreventDelete.IsNull() || data.PreventDelete.IsUnknown() {
+		data.PreventDelete = types.BoolValue(false)
+	}
+
 	data.Id = types.Int64Value(domain.ID)
 	data.Name = types.StringValue(domain.Name)
 	data.AccountId = types.Int64Value(domain.AccountID)

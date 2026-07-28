@@ -19,7 +19,7 @@ resource "dnsimple_domain" "example" {
 The following arguments are supported:
 
 - `name` - (Required) The domain name to be created.
-- `prevent_delete` - Flag to prevent [accidental registration deletion of the domain](https://support.dnsimple.com/articles/recovering-deleted-domain/) (default `true`).
+- `prevent_delete` - Optional flag to guard against [accidental registration deletion of the domain](https://support.dnsimple.com/articles/recovering-deleted-domain/) (default `false`). Set it to `true` and `terraform destroy` will fail for this resource. Because changing `name` requires replacement, and replacement destroys the existing domain, renaming also fails while it is enabled — set it back to `false` and apply first.
 
 ## Attributes Reference
 

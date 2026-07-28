@@ -28,6 +28,9 @@ func TestAccDomainResource(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", domainName),
 					resource.TestCheckResourceAttr(resourceName, "state", "hosted"),
 					resource.TestCheckResourceAttr(resourceName, "trustee", "false"),
+					// Deletion protection is opt-in, so the resource destroys like any
+					// other Terraform resource unless it is explicitly enabled.
+					resource.TestCheckResourceAttr(resourceName, "prevent_delete", "false"),
 				),
 			},
 			{
@@ -36,7 +39,24 @@ func TestAccDomainResource(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			// Update is a no-op
+			{
+				// Opting in is persisted.
+				Config: testAccDomainResourceConfigPreventDelete(domainName, true),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "prevent_delete", "true"),
+				),
+			},
+			{
+				// Opting back out again. This has to be the closing step: while
+				// protection is enabled, the destroy that ends the test case fails with
+				// "Domain deletion protection enabled."
+				Config: testAccDomainResourceConfigPreventDelete(domainName, false),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "prevent_delete", "false"),
+				),
+			},
 			// Delete testing automatically occurs in TestCase
 		},
 	})
@@ -78,4 +98,12 @@ func testAccDomainResourceConfig(domainName string) string {
 resource "dnsimple_domain" "test" {
 	name = %[1]q
 }`, domainName)
+}
+
+func testAccDomainResourceConfigPreventDelete(domainName string, preventDelete bool) string {
+	return fmt.Sprintf(`
+resource "dnsimple_domain" "test" {
+	name           = %[1]q
+	prevent_delete = %[2]t
+}`, domainName, preventDelete)
 }
