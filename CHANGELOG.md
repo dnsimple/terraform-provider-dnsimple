@@ -6,6 +6,11 @@ FEATURES:
 
 - resource/`dnsimple_registered_domain`, resource/`dnsimple_domain_delegation`: Registrar calls rejected because a domain has lapsed past the registry grace period now report a warning during refresh instead of failing the whole plan. Terraform state is left as-is rather than dropping the resource, which would otherwise leave a lapsed `dnsimple_registered_domain` to be planned as a new, billable registration (#367)
 
+BUG FIXES:
+
+- resource/`dnsimple_registered_domain`: Fix repeated `contact_id` updates failing after the first registrant change completed (#325)
+- resource/`dnsimple_registered_domain`: Pass the registrant change ID rather than the domain ID when re-reading a pending registrant change
+
 ## 2.1.2 - 2026-05-12
 
 BUG FIXES:

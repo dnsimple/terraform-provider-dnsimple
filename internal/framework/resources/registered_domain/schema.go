@@ -180,9 +180,6 @@ func (r *RegisteredDomainResource) Schema(_ context.Context, _ resource.SchemaRe
 						Computed:            true,
 					},
 				},
-				PlanModifiers: []planmodifier.Object{
-					objectplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"timeouts": schema.SingleNestedAttribute{
 				MarkdownDescription: "Timeouts for operations, given as a parsable string as in `10m` or `30s`.",

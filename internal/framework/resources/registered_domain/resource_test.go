@@ -147,7 +147,9 @@ func TestAccRegisteredDomainResource_RegistrantChange_WithExtendedAttrs(t *testi
 func TestAccRegisteredDomainResource_RepeatedRegistrantChange(t *testing.T) {
 	domainName := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_DOMAIN")
 	contactID := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID")
-	contactID2 := os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2")
+	// Any second contact distinct from the first works here; reuse the one the other
+	// registered domain tests already rely on rather than requiring another variable.
+	contactID2 := os.Getenv("DNSIMPLE_CONTACT_ID")
 	resourceName := "dnsimple_registered_domain.test"
 
 	resource.Test(t, resource.TestCase{
@@ -172,7 +174,6 @@ func TestAccRegisteredDomainResource_RepeatedRegistrantChange(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.id"),
 					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", contactID),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 			{
 				// Second contact_id change - previously failed with:
@@ -183,7 +184,6 @@ func TestAccRegisteredDomainResource_RepeatedRegistrantChange(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "registrant_change.id"),
 					resource.TestCheckResourceAttr(resourceName, "registrant_change.contact_id", contactID2),
 				),
-				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
@@ -333,8 +333,13 @@ func testAccPreCheckRegistrantChange(t *testing.T) {
 
 func testAccPreCheckRepeatedRegistrantChange(t *testing.T) {
 	testAccPreCheckRegistrantChange(t)
-	if os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2") == "" {
-		t.Fatal("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2 must be set for acceptance tests")
+	if os.Getenv("DNSIMPLE_CONTACT_ID") == "" {
+		t.Fatal("DNSIMPLE_CONTACT_ID must be set for acceptance tests")
+	}
+	// Both steps must be real registrant changes. If the two contacts match, the second
+	// step is a silent no-op and the test passes without exercising anything.
+	if os.Getenv("DNSIMPLE_CONTACT_ID") == os.Getenv("DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID") {
+		t.Fatal("DNSIMPLE_CONTACT_ID and DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID must differ for acceptance tests")
 	}
 }
 
