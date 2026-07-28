@@ -422,11 +422,15 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 				return
 			}
 
-			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(data.Id.ValueInt64()))
+			// This takes the registrant change ID, not the domain ID. Passing
+			// data.Id here read an unrelated registrant change that happened to
+			// share the domain's numeric ID, or failed outright.
+			registrantChangeId := registrantChangeResponse.Data.Id
+			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, registrantChangeId)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"failed to read DNSimple Registrant Change",
-					fmt.Sprintf("Unable to read registrant change for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
+					fmt.Sprintf("Unable to read registrant change with ID %d for domain '%s': %s", registrantChangeId, data.Name.ValueString(), err.Error()),
 				)
 				return
 			}
