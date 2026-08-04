@@ -10,6 +10,7 @@ BUG FIXES:
 
 - resource/`dnsimple_registered_domain`: Fix repeated `contact_id` updates failing after the first registrant change completed (#325)
 - resource/`dnsimple_registered_domain`: Pass the registrant change ID rather than the domain ID when re-reading a pending registrant change
+- resource/`dnsimple_contact`: Populate `phone` and `fax` from the API on refresh when state has no value for them, avoiding a spurious update immediately after import (#326)
 
 ## 2.1.2 - 2026-05-12
 

@@ -227,6 +227,7 @@ func (r *ContactResource) Read(ctx context.Context, req resource.ReadRequest, re
 	}
 
 	r.updateModelFromAPIResponse(response.Data, data)
+	r.backfillPhoneAndFaxFromAPIResponse(response.Data, data)
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -341,4 +342,25 @@ func (r *ContactResource) updateModelFromAPIResponse(contact *dnsimple.Contact, 
 	data.Email = types.StringValue(contact.Email)
 	data.CreatedAt = types.StringValue(contact.CreatedAt)
 	data.UpdatedAt = types.StringValue(contact.UpdatedAt)
+}
+
+// backfillPhoneAndFaxFromAPIResponse fills the configurable phone and fax fields from
+// the API response when state carries no value for them, which is the case after an
+// import. Without this the fields stay empty and provoke a spurious update on the next
+// plan. It is only safe during refresh: phone is Required and fax is Optional+Computed
+// with an empty-string default, so overwriting either during create or update would
+// diverge from the planned value and trip Terraform's inconsistent-result check.
+//
+// Only null/unknown is backfilled, deliberately not empty string. After an import the
+// fields are null, so that covers the case this exists for. Treating "" as missing would
+// also pull a fax set outside Terraform into state on every refresh of a contact whose
+// config omits fax, since the schema defaults that attribute to "".
+func (r *ContactResource) backfillPhoneAndFaxFromAPIResponse(contact *dnsimple.Contact, data *ContactResourceModel) {
+	if data.Phone.IsNull() || data.Phone.IsUnknown() {
+		data.Phone = types.StringValue(contact.Phone)
+	}
+
+	if data.Fax.IsNull() || data.Fax.IsUnknown() {
+		data.Fax = types.StringValue(contact.Fax)
+	}
 }
