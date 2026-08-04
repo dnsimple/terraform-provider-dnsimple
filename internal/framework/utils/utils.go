@@ -100,6 +100,17 @@ func AttributeErrorsToDiagnostics(err *dnsimple.ErrorResponse) diag.Diagnostics 
 // past its renewal/redemption grace period). The DNSimple API surfaces this
 // as an HTTP 400 rather than a 404, so it cannot be treated as a generic
 // not-found response.
+//
+// The message match was taken from a real response. Requesting the delegation of
+// a lapsed domain returns:
+//
+//	HTTP/1.1 400 Bad Request
+//	{"message":"Change rejected: domain is not registered or expired"}
+//
+// Matching on message text is unavoidable here, since the status code alone does
+// not distinguish this from any other rejected request. If the wording changes,
+// this returns false and callers fall back to reporting a hard error, so the
+// failure mode is a worse message rather than a wrong action.
 func IsDomainNotRegisteredOrExpiredError(err error) bool {
 	var errorResponse *dnsimple.ErrorResponse
 	if !errors.As(err, &errorResponse) {

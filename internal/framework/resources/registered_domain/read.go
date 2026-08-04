@@ -12,6 +12,24 @@ import (
 	"github.com/terraform-providers/terraform-provider-dnsimple/internal/framework/utils"
 )
 
+// warnDomainNoLongerRegistered reports that a registrar call was rejected because the
+// domain has lapsed, without failing the refresh. Callers return immediately afterwards,
+// which leaves prior state untouched.
+//
+// A lapsed domain must not fail the whole plan, which is the point of this handling. It
+// must not silently drop the resource from state either: Terraform plans a fresh create
+// for anything still in the configuration, and creating this resource re-registers the
+// domain, which is billable and would run unattended under `apply -auto-approve`.
+// Reporting and leaving state alone keeps the decision with the practitioner.
+func warnDomainNoLongerRegistered(ctx context.Context, domain string, resp *resource.ReadResponse) {
+	tflog.Warn(ctx, "registrar call rejected because the domain is no longer registered or has expired", map[string]interface{}{"domain": domain})
+
+	resp.Diagnostics.AddWarning(
+		fmt.Sprintf("could not refresh %s because it is no longer registered", domain),
+		fmt.Sprintf("The DNSimple API reports that '%s' is not registered or has expired, so its registrar details could not be refreshed. Terraform state has been left as-is rather than dropping the resource, which would have planned a new registration. Renew or restore the domain to resume managing it, or remove the resource from your configuration and state if you no longer want it managed. Any plan produced while the domain stays lapsed is unlikely to apply cleanly.", domain),
+	)
+}
+
 func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	var data *RegisteredDomainResourceModel
 
@@ -35,8 +53,7 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		domainRegistrationResponse, err = r.config.Client.Registrar.GetDomainRegistration(ctx, r.config.AccountID, data.Name.ValueString(), domainRegistrationId)
 		if err != nil {
 			if utils.IsDomainNotRegisteredOrExpiredError(err) {
-				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
-				resp.State.RemoveResource(ctx)
+				warnDomainNoLongerRegistered(ctx, data.Name.ValueString(), resp)
 				return
 			}
 
@@ -89,8 +106,7 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		dnssecResponse, err := r.config.Client.Domains.GetDnssec(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			if utils.IsDomainNotRegisteredOrExpiredError(err) {
-				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
-				resp.State.RemoveResource(ctx)
+				warnDomainNoLongerRegistered(ctx, data.Name.ValueString(), resp)
 				return
 			}
 
@@ -105,8 +121,7 @@ func (r *RegisteredDomainResource) Read(ctx context.Context, req resource.ReadRe
 		transferLockResponse, err := r.config.Client.Registrar.GetDomainTransferLock(ctx, r.config.AccountID, data.Name.ValueString())
 		if err != nil {
 			if utils.IsDomainNotRegisteredOrExpiredError(err) {
-				tflog.Warn(ctx, "removing registered domain from state because the domain is no longer registered or has expired", map[string]interface{}{"domain": data.Name.ValueString()})
-				resp.State.RemoveResource(ctx)
+				warnDomainNoLongerRegistered(ctx, data.Name.ValueString(), resp)
 				return
 			}
 
