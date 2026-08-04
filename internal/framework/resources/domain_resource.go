@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -35,15 +36,16 @@ type DomainResource struct {
 
 // DomainResourceModel describes the resource data model.
 type DomainResourceModel struct {
-	Name         types.String `tfsdk:"name"`
-	AccountId    types.Int64  `tfsdk:"account_id"`
-	RegistrantId types.Int64  `tfsdk:"registrant_id"`
-	UnicodeName  types.String `tfsdk:"unicode_name"`
-	State        types.String `tfsdk:"state"`
-	AutoRenew    types.Bool   `tfsdk:"auto_renew"`
-	PrivateWhois types.Bool   `tfsdk:"private_whois"`
-	Trustee      types.Bool   `tfsdk:"trustee"`
-	Id           types.Int64  `tfsdk:"id"`
+	Name          types.String `tfsdk:"name"`
+	PreventDelete types.Bool   `tfsdk:"prevent_delete"`
+	AccountId     types.Int64  `tfsdk:"account_id"`
+	RegistrantId  types.Int64  `tfsdk:"registrant_id"`
+	UnicodeName   types.String `tfsdk:"unicode_name"`
+	State         types.String `tfsdk:"state"`
+	AutoRenew     types.Bool   `tfsdk:"auto_renew"`
+	PrivateWhois  types.Bool   `tfsdk:"private_whois"`
+	Trustee       types.Bool   `tfsdk:"trustee"`
+	Id            types.Int64  `tfsdk:"id"`
 }
 
 func (r *DomainResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -60,6 +62,18 @@ func (r *DomainResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+			},
+			/*
+			 * Deleting a domain removes its registration, which is not recoverable in
+			 * the usual sense. This flag lets practitioners opt into a guard against
+			 * that. It defaults to false so the resource destroys like any other
+			 * Terraform resource unless protection is asked for explicitly.
+			 */
+			"prevent_delete": schema.BoolAttribute{
+				MarkdownDescription: "Whether to block `terraform destroy` from deleting the domain registration. Defaults to `false`. When set to `true`, destroying this resource fails until it is set back to `false` and applied.",
+				Optional:            true,
+				Default:             booldefault.StaticBool(false),
+				Computed:            true,
 			},
 			"account_id": schema.Int64Attribute{
 				Computed: true,
@@ -168,7 +182,36 @@ func (r *DomainResource) Read(ctx context.Context, req resource.ReadRequest, res
 }
 
 func (r *DomainResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	// No-op
+	var preventDeleteFlag types.Bool
+
+	/*
+	 * Save updated data into Terraform state.
+	 *
+	 * Since the single argument that can be updated is `prevent_delete` and that
+	 * value is only meant to be stored in the state and acted on when a domain might
+	 * be deleted, we only need to ensure it is stored when changed.
+	 */
+	var priorPreventDeleteFlag types.Bool
+
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("prevent_delete"), &preventDeleteFlag)...)
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("prevent_delete"), &priorPreventDeleteFlag)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Only warn on an actual true -> false transition. Warning on any planned false
+	// would also fire for state written before this attribute existed, where the plan is
+	// null -> false and no protection was ever in place to lose.
+	if priorPreventDeleteFlag.ValueBool() && !preventDeleteFlag.ValueBool() {
+		resp.Diagnostics.AddAttributeWarning(
+			path.Root("prevent_delete"),
+			"disabling domain deletion protection endangers domain registration.",
+			"Domain registration is lost when deleting domain resources. Only disable deletion protection if you fully understand the consequences of doing so.",
+		)
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), preventDeleteFlag)...)
 }
 
 func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -178,6 +221,20 @@ func (r *DomainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// ValueBool() reports false for a null or unknown value, which matches the schema
+	// default, so state written before this attribute existed destroys as it always did.
+	if data.PreventDelete.ValueBool() {
+		resp.Diagnostics.AddError(
+			"failed to delete DNSimple Domain",
+			"Domain deletion protection enabled.",
+		)
+		resp.Diagnostics.AddWarning(
+			"domain registration is lost when deleting domain resources.",
+			fmt.Sprintf("Disabling deletion protection and destroying this resource will DELETE YOUR DOMAIN REGISTRATION with DNSimple for the domain %s. Note this also blocks the destroy half of a replacement, so changing 'name' fails until protection is disabled.", data.Name.ValueString()),
+		)
 		return
 	}
 
@@ -205,9 +262,18 @@ func (r *DomainResource) ImportState(ctx context.Context, req resource.ImportSta
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), response.Data.ID)...)
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), response.Data.Name)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("prevent_delete"), types.BoolValue(false))...)
 }
 
 func (r *DomainResource) updateModelFromAPIResponse(domain *dnsimple.Domain, data *DomainResourceModel) {
+	// prevent_delete is stored only in state and has no API counterpart, so state
+	// written before it existed carries no value for it. Settle it to the schema default
+	// on refresh, otherwise every previously managed domain shows a null -> false diff
+	// on the first plan after upgrading.
+	if data.PreventDelete.IsNull() || data.PreventDelete.IsUnknown() {
+		data.PreventDelete = types.BoolValue(false)
+	}
+
 	data.Id = types.Int64Value(domain.ID)
 	data.Name = types.StringValue(domain.Name)
 	data.AccountId = types.Int64Value(domain.AccountID)

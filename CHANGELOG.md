@@ -5,6 +5,7 @@
 FEATURES:
 
 - resource/`dnsimple_registered_domain`, resource/`dnsimple_domain_delegation`: Registrar calls rejected because a domain has lapsed past the registry grace period now report a warning during refresh instead of failing the whole plan. Terraform state is left as-is rather than dropping the resource, which would otherwise leave a lapsed `dnsimple_registered_domain` to be planned as a new, billable registration (#367)
+- resource/`dnsimple_domain`: Added an optional `prevent_delete` argument, defaulting to `false`. Set it to `true` to guard a domain against `terraform destroy` removing its registration. While enabled it also blocks the destroy half of a replacement, so changing `name` fails until it is set back to `false` and applied (#365)
 
 BUG FIXES:
 
