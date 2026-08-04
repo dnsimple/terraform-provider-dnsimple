@@ -353,7 +353,13 @@ func tryToConvergeRegistrantChange(ctx context.Context, data *RegisteredDomainRe
 	return RegistrantChangeConverged, nil
 }
 
-func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceModel, r *RegisteredDomainResource, resp *resource.UpdateResponse) {
+// createRegistrantChange creates a registrant change and waits for it to complete.
+// It reports false when the caller must stop the update: either the API rejected the
+// change, or it was created but has not converged yet. The convergence timeout is
+// reported as a warning rather than an error, so callers cannot detect it from the
+// diagnostics alone -- continuing past it would save contact_id as if the change had
+// already taken effect.
+func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceModel, r *RegisteredDomainResource, resp *resource.UpdateResponse) bool {
 	registrantChangeAttributes := dnsimple.CreateRegistrantChangeInput{
 		DomainId:  fmt.Sprintf("%d", data.Id.ValueInt64()),
 		ContactId: fmt.Sprintf("%d", data.ContactId.ValueInt64()),
@@ -364,7 +370,7 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 		diags := data.ExtendedAttributes.ElementsAs(ctx, &extendedAttrs, false)
 		resp.Diagnostics.Append(diags...)
 		if resp.Diagnostics.HasError() {
-			return
+			return false
 		}
 		registrantChangeAttributes.ExtendedAttributes = extendedAttrs
 	}
@@ -374,14 +380,14 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 		var errorResponse *dnsimple.ErrorResponse
 		if errors.As(err, &errorResponse) {
 			resp.Diagnostics.Append(utils.AttributeErrorsToDiagnostics(errorResponse)...)
-			return
+			return false
 		}
 
 		resp.Diagnostics.AddError(
 			"failed to create DNSimple Registrant Change",
 			err.Error(),
 		)
-		return
+		return false
 	}
 
 	if registrantChangeResponse.Data.State != consts.RegistrantChangeStateCompleted {
@@ -390,7 +396,7 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 				"failed to create DNSimple Registrant Change",
 				fmt.Sprintf("Registrant change creation failed with state '%s'", registrantChangeResponse.Data.State),
 			)
-			return
+			return false
 		}
 
 		// Registrant change has been created, but is not yet completed
@@ -398,7 +404,7 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 			convergenceState, err := tryToConvergeRegistrantChange(ctx, data, &resp.Diagnostics, r, registrantChangeResponse.Data.Id)
 			if convergenceState == RegistrantChangeFailed {
 				// Response is already populated with the error we can safely return
-				return
+				return false
 			}
 
 			if convergenceState == RegistrantChangeConvergenceTimeout {
@@ -419,16 +425,20 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 					"failed to converge on registrant change",
 					err.Error(),
 				)
-				return
+				return false
 			}
 
-			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(data.Id.ValueInt64()))
+			// This takes the registrant change ID, not the domain ID. Passing
+			// data.Id here read an unrelated registrant change that happened to
+			// share the domain's numeric ID, or failed outright.
+			registrantChangeId := registrantChangeResponse.Data.Id
+			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, registrantChangeId)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"failed to read DNSimple Registrant Change",
-					fmt.Sprintf("Unable to read registrant change for domain '%s' (ID: %d): %s", data.Name.ValueString(), data.Id.ValueInt64(), err.Error()),
+					fmt.Sprintf("Unable to read registrant change with ID %d for domain '%s': %s", registrantChangeId, data.Name.ValueString(), err.Error()),
 				)
-				return
+				return false
 			}
 		}
 	}
@@ -439,4 +449,6 @@ func createRegistrantChange(ctx context.Context, data *RegisteredDomainResourceM
 
 	// Update the data with the current registrant change
 	data.RegistrantChange = registrantChangeObject
+
+	return true
 }

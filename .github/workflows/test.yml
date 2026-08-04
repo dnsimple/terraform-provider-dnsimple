@@ -70,14 +70,17 @@ jobs:
             domain: "dnsimple-3-0-terraform.bio"
             registrant_contact_id: 14323
             registrant_change_domain: "dnsimple-tf-ci-1.eu"
+            registrant_contact_id_2: 15562
           - terraform: "1.13.*"
             domain: "dnsimple-3-1-terraform.bio"
             registrant_contact_id: 14323
             registrant_change_domain: "dnsimple-tf-ci-2.eu"
+            registrant_contact_id_2: 15561
           - terraform: "1.14.*"
             domain: "dnsimple-3-2-terraform.bio"
             registrant_contact_id: 14323
             registrant_change_domain: "dnsimple-tf-ci-3.eu"
+            registrant_contact_id_2: 15560
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-go@v7.0.0
@@ -98,6 +101,7 @@ jobs:
           DNSIMPLE_CONTACT_ID: ${{ secrets.DNSIMPLE_CONTACT_ID }}
           DNSIMPLE_REGISTRANT_CHANGE_DOMAIN: ${{ matrix.registrant_change_domain }}
           DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID: ${{ matrix.registrant_contact_id }}
+          DNSIMPLE_REGISTRANT_CHANGE_CONTACT_ID_2: ${{ matrix.registrant_contact_id_2 }}
         run: go test -v ./internal/... -timeout 10m
         timeout-minutes: 10
 

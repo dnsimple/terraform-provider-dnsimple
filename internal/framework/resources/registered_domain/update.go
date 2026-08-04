@@ -117,7 +117,21 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 
 	var registrantChangeResponse *dnsimple.RegistrantChangeResponse
 	if planData.ContactId.ValueInt64() != stateData.ContactId.ValueInt64() {
-		if !registrantChange.Id.IsNull() {
+		// The change recorded in state may already be moving the domain to the contact we
+		// are planning for. That is what the convergence timeout below leaves behind: it
+		// writes back only registrant_change, and because the framework seeds the update
+		// response from prior state, contact_id keeps its old value and the next plan
+		// asks for the same move again. Creating another change would duplicate one the
+		// domain has already been given.
+		//
+		// The change's own state is deliberately not part of this test. contact_id is
+		// never refreshed from the API, so a refresh between applies marks the recorded
+		// change completed while contact_id stays stale — which is precisely the case
+		// that must not create a second change.
+		alreadyTargetsPlannedContact := !registrantChange.Id.IsNull() &&
+			registrantChange.ContactId.ValueInt64() == planData.ContactId.ValueInt64()
+
+		if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 			convergenceState, _ := tryToConvergeRegistrantChange(ctx, planData, &resp.Diagnostics, r, int(registrantChange.Id.ValueInt64()))
 			if convergenceState == RegistrantChangeFailed {
 				// Response is already populated with the error we can safely return
@@ -155,10 +169,38 @@ func (r *RegisteredDomainResource) Update(ctx context.Context, req resource.Upda
 				)
 				return
 			}
+		}
+		if alreadyTargetsPlannedContact {
+			// The recorded change already targets the planned contact, so adopt it
+			// instead of creating a second one for the same move. Saving planData below
+			// also settles contact_id, so the next plan is empty rather than asking for
+			// the same move again.
+			registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"failed to read DNSimple Registrant Change",
+					fmt.Sprintf("Unable to read registrant change with ID %d: %s", registrantChange.Id.ValueInt64(), err.Error()),
+				)
+				return
+			}
 
+			registrantChangeObject, diags := r.registrantChangeAPIResponseToObject(ctx, registrantChangeResponse.Data)
+			if diags.HasError() {
+				resp.Diagnostics.Append(diags...)
+				return
+			}
+			planData.RegistrantChange = registrantChangeObject
 		} else {
-			// Create a new registrant change and handle any errors
-			createRegistrantChange(ctx, planData, r, resp)
+			// A converged or absent pending change means this is a genuinely new move.
+			//
+			// Stop unless the change actually completed. A rejected change would
+			// otherwise let the update carry on mutating auto-renewal, WHOIS privacy,
+			// DNSSEC and the transfer lock, and a change still converging would be saved
+			// with contact_id set as though it had already taken effect. The convergence
+			// timeout is only a warning, so the diagnostics alone cannot detect it.
+			if !createRegistrantChange(ctx, planData, r, resp) {
+				return
+			}
 		}
 	} else if !registrantChange.Id.IsNull() && registrantChange.State.ValueString() != consts.RegistrantChangeStateCompleted {
 		registrantChangeResponse, err = r.config.Client.Registrar.GetRegistrantChange(ctx, r.config.AccountID, int(registrantChange.Id.ValueInt64()))
