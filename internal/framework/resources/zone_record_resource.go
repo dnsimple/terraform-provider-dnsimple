@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/dnsimple/dnsimple-go/v9/dnsimple"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -25,9 +26,11 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource                = &ZoneRecordResource{}
-	_ resource.ResourceWithConfigure   = &ZoneRecordResource{}
-	_ resource.ResourceWithImportState = &ZoneRecordResource{}
+	_ resource.Resource                   = &ZoneRecordResource{}
+	_ resource.ResourceWithConfigure      = &ZoneRecordResource{}
+	_ resource.ResourceWithImportState    = &ZoneRecordResource{}
+	_ resource.ResourceWithValidateConfig = &ZoneRecordResource{}
+	_ resource.ResourceWithModifyPlan     = &ZoneRecordResource{}
 )
 
 func NewZoneRecordResource() resource.Resource {
@@ -57,6 +60,90 @@ type ZoneRecordResourceModel struct {
 
 func (r *ZoneRecordResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_zone_record"
+}
+
+// checkPriorityAgainstRecordType reports a diagnostic when a record carries a priority
+// its type cannot hold.
+//
+// The DNSimple API stores a priority for MX and SRV records. For every other type it
+// discards the submitted value and returns null, which the client decodes as 0. Left
+// unchecked, the apply reaches Terraform's consistency check with a planned priority the
+// API never accepted and fails with "Provider produced inconsistent result after apply",
+// which reads as a provider defect rather than a configuration mistake.
+//
+// A priority of 0 passes for every type. It already matches what the API reports back, so
+// it applies cleanly today and rejecting it would break working configurations without
+// fixing anything.
+//
+// The MX/SRV set is about the API's separate priority attribute, which is a legacy of
+// splitting priority out of the record content. Newer priority-bearing types such as SVCB
+// and HTTPS carry their priority inside the content instead, so they do not belong here
+// and are correctly rejected. Revisit this set only if the API starts populating the
+// priority attribute for a further type; see dnsimple/terraform-provider-dnsimple#360.
+//
+// Either value may still be unknown when this runs, in which case there is nothing to
+// compare and the caller closer to apply performs the check instead.
+func checkPriorityAgainstRecordType(recordType types.String, priority types.Int64) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	if priority.IsNull() || priority.IsUnknown() || recordType.IsNull() || recordType.IsUnknown() {
+		return diags
+	}
+
+	if priority.ValueInt64() == 0 {
+		return diags
+	}
+
+	switch strings.ToUpper(recordType.ValueString()) {
+	case "MX", "SRV":
+		return diags
+	}
+
+	diags.AddAttributeError(
+		path.Root("priority"),
+		"priority is not supported for this record type",
+		fmt.Sprintf(
+			"DNSimple only stores a priority for MX and SRV records, and discards it for %s records. Remove the priority attribute from this resource.",
+			recordType.ValueString(),
+		),
+	)
+
+	return diags
+}
+
+// ValidateConfig catches the common case, where both values are written literally, and
+// reports it before any plan is produced.
+func (r *ZoneRecordResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data ZoneRecordResourceModel
+
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(checkPriorityAgainstRecordType(data.Type, data.Priority)...)
+}
+
+// ModifyPlan catches values that were unknown during configuration validation.
+//
+// That covers references to resources that already exist, which resolve by planning time,
+// and also references to resources created in the same run: Terraform plans each resource
+// again during apply once its dependencies have resolved, so the real value reaches this
+// hook before the API is called. Create and Update therefore need no separate guard.
+func (r *ZoneRecordResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	// A destroy plan has no planned values to check.
+	if req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var data ZoneRecordResourceModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(checkPriorityAgainstRecordType(data.Type, data.Priority)...)
 }
 
 func (r *ZoneRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {

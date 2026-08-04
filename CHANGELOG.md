@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+BUG FIXES:
+
+- resource/`dnsimple_zone_record`: Reject a non-zero `priority` on record types that do not carry one, rather than failing the apply with "Provider produced inconsistent result after apply". DNSimple stores a priority for MX and SRV records only (#360)
+
 ## 2.2.0 - 2026-08-04
 
 Thanks to the following people for contributing to this release: Santiago Traversa (#367), A. R. Younce (#365), Oleksii Shokariev (#325, #326) and Maksim Ryzhukhin (#325), and to @alexhuk3 for submitting #325 and #326.
