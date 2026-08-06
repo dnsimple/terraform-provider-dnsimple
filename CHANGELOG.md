@@ -5,6 +5,7 @@
 BUG FIXES:
 
 - resource/`dnsimple_zone_record`: Reject a non-zero `priority` on record types that do not carry one, rather than failing the apply with "Provider produced inconsistent result after apply". DNSimple stores a priority for MX and SRV records only (#360)
+- resource/`dnsimple_registered_domain`: Retry a transient registrar-connection failure during refresh, with backoff and a 30 second budget per domain, instead of aborting the whole plan. Every other error still fails immediately (#368)
 
 ## 2.2.0 - 2026-08-04
 
