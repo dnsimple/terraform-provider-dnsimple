@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"testing"
 
@@ -91,6 +92,126 @@ func TestAccZoneRecordResourceWithPriority(t *testing.T) {
 			// Delete testing automatically occurs in TestCase
 		},
 	})
+}
+
+// The DNSimple API discards priority for record types that do not carry one and returns
+// null, which decodes as 0. Applying such a config used to fail Terraform's consistency
+// check with "Provider produced inconsistent result after apply", which reads as a
+// provider defect. Configuration is now rejected during validation instead.
+func TestAccZoneRecordResourcePriorityRejectedOnUnsupportedType(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccZoneRecordResourcePriorityConfigForType(domainName, "prio-unsupported", "A", "1.2.3.4", 10),
+				ExpectError: regexp.MustCompile(`priority is not supported for this record type`),
+			},
+		},
+	})
+}
+
+// A zero priority reports back unchanged for every type, so it applies cleanly and must
+// keep doing so.
+func TestAccZoneRecordResourceZeroPriorityOnUnsupportedType(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourcePriorityConfigForType(domainName, "prio-zero", "A", "1.2.3.4", 0),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "type", "A"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "0"),
+				),
+			},
+		},
+	})
+}
+
+// SRV is the other type the API stores a priority for, so it must still apply.
+func TestAccZoneRecordResourcePriorityOnSRV(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+	resourceName := "dnsimple_zone_record.test"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccZoneRecordResourcePriorityConfigForType(domainName, "_sip._tcp.prio-srv", "SRV", "5 5060 sip.example.com", 10),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "type", "SRV"),
+					resource.TestCheckResourceAttr(resourceName, "priority", "10"),
+				),
+			},
+		},
+	})
+}
+
+// A priority interpolated from an attribute that is only computed during apply is unknown
+// when the configuration is validated and when the run is first planned. Terraform plans
+// each resource again during apply, once its dependencies have resolved, so ModifyPlan
+// still sees the real value and reports it there. The error surfaces during apply rather
+// than at plan, but it replaces the inconsistent-result failure this change exists to
+// prevent.
+func TestAccZoneRecordResourcePriorityUnknownUntilApply(t *testing.T) {
+	domainName := os.Getenv("DNSIMPLE_DOMAIN")
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test_utils.TestAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckZoneRecordResourceDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccZoneRecordResourcePriorityUnknownConfig(domainName),
+				ExpectError: regexp.MustCompile(`priority is not supported for this record type`),
+			},
+		},
+	})
+}
+
+func testAccZoneRecordResourcePriorityUnknownConfig(domainName string) string {
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "source" {
+	zone_name = %[1]q
+
+	name = "prio-source"
+	value = "mail.example.com"
+	type = "MX"
+	ttl = 3600
+	priority = 10
+}
+
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = "prio-unknown"
+	value = "1.2.3.4"
+	type = "A"
+	ttl = 3600
+	priority = dnsimple_zone_record.source.id
+}`, domainName)
+}
+
+func testAccZoneRecordResourcePriorityConfigForType(domainName, name, recordType, value string, priority int) string {
+	return fmt.Sprintf(`
+resource "dnsimple_zone_record" "test" {
+	zone_name = %[1]q
+
+	name = %[2]q
+	value = %[4]q
+	type = %[3]q
+	ttl = 3600
+	priority = %[5]d
+}`, domainName, name, recordType, value, priority)
 }
 
 func TestAccZoneRecordResourceWithTXT(t *testing.T) {

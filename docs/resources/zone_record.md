@@ -47,7 +47,7 @@ The following arguments are supported:
 - `value` - (Required) The value of the record.
 - `type` - (Required) The type of the record (e.g., `A`, `AAAA`, `CNAME`, `MX`, `TXT`). **The record type must be specified in UPPERCASE.**
 - `ttl` - (Optional) The TTL of the record. Defaults to `3600`.
-- `priority` - (Optional) The priority of the record. Only used for certain record types (e.g., `MX`, `SRV`).
+- `priority` - (Optional) The priority of the record. DNSimple stores a priority for `MX` and `SRV` records only, and discards it for every other type. Setting a non-zero priority on any other record type is rejected during validation.
 - `regions` - (Optional) A list of regions to serve the record from. You can find a list of supported values in our [developer documentation](https://developer.dnsimple.com/v2/zones/records/).
 
 
