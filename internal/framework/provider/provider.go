@@ -268,6 +268,7 @@ func (p *DnsimpleProvider) Resources(ctx context.Context) []func() resource.Reso
 func (p *DnsimpleProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		datasources.NewCertificateDataSource,
+		datasources.NewDsRecordsDataSource,
 		datasources.NewRegistrantChangeCheckDataSource,
 		datasources.NewZoneDataSource,
 	}
