@@ -1,5 +1,11 @@
 # Changelog
 
+## main
+
+FEATURES:
+
+- datasource/`dnsimple_ds_records`: New data source that lists the delegation signer (DS) records of a domain, so the DS records of a DNSSEC zone hosted at DNSimple can be copied to an external registrar without hardcoding them
+
 ## 2.2.1 - 2026-09-11
 
 BUG FIXES:
